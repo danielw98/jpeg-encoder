@@ -29,3 +29,4 @@ build_and_run_tests.bat
 # Ignore .vscode folder, TODO add it but without absolute paths
 .vscode
 
+.github

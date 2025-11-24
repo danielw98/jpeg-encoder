@@ -435,6 +435,55 @@ bool test_quant_zero_block()
 }
 
 // ------------------------------------------------------------
+// Quantization tests
+// ------------------------------------------------------------
+
+
+bool test_zigzag_identity()
+{
+    jpegdsp::core::Block<std::int16_t, 8> block{};
+    for (std::size_t i = 0; i < 64; i++)
+    {
+        block.data[i] = static_cast<std::int16_t>(i);
+    }
+
+    auto zz = jpegdsp::jpeg::ZigZag::toZigZag(block);
+    auto restored = jpegdsp::jpeg::ZigZag::fromZigZag(zz);
+
+    for (std::size_t i = 0; i < 64; i++)
+    {
+        if (restored.data[i] != block.data[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool test_zigzag_known_pattern()
+{
+    jpegdsp::core::Block<std::int16_t, 8> block{};
+    block.at(0,0) = 100;
+    block.at(7,7) = 55;
+
+    auto zz = jpegdsp::jpeg::ZigZag::toZigZag(block);
+
+    // Index 0 should be (0,0)
+    if (zz[0] != 100)
+    {
+        return false;
+    }
+
+    // The last zigzag element (index 63) is (7,7)
+    if (zz[63] != 55)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+// ------------------------------------------------------------
 // Main test runner
 // ------------------------------------------------------------
 
@@ -452,6 +501,8 @@ int main()
     runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,          total, failed);
     runTest("quant_identity_all_ones",    &test_quant_identity_all_ones,        total, failed);
     runTest("quant_zero_block",           &test_quant_zero_block,               total, failed);
+    runTest("zigzag_identity", &test_zigzag_identity, total, failed);
+    runTest("zigzag_known_pattern", &test_zigzag_known_pattern, total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";
