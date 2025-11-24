@@ -6,7 +6,7 @@ using small focused tests that prevent regressions and ensure correctness.
 
 The project currently uses:
 - A custom lightweight test harness (no external frameworks)
-- One executable per test category (`test_dct`, `test_entropy`, `test_jpeg_encoder`, etc.)
+- One executable per test category (`test_core_codec`, `test_entropy`, `test_jpeg_encoder`, etc.)
 - PASS / FAIL terminal output
 - Exit codes compatible with CTest
 
@@ -58,7 +58,7 @@ This section lists all tests currently implemented and passing.
 
 ## 2.1 BlockExtractor Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::core::BlockExtractor`
 
 | Test name                     | Purpose                                                              |
@@ -70,7 +70,7 @@ This section lists all tests currently implemented and passing.
 
 ## 2.2 Entropy Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::core::Entropy`
 
 | Test name                             | Purpose                                  |
@@ -82,7 +82,7 @@ This section lists all tests currently implemented and passing.
 
 ## 2.3 Color Space Conversion Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::core::ColorConverter`
 
 | Test name                         | Purpose                                                    |
@@ -93,7 +93,7 @@ This section lists all tests currently implemented and passing.
 
 ## 2.4 DCT Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::transforms::DCT8x8Transform`
 
 | Test name                    | Purpose                                                           |
@@ -105,7 +105,7 @@ This section lists all tests currently implemented and passing.
 
 ## 2.5 Quantization Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::jpeg::Quantizer`
 
 | Test name                  | Purpose                                                   |
@@ -117,9 +117,9 @@ These tests confirm that **QuantTable**, scaling logic, rounding, and integer pa
 
 ---
 
-## 2.6 ZigZag Tests (NEW)
+## 2.6 ZigZag Tests
 
-**Location:** `tests/unit/test_dct.cpp`  
+**Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::jpeg::ZigZag`
 
 | Test name                  | Purpose                                                   |
@@ -131,12 +131,23 @@ These tests verify the standard JPEG zig-zag ordering (ITU-T81 Annex K.1) for se
 
 ---
 
-# 3. Planned Tests (Upcoming)  
+## 2.7 RLE Tests
 
-## RLE Tests
-- All-zero AC sequence  
-- Mixed run lengths  
-- End-of-block behavior  
+**Location:** `tests/unit/test_core_codec.cpp`  
+**Module:** `jpegdsp::jpeg::RLE`
+
+| Test name                  | Purpose                                                   |
+|---------------------------|-----------------------------------------------------------|
+| `rle_all_zeroes`          | All-zero AC coefficients produce single EOB symbol.      |
+| `rle_simple`              | Non-zero coefficients with short zero runs encode correctly. |
+| `rle_zrl`                 | Runs of 16+ zeros generate ZRL (Zero Run Length) symbols. |
+| `rle_trailing_zeroes`     | Trailing zeros after last non-zero emit EOB marker.      |
+
+These tests verify JPEG-compliant AC coefficient run-length encoding.
+
+---
+
+# 3. Planned Tests (Upcoming)  
 
 ## Huffman Tests
 - Table generation  
@@ -167,7 +178,7 @@ ctest --test-dir build -C Debug -V
 Or run a single test binary:
 
 ```
-./build/tests/Debug/test_dct.exe
+./build/tests/Debug/test_core_codec.exe
 ```
 
 ---
@@ -175,8 +186,6 @@ Or run a single test binary:
 # 5. Notes
 
 As modules mature, tests for:
-- ZigZag  
-- RLE  
 - Huffman  
 - JPEGWriter  
 - JPEGEncoder (end-to-end)

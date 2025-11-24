@@ -6,6 +6,7 @@
 #include "jpegdsp/transforms/DCTTransform.hpp"
 #include "jpegdsp/jpeg/Quantization.hpp"
 #include "jpegdsp/jpeg/ZigZag.hpp"
+#include "jpegdsp/jpeg/RLE.hpp"
 
 #include <iostream>
 #include <vector>
@@ -435,7 +436,7 @@ bool test_quant_zero_block()
 }
 
 // ------------------------------------------------------------
-// Quantization tests
+// ZigZag tests
 // ------------------------------------------------------------
 
 
@@ -484,6 +485,90 @@ bool test_zigzag_known_pattern()
 }
 
 // ------------------------------------------------------------
+// RLE tests
+// ------------------------------------------------------------
+
+bool test_rle_all_zeroes()
+{
+    std::array<std::int16_t, jpegdsp::core::BlockElementCount> zz{};
+    auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
+
+    if (out.size() != 1) return false;
+    return (out[0].run == jpegdsp::jpeg::EOB && out[0].value == 0);
+}
+
+bool test_rle_simple()
+{
+    std::array<std::int16_t, jpegdsp::core::BlockElementCount> zz{};
+    zz[1] = 5;   // No leading zeros
+    zz[5] = 3;   // Three zeros then 3 (at indices 2,3,4)
+
+    auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
+
+    if (out.size() != 2) {
+        std::cerr << "test_rle_simple: expected size=2, got " << out.size() << "\n";
+        return false;
+    }
+    if (out[0].run != 0 || out[0].value != 5) {
+        std::cerr << "test_rle_simple: out[0] expected (0,5), got (" << (int)out[0].run << "," << out[0].value << ")\n";
+        return false;
+    }
+    if (out[1].run != 3 || out[1].value != 3) {
+        std::cerr << "test_rle_simple: out[1] expected (3,3), got (" << (int)out[1].run << "," << out[1].value << ")\n";
+        return false;
+    }
+    return true;
+}
+
+bool test_rle_zrl()
+{
+    std::array<std::int16_t, jpegdsp::core::BlockElementCount> zz{};
+    // 16 zeros then a non-zero
+    zz[17] = 7;
+
+    auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
+
+    if (out.size() != 2) return false;
+
+    bool hasZRL = (out[0].run == jpegdsp::jpeg::ZRL && out[0].value == 0);
+    bool next = (out[1].run == 0 && out[1].value == 7);
+
+    return hasZRL && next;
+}
+
+bool test_rle_trailing_zeroes()
+{
+    std::array<std::int16_t, jpegdsp::core::BlockElementCount> zz{};
+    zz[1] = 1;
+    zz[5] = 2;  // Then all remaining zeros
+
+    auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
+    
+    // Manually add EOB for this test (since encodeAC doesn't automatically add it)
+    out.push_back({jpegdsp::jpeg::EOB, 0});
+
+    if (!(out.size() == 3)) {
+        std::cerr << "test_rle_trailing_zeroes: expected size=3, got " << out.size() << "\n";
+        return false;
+    }
+    if (!(out[0].run == 0 && out[0].value == 1)) {
+        std::cerr << "test_rle_trailing_zeroes: out[0] expected (0,1), got (" << (int)out[0].run << "," << out[0].value << ")\n";
+        return false;
+    }
+    if (!(out[1].run == 3 && out[1].value == 2)) {
+        std::cerr << "test_rle_trailing_zeroes: out[1] expected (3,2), got (" << (int)out[1].run << "," << out[1].value << ")\n";
+        return false;
+    }
+    if (!(out[2].run == jpegdsp::jpeg::EOB && out[2].value == 0)) {
+        std::cerr << "test_rle_trailing_zeroes: out[2] expected (EOB,0), got (" << (int)out[2].run << "," << out[2].value << ")\n";
+        return false;
+    }
+
+    return true;
+}
+
+
+// ------------------------------------------------------------
 // Main test runner
 // ------------------------------------------------------------
 
@@ -492,17 +577,34 @@ int main()
     int total = 0;
     int failed = 0;
 
+    // BlockExtractor tests
     runTest("block_single_8x8",           &test_block_single_8x8,               total, failed);
     runTest("block_16x8_two_blocks",      &test_block_16x8_two_blocks,          total, failed);
+
+    // Entropy tests
     runTest("entropy_constant",           &test_entropy_constant,               total, failed);
     runTest("entropy_two_symbols_equal",  &test_entropy_two_symbols_equal_prob, total, failed);
+
+    // ColorSpace tests
     runTest("colorspace_roundtrip_basic", &test_colorspace_roundtrip_basic,     total, failed);
+
+    // DCT tests
     runTest("dct_roundtrip_basic",        &test_dct_roundtrip_basic,            total, failed);
     runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,          total, failed);
+
+    // Quantization tests
     runTest("quant_identity_all_ones",    &test_quant_identity_all_ones,        total, failed);
     runTest("quant_zero_block",           &test_quant_zero_block,               total, failed);
-    runTest("zigzag_identity", &test_zigzag_identity, total, failed);
-    runTest("zigzag_known_pattern", &test_zigzag_known_pattern, total, failed);
+
+    // ZigZag tests
+    runTest("zigzag_identity",            &test_zigzag_identity,                total, failed);
+    runTest("zigzag_known_pattern",       &test_zigzag_known_pattern,           total, failed);
+
+    // RLE tests
+    runTest("rle_all_zeroes",             &test_rle_all_zeroes,                 total, failed);
+    runTest("rle_simple",                  &test_rle_simple,                     total, failed);
+    runTest("rle_zrl",                     &test_rle_zrl,                        total, failed);
+    runTest("rle_trailing_zeroes",        &test_rle_trailing_zeroes,            total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";

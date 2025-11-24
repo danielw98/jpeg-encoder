@@ -19,6 +19,9 @@ CMakeScripts/
 **/README.*
 !tests/README.md
 
+# Ignore CHANGELOG (project history tracking)
+CHANGELOG.md
+
 
 # Ignore build output folder
 Build/
