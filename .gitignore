@@ -14,13 +14,15 @@ CMakeScripts/
 **/CMakeLists.txt
 **/CMakeConfigureLog.yaml
 
-# Ignore all README files at any depth, excluding tests
+# Allow root README.md (project documentation)
+# Ignore all README files except root and tests
 **/README
 **/README.*
+!README.md
 !tests/README.md
 
-# Ignore CHANGELOG (project history tracking)
-CHANGELOG.md
+# Allow CHANGELOG.md (project history tracking)
+# CHANGELOG.md
 
 
 # Ignore build output folder

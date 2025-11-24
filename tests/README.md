@@ -204,6 +204,32 @@ The tests ensure proper DC prediction across consecutive blocks and validate tha
 
 ---
 
+## 2.11 JPEGWriter Tests
+
+**Location:** `tests/unit/test_core_codec.cpp`  
+**Module:** `jpegdsp::jpeg::JPEGWriter`
+
+| Test name                       | Purpose                                                        |
+|--------------------------------|----------------------------------------------------------------|
+| `jpegwriter_small_grayscale`   | Encode 16×16 grayscale image to valid baseline JPEG file.     |
+
+This test verifies the complete JPEG file writing functionality:
+- **Image validation**: Ensures input is single-channel grayscale
+- **JFIF structure**: Validates presence of all required JPEG markers:
+  - SOI (0xFFD8) at start
+  - APP0 (JFIF header)
+  - DQT (quantization table definition)
+  - SOF0 (Start of Frame - baseline DCT)
+  - DHT (Huffman table definitions for DC and AC)
+  - SOS (Start of Scan)
+  - Entropy-coded scan data
+  - EOI (0xFFD9) at end
+- **Output validation**: Verifies buffer size is reasonable (>100 bytes) and markers appear in correct order
+
+The test creates a 16×16 gradient pattern, encodes it to JPEG with quality=75, and validates the bitstream structure. This confirms the entire encoding pipeline (block extraction → DCT → quantization → entropy coding → file formatting) produces valid JPEG output.
+
+---
+
 # 3. Planned Tests (Upcoming)  
 
 ## JPEGEncoder Pipeline Tests

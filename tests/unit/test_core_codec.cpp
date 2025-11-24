@@ -9,6 +9,7 @@
 #include "jpegdsp/jpeg/RLE.hpp"
 #include "jpegdsp/jpeg/Huffman.hpp"
 #include "jpegdsp/jpeg/BlockEntropyEncoder.hpp"
+#include "jpegdsp/jpeg/JPEGWriter.hpp"
 #include "jpegdsp/util/BitWriter.hpp"
 
 #include <iostream>
@@ -895,6 +896,99 @@ bool test_entropyencoder_two_blocks_dc_prediction()
     return true;
 }
 
+// ------------------------------------------------------------
+// JPEGWriter tests
+// ------------------------------------------------------------
+
+bool test_jpegwriter_small_grayscale()
+{
+    // Create 16x16 grayscale image with gradient
+    const std::size_t w = 16;
+    const std::size_t h = 16;
+    Image img(w, h, ColorSpace::GRAY, 1);
+
+    // Fill with gradient pattern
+    for (std::size_t y = 0; y < h; ++y)
+    {
+        for (std::size_t x = 0; x < w; ++x)
+        {
+            img.at(x, y, 0) = static_cast<Pixel8>((x + y) * 8);
+        }
+    }
+
+    // Encode to JPEG
+    jpegdsp::jpeg::JPEGWriter writer;
+    std::vector<std::uint8_t> jpegData;
+
+    try
+    {
+        jpegData = writer.encodeGrayscale(img, 75);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: exception during encoding: "
+                  << e.what() << "\n";
+        return false;
+    }
+
+    // Validate buffer size
+    if (jpegData.size() < 100)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: buffer too small: "
+                  << jpegData.size() << " bytes\n";
+        return false;
+    }
+
+    // Check SOI marker (0xFF 0xD8)
+    if (jpegData.size() < 2 || jpegData[0] != 0xFF || jpegData[1] != 0xD8)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: missing SOI marker\n";
+        return false;
+    }
+
+    // Check EOI marker (0xFF 0xD9) at end
+    std::size_t sz = jpegData.size();
+    if (sz < 2 || jpegData[sz - 2] != 0xFF || jpegData[sz - 1] != 0xD9)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: missing EOI marker\n";
+        return false;
+    }
+
+    // Search for required markers in the stream
+    bool foundDQT = false;
+    bool foundSOF0 = false;
+    bool foundSOS = false;
+
+    for (std::size_t i = 0; i < sz - 1; ++i)
+    {
+        if (jpegData[i] == 0xFF)
+        {
+            std::uint8_t marker = jpegData[i + 1];
+            if (marker == 0xDB) foundDQT = true;  // DQT
+            if (marker == 0xC0) foundSOF0 = true; // SOF0
+            if (marker == 0xDA) foundSOS = true;  // SOS
+        }
+    }
+
+    if (!foundDQT)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: missing DQT marker\n";
+        return false;
+    }
+    if (!foundSOF0)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: missing SOF0 marker\n";
+        return false;
+    }
+    if (!foundSOS)
+    {
+        std::cerr << "test_jpegwriter_small_grayscale: missing SOS marker\n";
+        return false;
+    }
+
+    return true;
+}
+
 
 // ------------------------------------------------------------
 // Main test runner
@@ -948,6 +1042,9 @@ int main()
     // BlockEntropyEncoder tests
     runTest("entropyenc_constant_block",  &test_entropyencoder_constant_block_luma,     total, failed);
     runTest("entropyenc_dc_prediction",   &test_entropyencoder_two_blocks_dc_prediction, total, failed);
+
+    // JPEGWriter tests
+    runTest("jpegwriter_small_grayscale", &test_jpegwriter_small_grayscale,              total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";
