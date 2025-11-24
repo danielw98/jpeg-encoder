@@ -208,14 +208,17 @@ void JPEGWriter::writeEOI()
 
 void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quantTable)
 {
-    // Create DCT transform and encoders
+    // Create DCT transform and encoder
     transforms::DCT8x8Transform dct;
     HuffmanTable dcLuma(HuffmanTableType::DC_Luma);
     HuffmanTable acLuma(HuffmanTableType::AC_Luma);
+    HuffmanEncoder lumaEncoder(acLuma, dcLuma);
+    
+    // Note: chroma encoders not needed for grayscale - use placeholder
     HuffmanTable dcChroma(HuffmanTableType::DC_Chroma);
     HuffmanTable acChroma(HuffmanTableType::AC_Chroma);
-    HuffmanEncoder lumaEncoder(acLuma, dcLuma);
     HuffmanEncoder chromaEncoder(acChroma, dcChroma);
+    
     BlockEntropyEncoder entropyEncoder(lumaEncoder, chromaEncoder);
     
     // Extract 8x8 blocks from image
@@ -227,7 +230,7 @@ void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quan
     // DC prediction state
     std::int16_t prevDC = 0;
     
-    // Create quantization table wrapper
+    // Create quantization table wrapper directly from input array
     std::array<std::uint16_t, core::BlockElementCount> qTableArray;
     for (std::size_t i = 0; i < core::BlockElementCount; ++i)
     {

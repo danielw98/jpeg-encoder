@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced test documentation with Huffman, BitWriter, BlockEntropyEncoder, and JPEGWriter sections
 - BitWriter API changed from ostream to internal vector buffer
 - **JPEGWriter API redesigned**: Removed old `writeHeader()` / `beginScan()` / `endScan()` stub methods, replaced with complete `encodeGrayscale()` implementation
+- **JPEGWriter internal optimizations**:
+  - Clarified that chroma Huffman tables are unused in grayscale mode (commented for future YCbCr support)
+  - All internal helper methods confirmed as private
+  - Modernized loops using `std::size_t` and `core::BlockElementCount`
+  - Direct array copy for quantization table (no unnecessary temporary)
 
 ## [0.1.0] - 2025-11-24
 
