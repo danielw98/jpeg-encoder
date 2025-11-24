@@ -35,3 +35,4 @@ build_and_run_tests.bat
 .vscode
 
 .github
+docs/suggestions.md
