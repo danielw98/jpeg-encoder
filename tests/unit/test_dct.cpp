@@ -3,6 +3,7 @@
 #include "jpegdsp/core/Entropy.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
 #include "jpegdsp/transforms/DCTTransform.hpp"
+#include "jpegdsp/jpeg/Quantization.hpp"
 
 #include <iostream>
 #include <vector>
@@ -337,6 +338,103 @@ bool test_dct_constant_block_dc()
 }
 
 // ------------------------------------------------------------
+// Quantization tests
+// ------------------------------------------------------------
+
+bool test_quant_identity_all_ones()
+{
+    using jpegdsp::jpeg::QuantTable;
+    using jpegdsp::jpeg::Quantizer;
+
+    constexpr std::size_t N = jpegdsp::core::BlockSize;
+    constexpr std::size_t BlockElemCount = N * N;
+
+    // Build a quant table where all entries are 1
+    std::array<std::uint16_t, BlockElemCount> ones{};
+    for (std::size_t i = 0; i < BlockElemCount; i++)
+    {
+        ones[i] = 1;
+    }
+
+    QuantTable qt(ones);
+
+    jpegdsp::core::Block<float, N> in{};
+    jpegdsp::core::Block<std::int16_t, N> q{};
+    jpegdsp::core::Block<float, N> recon{};
+
+    // Fill the input block with some integer-valued pattern
+    for (std::size_t y = 0; y < N; y++)
+    {
+        for (std::size_t x = 0; x < N; x++)
+        {
+            float v = static_cast<float>(x + y * 2);
+            in.at(x, y) = v;
+        }
+    }
+
+    Quantizer::quantize(in, qt, q);
+    Quantizer::dequantize(q, qt, recon);
+
+    for (std::size_t y = 0; y < N; y++)
+    {
+        for (std::size_t x = 0; x < N; x++)
+        {
+            float orig = in.at(x, y);
+            float val = recon.at(x, y);
+
+            if (std::fabs(orig - val) > 1e-3f)
+            {
+                std::cerr << "test_quant_identity_all_ones: mismatch at ("
+                          << x << ", " << y << ") orig=" << orig
+                          << " recon=" << val << "\n";
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool test_quant_zero_block()
+{
+    using jpegdsp::jpeg::QuantTable;
+    using jpegdsp::jpeg::Quantizer;
+
+    constexpr std::size_t N = jpegdsp::core::BlockSize;
+    constexpr std::size_t BlockElemCount = N * N;
+
+    // Any valid table; use luma std at quality 50
+    QuantTable qt = QuantTable::makeLumaStd(50);
+
+    jpegdsp::core::Block<float, N> in{};
+    jpegdsp::core::Block<std::int16_t, N> q{};
+    jpegdsp::core::Block<float, N> recon{};
+
+    // in is already zero-initialized
+    Quantizer::quantize(in, qt, q);
+    Quantizer::dequantize(q, qt, recon);
+
+    for (std::size_t i = 0; i < BlockElemCount; i++)
+    {
+        if (q.data[i] != 0)
+        {
+            std::cerr << "test_quant_zero_block: expected q=0 at index "
+                      << i << ", got " << q.data[i] << "\n";
+            return false;
+        }
+
+        if (std::fabs(recon.data[i]) > 1e-6f)
+        {
+            std::cerr << "test_quant_zero_block: expected recon≈0 at index "
+                      << i << ", got " << recon.data[i] << "\n";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// ------------------------------------------------------------
 // Main test runner
 // ------------------------------------------------------------
 
@@ -345,13 +443,15 @@ int main()
     int total = 0;
     int failed = 0;
 
-    runTest("block_single_8x8",           &test_block_single_8x8,           total, failed);
-    runTest("block_16x8_two_blocks",      &test_block_16x8_two_blocks,      total, failed);
-    runTest("entropy_constant",           &test_entropy_constant,           total, failed);
+    runTest("block_single_8x8",           &test_block_single_8x8,               total, failed);
+    runTest("block_16x8_two_blocks",      &test_block_16x8_two_blocks,          total, failed);
+    runTest("entropy_constant",           &test_entropy_constant,               total, failed);
     runTest("entropy_two_symbols_equal",  &test_entropy_two_symbols_equal_prob, total, failed);
-    runTest("colorspace_roundtrip_basic", &test_colorspace_roundtrip_basic, total, failed);
-    runTest("dct_roundtrip_basic",        &test_dct_roundtrip_basic,        total, failed);
-    runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,      total, failed);
+    runTest("colorspace_roundtrip_basic", &test_colorspace_roundtrip_basic,     total, failed);
+    runTest("dct_roundtrip_basic",        &test_dct_roundtrip_basic,            total, failed);
+    runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,          total, failed);
+    runTest("quant_identity_all_ones",    &test_quant_identity_all_ones,        total, failed);
+    runTest("quant_zero_block",           &test_quant_zero_block,               total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";

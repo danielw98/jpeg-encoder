@@ -1,8 +1,8 @@
-
 # JPEGDSP Test Suite
 
 This document describes the automated tests for the **jpegdsp** project.  
-The test suite validates each DSP building block and the JPEG encoding pipeline step-by-step, using small focused tests that prevent regressions and ensure correctness.
+The test suite validates each DSP building block and the JPEG encoding pipeline step-by-step,
+using small focused tests that prevent regressions and ensure correctness.
 
 The project currently uses:
 - A custom lightweight test harness (no external frameworks)
@@ -10,7 +10,7 @@ The project currently uses:
 - PASS / FAIL terminal output
 - Exit codes compatible with CTest
 
-This document will be updated as new modules and tests are added.
+This document is updated regularly as new functionality is implemented.
 
 ---
 
@@ -24,7 +24,7 @@ bool test_name();
 
 The custom `runTest()` helper prints:
 
-```text
+```
 [PASS] test_name
 [FAIL] test_name
 ```
@@ -37,22 +37,22 @@ runTest("test_name", &test_name, total, failed);
 
 A summary is printed at the end:
 
-```text
+```
 Tests run: X
 Tests failed: Y
 ```
 
 The executable returns:
-- `0` if all tests pass  
-- non-zero if any test fails  
+- `0` if all tests pass
+- Non-zero if any test fails
 
-This allows seamless integration with CTest.
+This integrates cleanly with **CTest**.
 
 ---
 
-# 2. Current Test Coverage
+# 2. Current Test Coverage (Updated)
 
-This section describes all currently implemented tests.
+This section lists all tests currently implemented and passing.
 
 ---
 
@@ -63,14 +63,8 @@ This section describes all currently implemented tests.
 
 | Test name                     | Purpose                                                              |
 |------------------------------|----------------------------------------------------------------------|
-| `test_block_single_8x8`      | Ensures extracting a single 8×8 block returns correct values.       |
-| `test_block_16x8_two_blocks` | Ensures extracting two horizontal 8×8 blocks preserves all pixels.  |
-
-### Validates:
-- Correct block tiling  
-- Left-to-right / top-to-bottom ordering  
-- No off-by-one errors  
-- Correct mapping of image pixels to block positions  
+| `test_block_single_8x8`      | Extracting a single 8×8 block returns correct values.                |
+| `test_block_16x8_two_blocks` | Two horizontal 8×8 blocks are extracted correctly without overlap.   |
 
 ---
 
@@ -81,13 +75,8 @@ This section describes all currently implemented tests.
 
 | Test name                             | Purpose                                  |
 |---------------------------------------|------------------------------------------|
-| `test_entropy_constant`               | Constant vector must have entropy = 0.   |
-| `test_entropy_two_symbols_equal_prob` | 50/50 distribution must have entropy=1. |
-
-### Validates:
-- Correct Shannon entropy formula  
-- Accurate probability estimation  
-- Numerical stability  
+| `test_entropy_constant`               | A constant vector must have entropy = 0. |
+| `test_entropy_two_symbols_equal_prob` | 50/50 distribution must yield 1.0 bit.  |
 
 ---
 
@@ -96,121 +85,97 @@ This section describes all currently implemented tests.
 **Location:** `tests/unit/test_dct.cpp`  
 **Module:** `jpegdsp::core::ColorConverter`
 
-| Test name                        | Purpose                                                    |
-|----------------------------------|------------------------------------------------------------|
-| `test_colorspace_roundtrip_basic` | RGB → YCbCr → RGB round-trip stays within a small error. |
-
-### Validates:
-- RGB↔YCbCr equations  
-- Proper rounding and clamping  
-- Approximate reversibility of the transform  
+| Test name                         | Purpose                                                    |
+|-----------------------------------|------------------------------------------------------------|
+| `test_colorspace_roundtrip_basic` | RGB → YCbCr → RGB round-trip stays within a small error.  |
 
 ---
 
-## 2.4 DCT (Discrete Cosine Transform) Tests
+## 2.4 DCT Tests
 
 **Location:** `tests/unit/test_dct.cpp`  
 **Module:** `jpegdsp::transforms::DCT8x8Transform`
 
 | Test name                    | Purpose                                                           |
 |------------------------------|-------------------------------------------------------------------|
-| `test_dct_roundtrip_basic`   | DCT + inverse DCT reconstructs the original block (± tolerance). |
-| `test_dct_constant_block_dc` | Constant block produces only DC, AC coefficients ≈ 0.            |
+| `test_dct_roundtrip_basic`   | Forward + inverse DCT reconstruct original block.                 |
+| `test_dct_constant_block_dc` | Constant block yields only DC coefficient.                        |
 
-### Validates:
-- Correct orthonormal DCT-II implementation  
-- Correct inverse transform  
-- Proper α(u) scaling and cosine table usage  
-- Numerical consistency and stability  
+---
+
+## 2.5 Quantization Tests (NEW)
+
+**Location:** `tests/unit/test_dct.cpp`  
+**Module:** `jpegdsp::jpeg::Quantizer`
+
+| Test name                  | Purpose                                                   |
+|---------------------------|-----------------------------------------------------------|
+| `quant_identity_all_ones` | Quant table of all 1s preserves coefficients exactly.     |
+| `quant_zero_block`        | Zero block stays zero after quant/dequant.                |
+
+These tests confirm that **QuantTable**, scaling logic, rounding, and integer packing behave as expected.
 
 ---
 
 # 3. Planned Tests (Upcoming)
 
-These tests will be added when new modules are implemented.
+## ZigZag Tests
+- Identity mapping for known input  
+- Known-pattern zig-zag correctness  
+- Reverse zig-zag reconstructs original  
 
-## 3.1 ZigZag Tests (Planned)
+## RLE Tests
+- All-zero AC sequence  
+- Mixed run lengths  
+- End-of-block behavior  
 
-- `test_zigzag_forward_identity`  
-- `test_zigzag_forward_known_pattern`  
-- `test_zigzag_inverse_identity`  
-- `test_zigzag_inverse_known_pattern`
+## Huffman Tests
+- Table generation  
+- DC/AC encoding rules  
+- Bitstream packing tests  
 
-### Validates:
-- Correct zig-zag ordering of 8×8 coefficients  
-- Reversibility of forward/inverse zig-zag
-
----
-
-## 3.2 RLE (Run-Length Encoding) Tests (Planned)
-
-- `test_rle_all_zeroes`  
-- `test_rle_simple_sequence`  
-- `test_rle_multiple_zero_runs`
-
-### Validates:
-- Accurate AC run-length encoding  
-- Proper handling of zero runs  
-
----
-
-## 3.3 Quantization Tests (Planned)
-
-- `test_quantize_basic`  
-- `test_inverse_quantize_basic`  
-- `test_quantization_rounding`
-
-### Validates:
-- Correct application of quantization tables  
-- Correct inverse quantization  
-- Rounding behavior
-
----
-
-## 3.4 Huffman Encoder Tests (Planned)
-
-- `test_huffman_generate_tables`  
-- `test_huffman_encode_dc`  
-- `test_huffman_encode_ac`  
-- `test_huffman_bitstream_consistency`
-
-### Validates:
-- Proper construction and use of Huffman tables  
-- Correct JPEG-style bitstream encoding  
-
----
-
-## 3.5 JPEGEncoder Pipeline Tests (Planned)
-
-- `test_jpegencoder_small_image`  
-- `test_jpegencoder_block_alignment`  
-- `test_jpegencoder_output_structure`
-
-### Validates:
-- End-to-end JPEG pipeline behavior  
-- Correct handling of image dimensions and blocks  
-- Basic structural validity of output JPEG
+## JPEGEncoder Pipeline Tests
+- Small synthetic 16×16 image  
+- Structural output validation  
+- Block alignment correctness  
 
 ---
 
 # 4. Running Tests
 
-Build the project in Debug mode:
+Build in Debug:
 
-```bash
+```
 cmake --build build --config Debug
 ```
 
-Run all tests via CTest:
+Run all tests:
 
-```bash
+```
 ctest --test-dir build -C Debug -V
 ```
 
-Or run a specific test binary directly, for example:
+Or run a single test binary:
 
-```bash
+```
 ./build/tests/Debug/test_dct.exe
 ```
 
 ---
+
+# 5. Notes
+
+As modules mature, tests for:
+- ZigZag  
+- RLE  
+- Huffman  
+- JPEGWriter  
+- JPEGEncoder (end-to-end)
+
+will be added incrementally.
+
+This ensures that **every DSP step in the JPEG pipeline is validated in isolation** before integration.
+
+---
+
+End of updated test documentation.

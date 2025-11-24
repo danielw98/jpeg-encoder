@@ -5,9 +5,9 @@ namespace jpegdsp::jpeg {
 
 JPEGEncoder::JPEGEncoder(JPEGEncoderConfig cfg)
     : m_cfg(cfg),
-      m_transform(std::make_unique<jpegdsp::transforms::DCT8x8Transform>()),
-      m_quantizer(JPEGQuantTable{}, JPEGQuantTable{})
-{}
+      m_transform(std::make_unique<jpegdsp::transforms::DCT8x8Transform>())
+{
+}
 
 void JPEGEncoder::addObserver(std::shared_ptr<jpegdsp::analysis::PipelineObserver> obs) {
     m_observers.push_back(std::move(obs));

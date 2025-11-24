@@ -22,7 +22,6 @@ public:
 private:
     JPEGEncoderConfig m_cfg;
     std::unique_ptr<jpegdsp::transforms::ITransform2D<float,8>> m_transform;
-    Quantizer m_quantizer;
     HuffmanTable m_dcLuma, m_acLuma, m_dcChroma, m_acChroma;
 
     std::vector<std::shared_ptr<jpegdsp::analysis::PipelineObserver>> m_observers;

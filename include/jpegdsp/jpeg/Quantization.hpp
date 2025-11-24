@@ -1,28 +1,45 @@
 ﻿#pragma once
-#include "JPEGTypes.hpp"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 #include "jpegdsp/core/Block.hpp"
-#include "jpegdsp/core/Types.hpp"
 
 namespace jpegdsp::jpeg {
 
-class Quantizer {
+class QuantTable {
 public:
-    Quantizer(const JPEGQuantTable& luma,
-              const JPEGQuantTable& chroma);
+    static constexpr std::size_t Size = jpegdsp::core::BlockSize * jpegdsp::core::BlockSize;
 
-    void scaleFromQuality(int quality);
+    QuantTable();
 
-    void quantize(const jpegdsp::core::Block<float,8>& in,
-                  Component comp,
-                  jpegdsp::core::Block<std::int16_t,8>& out) const;
+    explicit QuantTable(const std::array<std::uint16_t, Size> &values);
 
-    void dequantize(const jpegdsp::core::Block<std::int16_t,8>& in,
-                    Component comp,
-                    jpegdsp::core::Block<float,8>& out) const;
+    const std::uint16_t *data() const noexcept
+    {
+        return m_values.data();
+    }
+
+    std::uint16_t at(std::size_t idx) const;
+
+    // Standard JPEG-like tables, scaled by quality in [1,100]
+    static QuantTable makeLumaStd(int quality);
+    static QuantTable makeChromaStd(int quality);
 
 private:
-    JPEGQuantTable m_luma;
-    JPEGQuantTable m_chroma;
+    std::array<std::uint16_t, Size> m_values{};
+};
+
+class Quantizer
+{
+public:
+    static void quantize(const jpegdsp::core::Block<float, jpegdsp::core::BlockSize> &in,
+                         const QuantTable &table,
+                         jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> &out);
+
+    static void dequantize(const jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> &in,
+                           const QuantTable &table,
+                           jpegdsp::core::Block<float, jpegdsp::core::BlockSize> &out);
 };
 
 } // namespace jpegdsp::jpeg
