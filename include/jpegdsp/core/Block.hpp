@@ -2,28 +2,36 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <vector>
+#include "Image.hpp"
 
 namespace jpegdsp::core {
 
+constexpr std::size_t BlockSize = 8;
+
 template<typename T, std::size_t N>
-struct Block {
+struct Block
+{
     std::array<T, N * N> data{};
 
-    T& at(std::size_t x, std::size_t y) {
+    T& at(std::size_t x, std::size_t y)
+    {
         return data[y * N + x];
     }
 
-    const T& at(std::size_t x, std::size_t y) const {
+    const T& at(std::size_t x, std::size_t y) const
+    {
         return data[y * N + x];
     }
 };
 
-using Block8x8f = Block<float, 8>;
-using Block8x8i = Block<std::int16_t, 8>;
+using Block8x8f = Block<float, BlockSize>;
+using Block8x8i = Block<std::int16_t, BlockSize>;
 
-class BlockExtractor {
+class BlockExtractor
+{
 public:
-    // Assumes single-channel image
+    // Assumes single-channel image, width/height multiples of BlockSize.
     static std::vector<Block8x8f> extractBlocks(const Image& plane);
 };
 

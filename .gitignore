@@ -1,0 +1,31 @@
+# Ignore all CMake-related files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+CMakeScripts/
+
+# Ignore any CMake and CTest files at any depth
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/CTestTestfile.cmake
+**/CMakeScripts/
+**/CMakeLists.txt
+**/CMakeConfigureLog.yaml
+
+# Ignore all README files at any depth, excluding tests
+**/README
+**/README.*
+!tests/README.md
+
+
+# Ignore build output folder
+Build/
+
+# Ignore batch build tests script
+build_and_run_tests.bat
+
+# Ignore .vscode folder, TODO add it but without absolute paths
+.vscode
+

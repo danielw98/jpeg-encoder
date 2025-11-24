@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <cstddef>
 #include <string>
-#include "../core/Block.hpp"
-#include "../core/Types.hpp"
+#include "jpegdsp/core/Block.hpp"
+#include "jpegdsp/core/Types.hpp"
 
 namespace jpegdsp::analysis {
 
