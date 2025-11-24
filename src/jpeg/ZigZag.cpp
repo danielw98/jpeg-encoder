@@ -1,8 +1,9 @@
 ﻿#include "jpegdsp/jpeg/ZigZag.hpp"
+#include "jpegdsp/core/Constants.hpp"
 
 namespace {
     // Standard JPEG zig-zag order (Annex K.1, ITU-T81)
-    constexpr std::array<std::size_t, 64> ZigZagIndex
+    constexpr std::array<std::size_t, jpegdsp::core::BlockElementCount> ZigZagIndex
     {
         0,  1,  5,  6, 14, 15, 27, 28,
         2,  4,  7, 13, 16, 26, 29, 42,
@@ -17,13 +18,13 @@ namespace {
 
 namespace jpegdsp::jpeg {
     
-std::array<std::int16_t, 64> ZigZag::toZigZag(const jpegdsp::core::Block<std::int16_t, 8>& block)
+std::array<std::int16_t, jpegdsp::core::BlockElementCount> ZigZag::toZigZag(const jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize>& block)
 {
-    std::array<std::int16_t, 64> out{};
+    std::array<std::int16_t, jpegdsp::core::BlockElementCount> out{};
 
-    constexpr std::size_t N = jpegdsp::core::BlockSize; // should be 8
+    constexpr std::size_t N = jpegdsp::core::BlockSize;
 
-    for (std::size_t i = 0; i < 64; i++)
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         const std::size_t pos = ZigZagIndex[i];
         const std::size_t x = pos % N;
@@ -35,11 +36,11 @@ std::array<std::int16_t, 64> ZigZag::toZigZag(const jpegdsp::core::Block<std::in
     return out;
 }
 
-jpegdsp::core::Block<std::int16_t, 8> ZigZag::fromZigZag(const std::array<std::int16_t, 64>& zz)
+jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> ZigZag::fromZigZag(const std::array<std::int16_t, jpegdsp::core::BlockElementCount>& zz)
 {
-    jpegdsp::core::Block<std::int16_t, 8> block{};
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block{};
 
-    for (std::size_t i = 0; i < 64; i++)
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         const std::size_t pos = ZigZagIndex[i];
         block.data[pos] = zz[i];

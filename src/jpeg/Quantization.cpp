@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/jpeg/Quantization.hpp"
+#include "jpegdsp/core/Constants.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -9,13 +10,11 @@ namespace jpegdsp::jpeg {
 namespace
 {
     using jpegdsp::core::BlockSize;
-
-    constexpr std::size_t N = BlockSize;
-    constexpr std::size_t BlockElemCount = N * N;
+    using jpegdsp::core::BlockElementCount;
 
     // Standard JPEG quantization tables (quality 50) in natural row-major order
 
-    constexpr std::uint16_t LumaBase[BlockElemCount] =
+    constexpr std::uint16_t LumaBase[BlockElementCount] =
     {
         16, 11, 10, 16, 24, 40, 51, 61,
         12, 12, 14, 19, 26, 58, 60, 55,
@@ -27,7 +26,7 @@ namespace
         72, 92, 95, 98,112,100,103, 99
     };
 
-    constexpr std::uint16_t ChromaBase[BlockElemCount] =
+    constexpr std::uint16_t ChromaBase[BlockElementCount] =
     {
         17, 18, 24, 47, 99, 99, 99, 99,
         18, 21, 26, 66, 99, 99, 99, 99,
@@ -52,7 +51,7 @@ namespace
         return v;
     }
 
-    std::array<std::uint16_t, BlockElemCount> makeScaledTable(const std::uint16_t *base, int quality)
+    std::array<std::uint16_t, BlockElementCount> makeScaledTable(const std::uint16_t *base, int quality)
     {
         if (quality < 1)
         {
@@ -74,9 +73,9 @@ namespace
             scale = 200 - 2 * quality;
         }
 
-        std::array<std::uint16_t, BlockElemCount> result{};
+        std::array<std::uint16_t, BlockElementCount> result{};
 
-        for (std::size_t i = 0; i < BlockElemCount; i++)
+        for (std::size_t i = 0; i < BlockElementCount; i++)
         {
             int baseVal = static_cast<int>(base[i]);
             int scaled = (baseVal * scale + 50) / 100; // rounded
@@ -125,7 +124,7 @@ void Quantizer::quantize(const jpegdsp::core::Block<float, BlockSize> &in,
                          const QuantTable &table,
                          jpegdsp::core::Block<std::int16_t, BlockSize> &out)
 {
-    for (std::size_t i = 0; i < BlockElemCount; i++)
+    for (std::size_t i = 0; i < BlockElementCount; i++)
     {
         float v = in.data[i];
         float q = static_cast<float>(table.at(i));
@@ -147,7 +146,7 @@ void Quantizer::dequantize(const jpegdsp::core::Block<std::int16_t, BlockSize> &
                            const QuantTable &table,
                            jpegdsp::core::Block<float, BlockSize> &out)
 {
-    for (std::size_t i = 0; i < BlockElemCount; i++)
+    for (std::size_t i = 0; i < BlockElementCount; i++)
     {
         float coeff = static_cast<float>(in.data[i]);
         float q = static_cast<float>(table.at(i));

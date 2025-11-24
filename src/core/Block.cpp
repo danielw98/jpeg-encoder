@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/core/Block.hpp"
+#include "jpegdsp/core/Constants.hpp"
 #include <stdexcept>
 
 namespace jpegdsp::core {

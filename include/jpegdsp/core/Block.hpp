@@ -3,11 +3,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include "Constants.hpp"
 #include "Image.hpp"
 
 namespace jpegdsp::core {
-
-constexpr std::size_t BlockSize = 8;
 
 template<typename T, std::size_t N>
 struct Block

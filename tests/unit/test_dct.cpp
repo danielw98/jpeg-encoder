@@ -2,8 +2,10 @@
 #include "jpegdsp/core/Block.hpp"
 #include "jpegdsp/core/Entropy.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
+#include "jpegdsp/core/Constants.hpp"
 #include "jpegdsp/transforms/DCTTransform.hpp"
 #include "jpegdsp/jpeg/Quantization.hpp"
+#include "jpegdsp/jpeg/ZigZag.hpp"
 
 #include <iostream>
 #include <vector>
@@ -49,8 +51,8 @@ namespace
 
 bool test_block_single_8x8()
 {
-    std::size_t w = 8;
-    std::size_t h = 8;
+    std::size_t w = jpegdsp::core::BlockSize;
+    std::size_t h = jpegdsp::core::BlockSize;
 
     Image img(w, h, ColorSpace::GRAY, 1);
 
@@ -74,12 +76,12 @@ bool test_block_single_8x8()
 
     const Block8x8f& b = blocks[0];
 
-    for (std::size_t y = 0; y < 8; y++)
+    for (std::size_t y = 0; y < jpegdsp::core::BlockSize; y++)
     {
-        for (std::size_t x = 0; x < 8; x++)
+        for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
         {
             float expected = static_cast<float>(y * w + x);
-            float got = b.data[y * 8 + x];
+            float got = b.data[y * jpegdsp::core::BlockSize + x];
 
             if (got != expected)
             {
@@ -97,7 +99,7 @@ bool test_block_single_8x8()
 bool test_block_16x8_two_blocks()
 {
     std::size_t w = 16;
-    std::size_t h = 8;
+    std::size_t h = jpegdsp::core::BlockSize;
 
     Image img(w, h, ColorSpace::GRAY, 1);
 
@@ -264,9 +266,9 @@ bool test_dct_roundtrip_basic()
     dct.forward(input, coeffs);
     dct.inverse(coeffs, recon);
 
-    for (std::size_t y = 0; y < 8; y++)
+    for (std::size_t y = 0; y < jpegdsp::core::BlockSize; y++)
     {
-        for (std::size_t x = 0; x < 8; x++)
+        for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
         {
             float orig = input.at(x, y);
             float val = recon.at(x, y);
@@ -314,9 +316,9 @@ bool test_dct_constant_block_dc()
         return false;
     }
 
-    for (std::size_t v = 0; v < 8; v++)
+    for (std::size_t v = 0; v < jpegdsp::core::BlockSize; v++)
     {
-        for (std::size_t u = 0; u < 8; u++)
+        for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
         {
             if (u == 0 && v == 0)
             {
@@ -347,11 +349,10 @@ bool test_quant_identity_all_ones()
     using jpegdsp::jpeg::Quantizer;
 
     constexpr std::size_t N = jpegdsp::core::BlockSize;
-    constexpr std::size_t BlockElemCount = N * N;
 
     // Build a quant table where all entries are 1
-    std::array<std::uint16_t, BlockElemCount> ones{};
-    for (std::size_t i = 0; i < BlockElemCount; i++)
+    std::array<std::uint16_t, jpegdsp::core::BlockElementCount> ones{};
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         ones[i] = 1;
     }
@@ -401,7 +402,6 @@ bool test_quant_zero_block()
     using jpegdsp::jpeg::Quantizer;
 
     constexpr std::size_t N = jpegdsp::core::BlockSize;
-    constexpr std::size_t BlockElemCount = N * N;
 
     // Any valid table; use luma std at quality 50
     QuantTable qt = QuantTable::makeLumaStd(50);
@@ -414,7 +414,7 @@ bool test_quant_zero_block()
     Quantizer::quantize(in, qt, q);
     Quantizer::dequantize(q, qt, recon);
 
-    for (std::size_t i = 0; i < BlockElemCount; i++)
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         if (q.data[i] != 0)
         {
@@ -441,8 +441,8 @@ bool test_quant_zero_block()
 
 bool test_zigzag_identity()
 {
-    jpegdsp::core::Block<std::int16_t, 8> block{};
-    for (std::size_t i = 0; i < 64; i++)
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block{};
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         block.data[i] = static_cast<std::int16_t>(i);
     }
@@ -450,7 +450,7 @@ bool test_zigzag_identity()
     auto zz = jpegdsp::jpeg::ZigZag::toZigZag(block);
     auto restored = jpegdsp::jpeg::ZigZag::fromZigZag(zz);
 
-    for (std::size_t i = 0; i < 64; i++)
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
     {
         if (restored.data[i] != block.data[i])
         {
@@ -462,7 +462,7 @@ bool test_zigzag_identity()
 
 bool test_zigzag_known_pattern()
 {
-    jpegdsp::core::Block<std::int16_t, 8> block{};
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block{};
     block.at(0,0) = 100;
     block.at(7,7) = 55;
 
@@ -475,7 +475,7 @@ bool test_zigzag_known_pattern()
     }
 
     // The last zigzag element (index 63) is (7,7)
-    if (zz[63] != 55)
+    if (zz[jpegdsp::core::BlockElementCount - 1] != 55)
     {
         return false;
     }

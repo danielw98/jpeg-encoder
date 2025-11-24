@@ -103,7 +103,7 @@ This section lists all tests currently implemented and passing.
 
 ---
 
-## 2.5 Quantization Tests (NEW)
+## 2.5 Quantization Tests
 
 **Location:** `tests/unit/test_dct.cpp`  
 **Module:** `jpegdsp::jpeg::Quantizer`
@@ -117,12 +117,21 @@ These tests confirm that **QuantTable**, scaling logic, rounding, and integer pa
 
 ---
 
-# 3. Planned Tests (Upcoming)
+## 2.6 ZigZag Tests (NEW)
 
-## ZigZag Tests
-- Identity mapping for known input  
-- Known-pattern zig-zag correctness  
-- Reverse zig-zag reconstructs original  
+**Location:** `tests/unit/test_dct.cpp`  
+**Module:** `jpegdsp::jpeg::ZigZag`
+
+| Test name                  | Purpose                                                   |
+|---------------------------|-----------------------------------------------------------|
+| `zigzag_identity`         | Round-trip: toZigZag → fromZigZag reconstructs original. |
+| `zigzag_known_pattern`    | DC coefficient (0,0) maps to index 0, (7,7) to index 63. |
+
+These tests verify the standard JPEG zig-zag ordering (ITU-T81 Annex K.1) for serializing 8×8 blocks.
+
+---
+
+# 3. Planned Tests (Upcoming)  
 
 ## RLE Tests
 - All-zero AC sequence  

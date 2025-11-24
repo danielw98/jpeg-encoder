@@ -4,12 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include "jpegdsp/core/Block.hpp"
+#include "jpegdsp/core/Constants.hpp"
 
 namespace jpegdsp::jpeg {
 
 class QuantTable {
 public:
-    static constexpr std::size_t Size = jpegdsp::core::BlockSize * jpegdsp::core::BlockSize;
+    static constexpr std::size_t Size = jpegdsp::core::BlockElementCount;
 
     QuantTable();
 

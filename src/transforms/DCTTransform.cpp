@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/transforms/DCTTransform.hpp"
+#include "jpegdsp/core/Constants.hpp"
 #include <cmath>
 
 namespace jpegdsp::transforms {
@@ -6,7 +7,7 @@ namespace jpegdsp::transforms {
 DCT8x8Transform::DCT8x8Transform()
 {
     // Normalization factors for orthonormal DCT-II
-    for (std::size_t u = 0; u < 8; u++)
+    for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
     {
         if (u == 0)
         {
@@ -21,9 +22,9 @@ DCT8x8Transform::DCT8x8Transform()
     constexpr double pi = 3.14159265358979323846;
 
     // Precompute cos((2x+1)uπ/16) for x,u in [0,7]
-    for (std::size_t x = 0; x < 8; x++)
+    for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
     {
-        for (std::size_t u = 0; u < 8; u++)
+        for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
         {
             double angle = (2.0 * static_cast<double>(x) + 1.0)
                            * static_cast<double>(u) * pi / 16.0;
@@ -40,15 +41,15 @@ void DCT8x8Transform::forward(const jpegdsp::core::Block<float,8>& in,
 
     constexpr float scale = 0.25f;
 
-    for (std::size_t v = 0; v < 8; v++)
+    for (std::size_t v = 0; v < jpegdsp::core::BlockSize; v++)
     {
-        for (std::size_t u = 0; u < 8; u++)
+        for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
         {
             double sum = 0.0;
 
-            for (std::size_t y = 0; y < 8; y++)
+            for (std::size_t y = 0; y < jpegdsp::core::BlockSize; y++)
             {
-                for (std::size_t x = 0; x < 8; x++)
+                for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
                 {
                     float fxy = in.at(x, y);
                     float cxu = m_cosTable[x][u];
@@ -76,15 +77,15 @@ void DCT8x8Transform::inverse(const jpegdsp::core::Block<float,8>& in,
 
     constexpr float scale = 0.25f;
 
-    for (std::size_t y = 0; y < 8; y++)
+    for (std::size_t y = 0; y < jpegdsp::core::BlockSize; y++)
     {
-        for (std::size_t x = 0; x < 8; x++)
+        for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
         {
             double sum = 0.0;
 
-            for (std::size_t v = 0; v < 8; v++)
+            for (std::size_t v = 0; v < jpegdsp::core::BlockSize; v++)
             {
-                for (std::size_t u = 0; u < 8; u++)
+                for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
                 {
                     float cuv = in.at(u, v);
                     float cxu = m_cosTable[x][u];
