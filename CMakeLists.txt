@@ -19,6 +19,7 @@ add_library(jpegdsp_core
     src/core/Block.cpp
     src/core/Entropy.cpp
     src/core/Logging.cpp
+    src/core/Downsampler.cpp
 
     src/transforms/DCTTransform.cpp
 

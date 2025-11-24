@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **YCbCr 4:2:0 color JPEG encoding**:
+  - `JPEGWriter::encodeYCbCr()` method for RGB → YCbCr 4:2:0 baseline JPEG encoding
+  - Downsampler class implementing 2×2 averaging for chroma subsampling
+  - Interleaved MCU structure: 2×2 Y blocks + 1 Cb + 1 Cr per MCU
+  - Dual quantization table support (luma + chroma) via `writeDQT2()`
+  - Full 4-table Huffman encoding (DC/AC luma + DC/AC chroma)
+  - Standard chrominance Huffman tables (ITU-T.81 Annex K.3)
+  - SOF0 color marker with 3 components (Y H2V2, Cb 11, Cr 11)
+  - 5 Downsampler tests: basic 2×2 averaging, checkerboard pattern, dimension validation
+  - 1 JPEGWriter color test: validates 2 DQT, 4 DHT, SOF0, SOS markers
 - **JPEGWriter module**:
   - Baseline sequential grayscale JPEG encoder (`encodeGrayscale()`)
   - Complete JFIF file structure: SOI → APP0 → DQT → SOF0 → DHT → SOS → scan data → EOI

@@ -21,6 +21,10 @@ add_executable(test_jpegwriter unit/test_jpegwriter.cpp)
 target_link_libraries(test_jpegwriter PRIVATE jpegdsp_core)
 add_test(NAME test_jpegwriter COMMAND $<TARGET_FILE:test_jpegwriter>)
 
+add_executable(test_downsampler unit/test_downsampler.cpp)
+target_link_libraries(test_downsampler PRIVATE jpegdsp_core)
+add_test(NAME test_downsampler COMMAND $<TARGET_FILE:test_downsampler>)
+
 # Comprehensive codec test (legacy - combines multiple modules)
 add_executable(test_core_codec unit/test_core_codec.cpp)
 target_link_libraries(test_core_codec PRIVATE jpegdsp_core)

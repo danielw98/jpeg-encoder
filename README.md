@@ -107,6 +107,14 @@ The codebase follows a **layered namespace design** emphasizing modularity and t
 
 The project is designed to scale into a **Dockerized web application** for interactive DSP experimentation:
 
+### Current Capabilities
+- **Grayscale JPEG encoding**: Baseline sequential (SOF0) with standard quantization/Huffman tables
+- **YCbCr 4:2:0 color JPEG encoding**: RGB → YCbCr conversion, 2×2 chroma downsampling, interleaved MCU structure
+- **Complete entropy coding**: ZigZag scan, run-length encoding, Huffman coding, DC prediction, byte-stuffing
+- **Transform implementations**: DCT-II (8×8 blocks) with forward/inverse operations
+- **Quantization**: Standard JPEG luma/chroma tables with quality scaling (1-100)
+- **Test suite**: 9 test executables with 100% pass rate (unit + integration tests)
+
 ### Planned Features
 - **Browser-based interface**: Upload images, adjust compression parameters in real-time
 - **Parameter controls**:
