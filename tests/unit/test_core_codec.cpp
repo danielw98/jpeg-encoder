@@ -8,6 +8,8 @@
 #include "jpegdsp/jpeg/ZigZag.hpp"
 #include "jpegdsp/jpeg/RLE.hpp"
 #include "jpegdsp/jpeg/Huffman.hpp"
+#include "jpegdsp/jpeg/BlockEntropyEncoder.hpp"
+#include "jpegdsp/util/BitWriter.hpp"
 
 #include <iostream>
 #include <vector>
@@ -570,6 +572,107 @@ bool test_rle_trailing_zeroes()
 
 
 // ------------------------------------------------------------
+// BitWriter tests
+// ------------------------------------------------------------
+
+bool test_bitwriter_single_byte()
+{
+    jpegdsp::util::BitWriter bw;
+    
+    // Write 8 bits: 10101010b = 0xAA
+    bw.writeBits(0xAA, 8);
+    
+    const auto& buf = bw.buffer();
+    if (buf.size() != 1)
+    {
+        std::cerr << "test_bitwriter_single_byte: expected 1 byte, got " << buf.size() << "\n";
+        return false;
+    }
+    
+    if (buf[0] != 0xAA)
+    {
+        std::cerr << "test_bitwriter_single_byte: expected 0xAA, got 0x" 
+                  << std::hex << (int)buf[0] << std::dec << "\n";
+        return false;
+    }
+    
+    return true;
+}
+
+bool test_bitwriter_cross_byte_boundary()
+{
+    jpegdsp::util::BitWriter bw;
+    
+    // Write 5 bits: 11010b = 0x1A (only lower 5 bits)
+    // Write 7 bits: 0101010b = 0x2A (only lower 7 bits)
+    // Result should be: 11010 010 | 1010 xxxx after flush
+    // = 11010010 | 10101111 (with padding 1s)
+    // = 0xD2, then after flush with padding
+    
+    bw.writeBits(0x1A, 5);  // 11010
+    bw.writeBits(0x2A, 7);  // 0101010
+    bw.flushToByte();       // Flush remaining 4 bits with padding
+    
+    const auto& buf = bw.buffer();
+    if (buf.size() != 2)
+    {
+        std::cerr << "test_bitwriter_cross_byte_boundary: expected 2 bytes, got " << buf.size() << "\n";
+        return false;
+    }
+    
+    // First byte: 11010 + 010 (first 3 bits of second write) = 11010010 = 0xD2
+    if (buf[0] != 0xD2)
+    {
+        std::cerr << "test_bitwriter_cross_byte_boundary: byte 0 expected 0xD2, got 0x" 
+                  << std::hex << (int)buf[0] << std::dec << "\n";
+        return false;
+    }
+    
+    // Second byte: 1010 (remaining 4 bits) + 1111 (padding) = 10101111 = 0xAF
+    if (buf[1] != 0xAF)
+    {
+        std::cerr << "test_bitwriter_cross_byte_boundary: byte 1 expected 0xAF, got 0x" 
+                  << std::hex << (int)buf[1] << std::dec << "\n";
+        return false;
+    }
+    
+    return true;
+}
+
+bool test_bitwriter_byte_stuffing_ff()
+{
+    jpegdsp::util::BitWriter bw;
+    
+    // Write 0xFF byte, should become 0xFF 0x00 in output
+    bw.writeBits(0xFF, 8);
+    
+    const auto& buf = bw.buffer();
+    if (buf.size() != 2)
+    {
+        std::cerr << "test_bitwriter_byte_stuffing_ff: expected 2 bytes (0xFF + stuffed 0x00), got " 
+                  << buf.size() << "\n";
+        return false;
+    }
+    
+    if (buf[0] != 0xFF)
+    {
+        std::cerr << "test_bitwriter_byte_stuffing_ff: byte 0 expected 0xFF, got 0x" 
+                  << std::hex << (int)buf[0] << std::dec << "\n";
+        return false;
+    }
+    
+    if (buf[1] != 0x00)
+    {
+        std::cerr << "test_bitwriter_byte_stuffing_ff: byte 1 expected 0x00 (stuffing), got 0x" 
+                  << std::hex << (int)buf[1] << std::dec << "\n";
+        return false;
+    }
+    
+    return true;
+}
+
+
+// ------------------------------------------------------------
 // Huffman tests
 // ------------------------------------------------------------
 
@@ -672,6 +775,128 @@ bool test_huffman_ac_chroma_table()
 
 
 // ------------------------------------------------------------
+// BlockEntropyEncoder tests
+// ------------------------------------------------------------
+
+bool test_entropyencoder_constant_block_luma()
+{
+    // Create Huffman tables
+    jpegdsp::jpeg::HuffmanTable dcLuma(jpegdsp::jpeg::HuffmanTableType::DC_Luma);
+    jpegdsp::jpeg::HuffmanTable acLuma(jpegdsp::jpeg::HuffmanTableType::AC_Luma);
+    jpegdsp::jpeg::HuffmanTable dcChroma(jpegdsp::jpeg::HuffmanTableType::DC_Chroma);
+    jpegdsp::jpeg::HuffmanTable acChroma(jpegdsp::jpeg::HuffmanTableType::AC_Chroma);
+
+    jpegdsp::jpeg::HuffmanEncoder lumaEnc(dcLuma, acLuma);
+    jpegdsp::jpeg::HuffmanEncoder chromaEnc(dcChroma, acChroma);
+
+    jpegdsp::jpeg::BlockEntropyEncoder encoder(lumaEnc, chromaEnc);
+
+    // Create a constant block (DC=10, all AC=0)
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block{};
+    for (std::size_t i = 0; i < jpegdsp::core::BlockElementCount; i++)
+    {
+        block.data[i] = 10;
+    }
+
+    jpegdsp::util::BitWriter bw;
+    std::int16_t prevDC = 0;
+
+    // Encode the block
+    std::int16_t newDC = encoder.encodeLumaBlock(block, prevDC, bw);
+
+    // Verify DC prediction
+    if (newDC != 10)
+    {
+        std::cerr << "test_entropyencoder_constant_block_luma: expected DC=10, got " << newDC << "\n";
+        return false;
+    }
+
+    // Verify that bits were written
+    bw.flushToByte();
+    const auto& buf = bw.buffer();
+    if (buf.empty())
+    {
+        std::cerr << "test_entropyencoder_constant_block_luma: buffer is empty\n";
+        return false;
+    }
+
+    // For a constant block, we expect some encoded output
+    // The actual size depends on Huffman codes and byte-stuffing,
+    // but it should be non-zero and reasonable (not enormous)
+    if (buf.size() > 100)
+    {
+        std::cerr << "test_entropyencoder_constant_block_luma: unexpected large buffer size " 
+                  << buf.size() << "\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool test_entropyencoder_two_blocks_dc_prediction()
+{
+    // Create Huffman tables
+    jpegdsp::jpeg::HuffmanTable dcLuma(jpegdsp::jpeg::HuffmanTableType::DC_Luma);
+    jpegdsp::jpeg::HuffmanTable acLuma(jpegdsp::jpeg::HuffmanTableType::AC_Luma);
+    jpegdsp::jpeg::HuffmanTable dcChroma(jpegdsp::jpeg::HuffmanTableType::DC_Chroma);
+    jpegdsp::jpeg::HuffmanTable acChroma(jpegdsp::jpeg::HuffmanTableType::AC_Chroma);
+
+    jpegdsp::jpeg::HuffmanEncoder lumaEnc(dcLuma, acLuma);
+    jpegdsp::jpeg::HuffmanEncoder chromaEnc(dcChroma, acChroma);
+
+    jpegdsp::jpeg::BlockEntropyEncoder encoder(lumaEnc, chromaEnc);
+
+    // First block: DC=10
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block1{};
+    block1.at(0, 0) = 10;
+
+    // Second block: DC=13
+    jpegdsp::core::Block<std::int16_t, jpegdsp::core::BlockSize> block2{};
+    block2.at(0, 0) = 13;
+
+    jpegdsp::util::BitWriter bw;
+    std::int16_t prevDC = 0;
+
+    // Encode first block
+    prevDC = encoder.encodeLumaBlock(block1, prevDC, bw);
+    if (prevDC != 10)
+    {
+        std::cerr << "test_entropyencoder_two_blocks_dc_prediction: first block DC expected 10, got " 
+                  << prevDC << "\n";
+        return false;
+    }
+
+    // Encode second block (DC diff should be 13 - 10 = 3)
+    prevDC = encoder.encodeLumaBlock(block2, prevDC, bw);
+    if (prevDC != 13)
+    {
+        std::cerr << "test_entropyencoder_two_blocks_dc_prediction: second block DC expected 13, got " 
+                  << prevDC << "\n";
+        return false;
+    }
+
+    // Verify that bits were written
+    bw.flushToByte();
+    const auto& buf = bw.buffer();
+    if (buf.empty())
+    {
+        std::cerr << "test_entropyencoder_two_blocks_dc_prediction: buffer is empty\n";
+        return false;
+    }
+
+    // We encoded two blocks, so buffer should have some reasonable size
+    if (buf.size() < 2)
+    {
+        std::cerr << "test_entropyencoder_two_blocks_dc_prediction: buffer too small ("
+                  << buf.size() << " bytes)\n";
+        return false;
+    }
+
+    return true;
+}
+
+
+// ------------------------------------------------------------
 // Main test runner
 // ------------------------------------------------------------
 
@@ -709,11 +934,20 @@ int main()
     runTest("rle_zrl",                    &test_rle_zrl,                        total, failed);
     runTest("rle_trailing_zeroes",        &test_rle_trailing_zeroes,            total, failed);
 
+    // BitWriter tests
+    runTest("bitwriter_single_byte",      &test_bitwriter_single_byte,          total, failed);
+    runTest("bitwriter_cross_byte",       &test_bitwriter_cross_byte_boundary,  total, failed);
+    runTest("bitwriter_byte_stuffing",    &test_bitwriter_byte_stuffing_ff,     total, failed);
+
     // Huffman tests
     runTest("huffman_dc_luma_table",      &test_huffman_dc_luma_table,          total, failed);
     runTest("huffman_dc_chroma_table",    &test_huffman_dc_chroma_table,        total, failed);
     runTest("huffman_ac_luma_table",      &test_huffman_ac_luma_table,          total, failed);
     runTest("huffman_ac_chroma_table",    &test_huffman_ac_chroma_table,        total, failed);
+
+    // BlockEntropyEncoder tests
+    runTest("entropyenc_constant_block",  &test_entropyencoder_constant_block_luma,     total, failed);
+    runTest("entropyenc_dc_prediction",   &test_entropyencoder_two_blocks_dc_prediction, total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";

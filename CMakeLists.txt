@@ -26,6 +26,7 @@ add_library(jpegdsp_core
     src/jpeg/ZigZag.cpp
     src/jpeg/RLE.cpp
     src/jpeg/Huffman.cpp
+    src/jpeg/BlockEntropyEncoder.cpp
     src/jpeg/JPEGEncoder.cpp
     src/jpeg/JPEGWriter.cpp
 

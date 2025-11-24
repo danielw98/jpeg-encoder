@@ -147,7 +147,25 @@ These tests verify JPEG-compliant AC coefficient run-length encoding.
 
 ---
 
-## 2.8 Huffman Tests
+## 2.8 BitWriter Tests
+
+**Location:** `tests/unit/test_core_codec.cpp`  
+**Module:** `jpegdsp::util::BitWriter`
+
+| Test name                       | Purpose                                                        |
+|--------------------------------|----------------------------------------------------------------|
+| `bitwriter_single_byte`        | Write 8 bits and verify correct byte output.                  |
+| `bitwriter_cross_byte`         | Write bits that cross byte boundaries with correct padding.   |
+| `bitwriter_byte_stuffing`      | Verify JPEG byte-stuffing: 0xFF → 0xFF 0x00.                 |
+
+These tests verify the bit-level writing functionality required for Huffman encoding:
+- Correct bit accumulation and byte emission
+- Proper handling of byte boundaries
+- JPEG-compliant byte-stuffing for marker prevention
+
+---
+
+## 2.9 Huffman Tests
 
 **Location:** `tests/unit/test_core_codec.cpp`  
 **Module:** `jpegdsp::jpeg::HuffmanTable`, `jpegdsp::jpeg::HuffmanEncoder`
@@ -163,6 +181,26 @@ These tests verify that baseline JPEG Huffman tables (ITU-T81 Annex K.3) are cor
 - All DC categories (0-11) have non-zero code lengths
 - Special AC symbols (EOB=0x00, ZRL=0xF0) are present
 - Common AC run/size combinations have valid codes
+
+---
+
+## 2.10 BlockEntropyEncoder Tests
+
+**Location:** `tests/unit/test_core_codec.cpp`  
+**Module:** `jpegdsp::jpeg::BlockEntropyEncoder`
+
+| Test name                       | Purpose                                                        |
+|--------------------------------|----------------------------------------------------------------|
+| `entropyenc_constant_block`    | Encode constant block (DC + all-zero AC) produces valid output.|
+| `entropyenc_dc_prediction`     | Two blocks encode with correct DC prediction (diff = 3).      |
+
+These tests verify the block-level entropy encoding pipeline that combines:
+- ZigZag ordering transformation
+- RLE encoding of AC coefficients  
+- Huffman encoding with DC prediction
+- BitWriter integration
+
+The tests ensure proper DC prediction across consecutive blocks and validate that the complete entropy coding chain produces non-empty, correctly sized output.
 
 ---
 
