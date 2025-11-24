@@ -147,12 +147,26 @@ These tests verify JPEG-compliant AC coefficient run-length encoding.
 
 ---
 
-# 3. Planned Tests (Upcoming)  
+## 2.8 Huffman Tests
 
-## Huffman Tests
-- Table generation  
-- DC/AC encoding rules  
-- Bitstream packing tests  
+**Location:** `tests/unit/test_core_codec.cpp`  
+**Module:** `jpegdsp::jpeg::HuffmanTable`, `jpegdsp::jpeg::HuffmanEncoder`
+
+| Test name                       | Purpose                                                        |
+|--------------------------------|----------------------------------------------------------------|
+| `huffman_dc_luma_table`        | DC luminance table has valid codes for categories 0-11.       |
+| `huffman_dc_chroma_table`      | DC chrominance table has valid codes for categories 0-11.     |
+| `huffman_ac_luma_table`        | AC luminance table has codes for EOB, ZRL, and common symbols.|
+| `huffman_ac_chroma_table`      | AC chrominance table has codes for EOB and ZRL symbols.       |
+
+These tests verify that baseline JPEG Huffman tables (ITU-T81 Annex K.3) are correctly built and accessible. The tests validate:
+- All DC categories (0-11) have non-zero code lengths
+- Special AC symbols (EOB=0x00, ZRL=0xF0) are present
+- Common AC run/size combinations have valid codes
+
+---
+
+# 3. Planned Tests (Upcoming)  
 
 ## JPEGEncoder Pipeline Tests
 - Small synthetic 16×16 image  

@@ -7,6 +7,7 @@
 #include "jpegdsp/jpeg/Quantization.hpp"
 #include "jpegdsp/jpeg/ZigZag.hpp"
 #include "jpegdsp/jpeg/RLE.hpp"
+#include "jpegdsp/jpeg/Huffman.hpp"
 
 #include <iostream>
 #include <vector>
@@ -569,6 +570,108 @@ bool test_rle_trailing_zeroes()
 
 
 // ------------------------------------------------------------
+// Huffman tests
+// ------------------------------------------------------------
+
+bool test_huffman_dc_luma_table()
+{
+    jpegdsp::jpeg::HuffmanTable dcLuma(jpegdsp::jpeg::HuffmanTableType::DC_Luma);
+    
+    // Test that categories 0-11 have valid codes
+    for (uint8_t cat = 0; cat <= 11; cat++)
+    {
+        const auto& code = dcLuma.codeFor(cat);
+        if (code.length == 0)
+        {
+            std::cerr << "test_huffman_dc_luma_table: category " << (int)cat << " has no code\n";
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool test_huffman_dc_chroma_table()
+{
+    jpegdsp::jpeg::HuffmanTable dcChroma(jpegdsp::jpeg::HuffmanTableType::DC_Chroma);
+    
+    // Test that categories 0-11 have valid codes
+    for (uint8_t cat = 0; cat <= 11; cat++)
+    {
+        const auto& code = dcChroma.codeFor(cat);
+        if (code.length == 0)
+        {
+            std::cerr << "test_huffman_dc_chroma_table: category " << (int)cat << " has no code\n";
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool test_huffman_ac_luma_table()
+{
+    jpegdsp::jpeg::HuffmanTable acLuma(jpegdsp::jpeg::HuffmanTableType::AC_Luma);
+    
+    // Test EOB symbol (0x00)
+    const auto& eob = acLuma.codeFor(0x00);
+    if (eob.length == 0)
+    {
+        std::cerr << "test_huffman_ac_luma_table: EOB symbol has no code\n";
+        return false;
+    }
+    
+    // Test ZRL symbol (0xF0)
+    const auto& zrl = acLuma.codeFor(0xF0);
+    if (zrl.length == 0)
+    {
+        std::cerr << "test_huffman_ac_luma_table: ZRL symbol has no code\n";
+        return false;
+    }
+    
+    // Test common AC symbols: (0,1), (0,2), (1,1), (3,2)
+    const auto& ac01 = acLuma.codeFor(0x01); // run=0, size=1
+    if (ac01.length == 0)
+    {
+        std::cerr << "test_huffman_ac_luma_table: (0,1) symbol has no code\n";
+        return false;
+    }
+    
+    const auto& ac32 = acLuma.codeFor(0x32); // run=3, size=2
+    if (ac32.length == 0)
+    {
+        std::cerr << "test_huffman_ac_luma_table: (3,2) symbol has no code\n";
+        return false;
+    }
+    
+    return true;
+}
+
+bool test_huffman_ac_chroma_table()
+{
+    jpegdsp::jpeg::HuffmanTable acChroma(jpegdsp::jpeg::HuffmanTableType::AC_Chroma);
+    
+    // Test EOB symbol (0x00)
+    const auto& eob = acChroma.codeFor(0x00);
+    if (eob.length == 0)
+    {
+        std::cerr << "test_huffman_ac_chroma_table: EOB symbol has no code\n";
+        return false;
+    }
+    
+    // Test ZRL symbol (0xF0)
+    const auto& zrl = acChroma.codeFor(0xF0);
+    if (zrl.length == 0)
+    {
+        std::cerr << "test_huffman_ac_chroma_table: ZRL symbol has no code\n";
+        return false;
+    }
+    
+    return true;
+}
+
+
+// ------------------------------------------------------------
 // Main test runner
 // ------------------------------------------------------------
 
@@ -602,9 +705,15 @@ int main()
 
     // RLE tests
     runTest("rle_all_zeroes",             &test_rle_all_zeroes,                 total, failed);
-    runTest("rle_simple",                  &test_rle_simple,                     total, failed);
-    runTest("rle_zrl",                     &test_rle_zrl,                        total, failed);
+    runTest("rle_simple",                 &test_rle_simple,                     total, failed);
+    runTest("rle_zrl",                    &test_rle_zrl,                        total, failed);
     runTest("rle_trailing_zeroes",        &test_rle_trailing_zeroes,            total, failed);
+
+    // Huffman tests
+    runTest("huffman_dc_luma_table",      &test_huffman_dc_luma_table,          total, failed);
+    runTest("huffman_dc_chroma_table",    &test_huffman_dc_chroma_table,        total, failed);
+    runTest("huffman_ac_luma_table",      &test_huffman_ac_luma_table,          total, failed);
+    runTest("huffman_ac_chroma_table",    &test_huffman_ac_chroma_table,        total, failed);
 
     std::cout << "----------------------------------------\n";
     std::cout << "Tests run:   " << total  << "\n";

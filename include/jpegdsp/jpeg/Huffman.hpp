@@ -9,6 +9,13 @@ namespace util { class BitWriter; }
 
 namespace jpegdsp::jpeg {
 
+enum class HuffmanTableType {
+    DC_Luma,
+    DC_Chroma,
+    AC_Luma,
+    AC_Chroma
+};
+
 struct HuffmanCode {
     std::uint16_t code;
     std::uint8_t length;
@@ -17,6 +24,7 @@ struct HuffmanCode {
 class HuffmanTable {
 public:
     HuffmanTable();
+    explicit HuffmanTable(HuffmanTableType type);
 
     const HuffmanCode& codeFor(std::uint8_t symbol) const;
 
