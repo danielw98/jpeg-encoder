@@ -25,6 +25,10 @@ add_executable(test_downsampler unit/test_downsampler.cpp)
 target_link_libraries(test_downsampler PRIVATE jpegdsp_core)
 add_test(NAME test_downsampler COMMAND $<TARGET_FILE:test_downsampler>)
 
+add_executable(test_imagepadding unit/test_imagepadding.cpp)
+target_link_libraries(test_imagepadding PRIVATE jpegdsp_core)
+add_test(NAME test_imagepadding COMMAND $<TARGET_FILE:test_imagepadding>)
+
 # Comprehensive codec test (legacy - combines multiple modules)
 add_executable(test_core_codec unit/test_core_codec.cpp)
 target_link_libraries(test_core_codec PRIVATE jpegdsp_core)

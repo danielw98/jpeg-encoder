@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/jpeg/RLE.hpp"
+#include "jpegdsp/core/Constants.hpp"
 
 namespace jpegdsp::jpeg
 {
@@ -38,8 +39,8 @@ RLE::encodeAC(const std::array<std::int16_t, jpegdsp::core::BlockElementCount>& 
         {
             zeroRun++;
 
-            // Every 16 zeros → emit ZRL
-            if (zeroRun == 16)
+            // Every ZRL_RUN_LENGTH zeros → emit ZRL
+            if (zeroRun == core::ZRL_RUN_LENGTH)
             {
                 out.push_back({ZRL, 0});
                 zeroRun = 0;

@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/core/ColorSpace.hpp"
+#include "jpegdsp/core/Constants.hpp"
 #include <stdexcept>
 #include <algorithm> // for std::clamp
 
@@ -51,8 +52,8 @@ Image ColorConverter::RGBtoYCbCr(const Image& rgb)
             double B = static_cast<double>(rowSrc[idx + 2]);
 
             double Y  =  0.299    * R + 0.587    * G + 0.114    * B;
-            double Cb = -0.168736 * R - 0.331264 * G + 0.5      * B + 128.0;
-            double Cr =  0.5      * R - 0.418688 * G - 0.081312 * B + 128.0;
+            double Cb = -0.168736 * R - 0.331264 * G + 0.5      * B + JPEG_LEVEL_SHIFT;
+            double Cr =  0.5      * R - 0.418688 * G - 0.081312 * B + JPEG_LEVEL_SHIFT;
 
             rowDst[idx + 0] = clampToByte(Y);
             rowDst[idx + 1] = clampToByte(Cb);
@@ -90,8 +91,8 @@ Image ColorConverter::YCbCrtoRGB(const Image& ycbcr)
             std::size_t idx = x * 3;
 
             double Y  = static_cast<double>(rowSrc[idx + 0]);
-            double Cb = static_cast<double>(rowSrc[idx + 1]) - 128.0;
-            double Cr = static_cast<double>(rowSrc[idx + 2]) - 128.0;
+            double Cb = static_cast<double>(rowSrc[idx + 1]) - JPEG_LEVEL_SHIFT;
+            double Cr = static_cast<double>(rowSrc[idx + 2]) - JPEG_LEVEL_SHIFT;
 
             double R = Y + 1.402    * Cr;
             double G = Y - 0.344136 * Cb - 0.714136 * Cr;

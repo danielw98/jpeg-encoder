@@ -32,14 +32,14 @@ int runTest(const char* testName, bool (*testFunc)())
 }
 
 /**
- * @brief Test basic 4:2:0 downsampling with uniform 2×2 blocks
+ * @brief Test basic 4:2:0 downsampling with uniform 2x2 blocks
  * 
- * Input: 16×16 Cb/Cr with uniform 2×2 blocks of values 0, 64, 128, 192
- * Expected output: 8×8 with same values (no averaging needed)
+ * Input: 16x16 Cb/Cr with uniform 2x2 blocks of values 0, 64, 128, 192
+ * Expected output: 8x8 with same values (no averaging needed)
  */
 bool test_downsample_420_basic()
 {
-    // Create 16×16 Cb/Cr images with uniform 2×2 blocks
+    // Create 16x16 Cb/Cr images with uniform 2x2 blocks
     Image cb(16, 16, ColorSpace::GRAY, 1);
     Image cr(16, 16, ColorSpace::GRAY, 1);
     
@@ -47,7 +47,7 @@ bool test_downsample_420_basic()
     {
         for (std::size_t x = 0; x < 16; ++x)
         {
-            // Assign values in 2×2 blocks: 0, 64, 128, 192
+            // Assign values in 2x2 blocks: 0, 64, 128, 192
             const std::size_t blockX = x / 2;
             const std::size_t blockY = y / 2;
             const Pixel8 value = static_cast<Pixel8>((blockX + blockY * 8) % 4 * 64);
@@ -63,13 +63,13 @@ bool test_downsample_420_basic()
     // Verify output dimensions
     if (cbcrSubsampled.width() != 8 || cbcrSubsampled.height() != 8 || cbcrSubsampled.channels() != 2)
     {
-        std::cerr << "Output dimensions incorrect: expected 8×8×2, got "
-                  << cbcrSubsampled.width() << "×" << cbcrSubsampled.height() << "×" << cbcrSubsampled.channels()
+        std::cerr << "Output dimensions incorrect: expected 8x8x2, got "
+                  << cbcrSubsampled.width() << "x" << cbcrSubsampled.height() << "x" << cbcrSubsampled.channels()
                   << std::endl;
         return false;
     }
     
-    // Verify downsampled values match (since 2×2 blocks were uniform)
+    // Verify downsampled values match (since 2x2 blocks were uniform)
     for (std::size_t y = 0; y < 8; ++y)
     {
         for (std::size_t x = 0; x < 8; ++x)
@@ -97,12 +97,12 @@ bool test_downsample_420_basic()
 /**
  * @brief Test 4:2:0 downsampling with checkerboard pattern (averaging required)
  * 
- * Input: 16×16 Cb/Cr with alternating 0/255 checkerboard
- * Expected output: 8×8 with all values ~127 (averaged)
+ * Input: 16x16 Cb/Cr with alternating 0/255 checkerboard
+ * Expected output: 8x8 with all values ~127 (averaged)
  */
 bool test_downsample_420_checkerboard()
 {
-    // Create 16×16 Cb/Cr images with checkerboard pattern
+    // Create 16x16 Cb/Cr images with checkerboard pattern
     Image cb(16, 16, ColorSpace::GRAY, 1);
     Image cr(16, 16, ColorSpace::GRAY, 1);
     

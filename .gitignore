@@ -11,7 +11,6 @@ CMakeScripts/
 **/cmake_install.cmake
 **/CTestTestfile.cmake
 **/CMakeScripts/
-**/CMakeLists.txt
 **/CMakeConfigureLog.yaml
 
 # Allow root README.md (project documentation)
@@ -21,18 +20,21 @@ CMakeScripts/
 !README.md
 !tests/README.md
 
-# Allow CHANGELOG.md (project history tracking)
-# CHANGELOG.md
-
-
 # Ignore build output folder
+build/
 Build/
 
-# Ignore batch build tests script
-build_and_run_tests.bat
+# Ignore output files (JPEG test outputs, generated images)
+*.jpg
+*.jpeg
+*.ppm
+*.pgm
 
-# Ignore .vscode folder, TODO add it but without absolute paths
-.vscode
-
+# Folders
+internals/
 .github
-docs/suggestions.md
+.vscode
+docs/
+
+# Files
+build_and_run_tests*

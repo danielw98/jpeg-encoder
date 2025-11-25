@@ -80,7 +80,7 @@ namespace
             int baseVal = static_cast<int>(base[i]);
             int scaled = (baseVal * scale + 50) / 100; // rounded
 
-            scaled = clampInt(scaled, 1, 255);
+            scaled = clampInt(scaled, 1, core::MAX_PIXEL_VALUE);
             result[i] = static_cast<std::uint16_t>(scaled);
         }
 

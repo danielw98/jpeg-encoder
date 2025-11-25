@@ -20,6 +20,7 @@ add_library(jpegdsp_core
     src/core/Entropy.cpp
     src/core/Logging.cpp
     src/core/Downsampler.cpp
+    src/core/ImagePadding.cpp
 
     src/transforms/DCTTransform.cpp
 
@@ -32,6 +33,8 @@ add_library(jpegdsp_core
     src/jpeg/JPEGWriter.cpp
 
     src/analysis/PipelineObserver.cpp
+
+    src/api/JPEGEncoder.cpp
 
     src/util/FileIO.cpp
     src/util/BitWriter.cpp
@@ -72,6 +75,9 @@ if (BUILD_EXAMPLES)
 
     add_executable(example_entropy_compare examples/entropy_comparison.cpp)
     target_link_libraries(example_entropy_compare PRIVATE jpegdsp_core)
+    
+    add_executable(example_api_demo examples/api_demo.cpp)
+    target_link_libraries(example_api_demo PRIVATE jpegdsp_core)
 endif()
 
 message(STATUS "jpegdsp project configured.")
