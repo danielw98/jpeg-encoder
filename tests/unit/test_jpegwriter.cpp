@@ -1,28 +1,13 @@
 #include "jpegdsp/jpeg/JPEGWriter.hpp"
 #include "jpegdsp/core/Image.hpp"
 #include "jpegdsp/core/Constants.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <vector>
 #include <cstdlib>
 
 using namespace jpegdsp::core;
-
-namespace
-{
-    void runTest(const char* name, bool (*fn)(), int& total, int& failed)
-    {
-        total++;
-        if (!fn())
-        {
-            failed++;
-            std::cerr << "[FAIL] " << name << "\n";
-        }
-        else
-        {
-            std::cout << "[PASS] " << name << "\n";
-        }
-    }
-}
+using namespace jpegdsp::test;
 
 bool test_jpegwriter_small_grayscale()
 {
@@ -225,15 +210,11 @@ bool test_jpegwriter_small_color()
 
 int main()
 {
-    int total = 0;
-    int failed = 0;
+    TestStats stats;
 
-    runTest("jpegwriter_small_grayscale", &test_jpegwriter_small_grayscale, total, failed);
-    runTest("jpegwriter_small_color", &test_jpegwriter_small_color, total, failed);
+    runTest("jpegwriter_small_grayscale", &test_jpegwriter_small_grayscale, stats);
+    runTest("jpegwriter_small_color", &test_jpegwriter_small_color, stats);
 
-    std::cout << "----------------------------------------\n";
-    std::cout << "JPEGWriter tests run:   " << total << "\n";
-    std::cout << "JPEGWriter tests failed:" << failed << "\n";
-
-    return (failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    stats.printSummary("JPEGWriter tests");
+    return stats.exitCode();
 }

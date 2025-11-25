@@ -1,33 +1,13 @@
 ﻿#include "jpegdsp/core/Block.hpp"
 #include "jpegdsp/core/Constants.hpp"
 #include "jpegdsp/transforms/DCTTransform.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
 
 using namespace jpegdsp::core;
-
-namespace
-{
-    bool closeFloat(float a, float b, float eps = 1e-3f)
-    {
-        return std::fabs(a - b) <= eps;
-    }
-
-    void runTest(const char* name, bool (*fn)(), int& total, int& failed)
-    {
-        total++;
-        if (!fn())
-        {
-            failed++;
-            std::cerr << "[FAIL] " << name << "\n";
-        }
-        else
-        {
-            std::cout << "[PASS] " << name << "\n";
-        }
-    }
-}
+using namespace jpegdsp::test;
 
 bool test_dct_roundtrip_basic()
 {
@@ -114,15 +94,11 @@ bool test_dct_constant_block_dc()
 
 int main()
 {
-    int total = 0;
-    int failed = 0;
+    TestStats stats;
 
-    runTest("dct_roundtrip_basic", &test_dct_roundtrip_basic, total, failed);
-    runTest("dct_constant_block_dc", &test_dct_constant_block_dc, total, failed);
+    runTest("dct_roundtrip_basic", &test_dct_roundtrip_basic, stats);
+    runTest("dct_constant_block_dc", &test_dct_constant_block_dc, stats);
 
-    std::cout << "----------------------------------------\n";
-    std::cout << "DCT tests run:   " << total << "\n";
-    std::cout << "DCT tests failed:" << failed << "\n";
-
-    return (failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    stats.printSummary("DCT tests");
+    return stats.exitCode();
 }

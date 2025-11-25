@@ -1,6 +1,7 @@
 #include "jpegdsp/core/Block.hpp"
 #include "jpegdsp/core/Constants.hpp"
 #include "jpegdsp/jpeg/Quantization.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <array>
 #include <cmath>
@@ -8,23 +9,7 @@
 
 using namespace jpegdsp::core;
 using namespace jpegdsp::jpeg;
-
-namespace
-{
-    void runTest(const char* name, bool (*fn)(), int& total, int& failed)
-    {
-        total++;
-        if (!fn())
-        {
-            failed++;
-            std::cerr << "[FAIL] " << name << "\n";
-        }
-        else
-        {
-            std::cout << "[PASS] " << name << "\n";
-        }
-    }
-}
+using namespace jpegdsp::test;
 
 bool test_quant_identity_all_ones()
 {
@@ -99,15 +84,11 @@ bool test_quant_zero_block()
 
 int main()
 {
-    int total = 0;
-    int failed = 0;
+    TestStats stats;
 
-    runTest("quant_identity_all_ones", &test_quant_identity_all_ones, total, failed);
-    runTest("quant_zero_block", &test_quant_zero_block, total, failed);
+    runTest("quant_identity_all_ones", &test_quant_identity_all_ones, stats);
+    runTest("quant_zero_block", &test_quant_zero_block, stats);
 
-    std::cout << "----------------------------------------\n";
-    std::cout << "Quantization tests run:   " << total << "\n";
-    std::cout << "Quantization tests failed:" << failed << "\n";
-
-    return (failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    stats.printSummary("Quantization tests");
+    return stats.exitCode();
 }

@@ -2,6 +2,17 @@
 
 A baseline JPEG encoder in C++17 for exploring DSP techniques in image compression.
 
+## Recent Changes (Phase 1 Refactor)
+
+**Code Quality Improvements (November 2025):**
+- **Eliminated magic numbers**: Created `JPEGConstants.hpp`, `DCTConstants.hpp`, `HuffmanTables.hpp` with all JPEG/DCT constants
+- **Centralized test framework**: All 10 tests now use `tests/TestFramework.hpp` (eliminates 150+ lines of duplicate test harness code)
+- **Removed duplicates**: 158 lines of duplicate Huffman table definitions eliminated
+- **Self-documenting code**: All constants reference ITU-T.81 standard sections
+- **100% test pass rate**: All tests validated after refactor, bit-identical JPEG output
+
+See `internals/PHASE1_COMPLETE.md` for detailed refactor summary and `internals/REFACTOR_ROADMAP.md` for future phases.
+
 ## What This Is
 
 Educational JPEG codec implementing the complete ITU-T.81 baseline sequential encoding pipeline. Focus is on clean code structure and demonstrating how frequency-domain transforms enable lossy compression.
@@ -35,17 +46,20 @@ Modular design with clean separation between DSP primitives and JPEG-specific lo
 - `Downsampler`: 4:2:0 chroma subsampling (2×2 averaging)
 - `Entropy`: Shannon entropy calculation
 
-**`jpegdsp::transforms`** – Generic transform interface
-- `ITransform2D<T, N>`: Transform interface (extensible to wavelets)
-- `DCT8x8Transform`: Forward/inverse DCT-II
-
 **`jpegdsp::jpeg`** – JPEG encoding
+- `JPEGConstants`: JPEG markers, segment lengths, component IDs, sampling factors (ITU-T.81)
+- `HuffmanTables`: Standard Huffman tables (ITU-T.81 Annex K.3)
 - `QuantTable`, `Quantizer`: Standard JPEG quantization tables
 - `ZigZag`: Zig-zag scan reordering
 - `RLE`: Run-length encoding for AC coefficients
-- `HuffmanTable`, `HuffmanEncoder`: ITU-T.81 Annex K.3 tables
+- `HuffmanTable`, `HuffmanEncoder`: Huffman encoding with standard tables
 - `BlockEntropyEncoder`: ZigZag → RLE → Huffman per block
 - `JPEGWriter`: JFIF marker formatting + bitstream generation
+
+**`jpegdsp::transforms`** – Generic transform interface
+- `DCTConstants`: DCT-II mathematical constants (scale factors, alpha values, pi)
+- `ITransform2D<T, N>`: Transform interface (extensible to wavelets)
+- `DCT8x8Transform`: Forward/inverse DCT-II
 
 **`jpegdsp::analysis`** – Instrumentation
 - `PipelineObserver`: Hooks for DCT visualization and entropy tracking
@@ -78,6 +92,9 @@ Modular design with clean separation between DSP primitives and JPEG-specific lo
 - CMake 3.16+
 - C++17 compiler (MSVC/GCC/Clang)
 
+**Dependencies:**
+- [nlohmann/json](https://github.com/nlohmann/json) - JSON serialization (header-only, fetched automatically via CMake)
+
 **Build:**
 ```powershell
 cmake -B build
@@ -86,18 +103,96 @@ cmake --build build --config Debug
 
 **Run tests:**
 ```powershell
+ctest --test-dir build -C Debug --output-on-failure
+# or verbose mode
 ctest --test-dir build -C Debug -V
-# or
+# or use batch script
 .\build_and_run_tests.bat
 ```
 
-**Test suite (9 executables, custom harness):**
-- `test_block`: Block data structure
-- `test_dct`: DCT transform, round-trip accuracy
-- `test_colorspace`: RGB ↔ YCbCr conversion
-- `test_quantization`: Quantization tables
-- `test_jpegwriter`: Grayscale + color JPEG generation, marker validation
-- `test_downsampler`: 4:2:0 chroma subsampling
+**Test Framework:**
+All tests use a centralized framework (`tests/TestFramework.hpp`) providing:
+- `TestStats`: Tracks passed/failed tests with summary reporting
+- `runTest()`: Executes test functions with consistent `[PASS]`/`[FAIL]` output
+- Assertion helpers: `assertEqual()`, `assertClose()`, `assertTrue()`, `assertFalse()`
+- Floating-point comparison: `closeFloat()`, `closeDouble()` with epsilon tolerance
+
+**Example test structure:**
+```cpp
+#include "../TestFramework.hpp"
+using namespace jpegdsp::test;
+
+bool test_my_feature() {
+    // Test logic
+    return assertEqual(expected, actual, "feature description");
+}
+
+int main() {
+    TestStats stats;
+    runTest("my_feature", &test_my_feature, stats);
+    stats.printSummary("My test suite");
+    return stats.exitCode();  // 0 on success, 1 on failure
+}
+```
+
+**Test suite (10 executables):**
+- `test_block`: Block data structure and extraction
+- `test_dct`: DCT transform, round-trip accuracy (<0.01 error)
+- `test_colorspace`: RGB ↔ YCbCr conversion validation
+- `test_quantization`: Quantization table generation and scaling
+- `test_jpegwriter`: Grayscale + YCbCr 4:2:0 JPEG generation, marker validation
+- `test_downsampler`: 4:2:0 chroma subsampling (2×2 averaging)
+- `test_imagepadding`: Arbitrary dimension padding to 8/16-pixel multiples
+- `test_core_codec`: Integration tests (Huffman, BitWriter, BlockEntropyEncoder, full pipeline)
+- `test_entropy`: Shannon entropy calculation
+- `test_jpeg_encoder`: High-level API + JSON serialization validation
+
+**Current test coverage:**
+- ✅ Core DSP primitives (blocks, DCT, quantization, entropy)
+- ✅ JPEG encoding pipeline (ZigZag, RLE, Huffman, DC prediction, byte-stuffing)
+- ✅ Color conversion and chroma subsampling
+- ✅ Bitstream generation (markers, segments, payload)
+- ✅ API + JSON serialization
+- ⚠️ **Missing**: Constant header validation, marker byte sequence tests, edge cases (1×1, 17×17 images)
+
+## Command-Line Interface
+
+**jpegdsp_cli_encode** - JPEG encoder for automation and language bindings
+
+```powershell
+# Basic usage
+.\build\Debug\jpegdsp_cli_encode.exe --input image.ppm --output image.jpg --quality 85
+
+# Grayscale encoding
+.\build\Debug\jpegdsp_cli_encode.exe --input image.pgm --output image.jpg --format grayscale
+
+# JSON output for programmatic use
+.\build\Debug\jpegdsp_cli_encode.exe --input image.ppm --output image.jpg --json
+```
+
+**Options:**
+- `--input <path>` - Input image (PPM/PGM/PNG format)
+- `--output <path>` - Output JPEG file
+- `--quality <1-100>` - Quality level (default: 75)
+- `--format <mode>` - `grayscale` or `color_420` (default: color_420)
+- `--json` - Output JSON encoding statistics to stdout
+
+**JSON Output Example:**
+```json
+{
+  "original_width": 512,
+  "original_height": 512,
+  "padded_width": 512,
+  "padded_height": 512,
+  "original_bytes": 786432,
+  "compressed_bytes": 35421,
+  "compression_ratio": 22.2,
+  "quality": 85,
+  "format": "COLOR_420"
+}
+```
+
+Use from C#/Python/other languages via `Process.Start()` for easy integration.
 - `test_core_codec`: Integration (Huffman, BitWriter, BlockEntropyEncoder)
 - `test_entropy`: Shannon entropy calculation
 - `test_jpeg_encoder`: High-level encoder interface
@@ -129,8 +224,12 @@ jpegdsp/
 
 - Nested namespaces: `jpegdsp::core`, `jpegdsp::jpeg`, etc.
 - Constants: Use `BlockSize`, `BlockElementCount` from `jpegdsp/core/Constants.hpp`
+  - JPEG/JFIF constants in `jpegdsp/jpeg/JPEGConstants.hpp` (markers, segment lengths, sampling factors)
+  - DCT constants in `jpegdsp/transforms/DCTConstants.hpp` (scale factors, alpha values)
+  - Huffman tables in `jpegdsp/jpeg/HuffmanTables.hpp` (ITU-T.81 Annex K.3)
 - Exceptions for invalid input, `noexcept` on getters
 - RAII everywhere, no raw `new`/`delete`
+- Test framework: Use `tests/TestFramework.hpp` for all new tests
 
 ## Key Techniques
 

@@ -1,4 +1,5 @@
 ﻿#include "jpegdsp/transforms/DCTTransform.hpp"
+#include "jpegdsp/transforms/DCTConstants.hpp"
 #include "jpegdsp/core/Constants.hpp"
 #include <cmath>
 
@@ -9,17 +10,8 @@ DCT8x8Transform::DCT8x8Transform()
     // Normalization factors for orthonormal DCT-II
     for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
     {
-        if (u == 0)
-        {
-            m_alpha[u] = static_cast<float>(1.0 / std::sqrt(2.0));
-        }
-        else
-        {
-            m_alpha[u] = 1.0f;
-        }
+        m_alpha[u] = static_cast<float>(getAlpha(u));
     }
-
-    constexpr double pi = 3.14159265358979323846;
 
     // Precompute cos((2x+1)uπ/16) for x,u in [0,7]
     for (std::size_t x = 0; x < jpegdsp::core::BlockSize; x++)
@@ -27,7 +19,7 @@ DCT8x8Transform::DCT8x8Transform()
         for (std::size_t u = 0; u < jpegdsp::core::BlockSize; u++)
         {
             double angle = (2.0 * static_cast<double>(x) + 1.0)
-                           * static_cast<double>(u) * pi / 16.0;
+                           * static_cast<double>(u) * PI / DCT_BLOCK_SIZE_DOUBLE;
             m_cosTable[x][u] = static_cast<float>(std::cos(angle));
         }
     }
@@ -39,7 +31,7 @@ void DCT8x8Transform::forward(const jpegdsp::core::Block<float,8>& in,
     // 2D DCT-II (orthonormal):
     // C(u,v) = 1/4 * α(u) α(v) Σx Σy f(x,y) cos((2x+1)uπ/16) cos((2y+1)vπ/16)
 
-    constexpr float scale = 0.25f;
+    constexpr float scale = static_cast<float>(DCT_SCALE);
 
     for (std::size_t v = 0; v < jpegdsp::core::BlockSize; v++)
     {
@@ -75,7 +67,7 @@ void DCT8x8Transform::inverse(const jpegdsp::core::Block<float,8>& in,
     // Inverse DCT (same cos/alpha, summed over u,v):
     // f(x,y) = 1/4 Σu Σv α(u) α(v) C(u,v) cos((2x+1)uπ/16) cos((2y+1)vπ/16)
 
-    constexpr float scale = 0.25f;
+    constexpr float scale = static_cast<float>(DCT_SCALE);
 
     for (std::size_t y = 0; y < jpegdsp::core::BlockSize; y++)
     {

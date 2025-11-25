@@ -11,6 +11,7 @@
 #include "jpegdsp/jpeg/BlockEntropyEncoder.hpp"
 #include "jpegdsp/jpeg/JPEGWriter.hpp"
 #include "jpegdsp/util/BitWriter.hpp"
+#include "../TestFramework.hpp"
 
 #include <iostream>
 #include <vector>
@@ -19,34 +20,15 @@
 
 
 using namespace jpegdsp::core;
+using namespace jpegdsp::test;
 
 namespace
 {
-    bool closeDouble(double a, double b, double eps = 1e-6)
-    {
-        return std::fabs(a - b) <= eps;
-    }
-
     bool closeByte(uint8_t a, uint8_t b, uint8_t tol = 2)
     {
         int da = static_cast<int>(a);
         int db = static_cast<int>(b);
         return std::abs(da - db) <= static_cast<int>(tol);
-    }
-
-    void runTest(const char* name, bool (*fn)(), int& total, int& failed)
-    {
-        total++;
-
-        if (!fn())
-        {
-            failed++;
-            std::cerr << "[FAIL] " << name << "\n";
-        }
-        else
-        {
-            std::cout << "[PASS] " << name << "\n";
-        }
     }
 }
 
@@ -996,59 +978,55 @@ bool test_jpegwriter_small_grayscale()
 
 int main()
 {
-    int total = 0;
-    int failed = 0;
+    TestStats stats;
 
     // BlockExtractor tests
-    runTest("block_single_8x8",           &test_block_single_8x8,               total, failed);
-    runTest("block_16x8_two_blocks",      &test_block_16x8_two_blocks,          total, failed);
+    runTest("block_single_8x8",           &test_block_single_8x8,               stats);
+    runTest("block_16x8_two_blocks",      &test_block_16x8_two_blocks,          stats);
 
     // Entropy tests
-    runTest("entropy_constant",           &test_entropy_constant,               total, failed);
-    runTest("entropy_two_symbols_equal",  &test_entropy_two_symbols_equal_prob, total, failed);
+    runTest("entropy_constant",           &test_entropy_constant,               stats);
+    runTest("entropy_two_symbols_equal",  &test_entropy_two_symbols_equal_prob, stats);
 
     // ColorSpace tests
-    runTest("colorspace_roundtrip_basic", &test_colorspace_roundtrip_basic,     total, failed);
+    runTest("colorspace_roundtrip_basic", &test_colorspace_roundtrip_basic,     stats);
 
     // DCT tests
-    runTest("dct_roundtrip_basic",        &test_dct_roundtrip_basic,            total, failed);
-    runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,          total, failed);
+    runTest("dct_roundtrip_basic",        &test_dct_roundtrip_basic,            stats);
+    runTest("dct_constant_block_dc",      &test_dct_constant_block_dc,          stats);
 
     // Quantization tests
-    runTest("quant_identity_all_ones",    &test_quant_identity_all_ones,        total, failed);
-    runTest("quant_zero_block",           &test_quant_zero_block,               total, failed);
+    runTest("quant_identity_all_ones",    &test_quant_identity_all_ones,        stats);
+    runTest("quant_zero_block",           &test_quant_zero_block,               stats);
 
     // ZigZag tests
-    runTest("zigzag_identity",            &test_zigzag_identity,                total, failed);
-    runTest("zigzag_known_pattern",       &test_zigzag_known_pattern,           total, failed);
+    runTest("zigzag_identity",            &test_zigzag_identity,                stats);
+    runTest("zigzag_known_pattern",       &test_zigzag_known_pattern,           stats);
 
     // RLE tests
-    runTest("rle_all_zeroes",             &test_rle_all_zeroes,                 total, failed);
-    runTest("rle_simple",                 &test_rle_simple,                     total, failed);
-    runTest("rle_zrl",                    &test_rle_zrl,                        total, failed);
-    runTest("rle_trailing_zeroes",        &test_rle_trailing_zeroes,            total, failed);
+    runTest("rle_all_zeroes",             &test_rle_all_zeroes,                 stats);
+    runTest("rle_simple",                 &test_rle_simple,                     stats);
+    runTest("rle_zrl",                    &test_rle_zrl,                        stats);
+    runTest("rle_trailing_zeroes",        &test_rle_trailing_zeroes,            stats);
 
     // BitWriter tests
-    runTest("bitwriter_single_byte",      &test_bitwriter_single_byte,          total, failed);
-    runTest("bitwriter_cross_byte",       &test_bitwriter_cross_byte_boundary,  total, failed);
-    runTest("bitwriter_byte_stuffing",    &test_bitwriter_byte_stuffing_ff,     total, failed);
+    runTest("bitwriter_single_byte",      &test_bitwriter_single_byte,          stats);
+    runTest("bitwriter_cross_byte",       &test_bitwriter_cross_byte_boundary,  stats);
+    runTest("bitwriter_byte_stuffing",    &test_bitwriter_byte_stuffing_ff,     stats);
 
     // Huffman tests
-    runTest("huffman_dc_luma_table",      &test_huffman_dc_luma_table,          total, failed);
-    runTest("huffman_dc_chroma_table",    &test_huffman_dc_chroma_table,        total, failed);
-    runTest("huffman_ac_luma_table",      &test_huffman_ac_luma_table,          total, failed);
-    runTest("huffman_ac_chroma_table",    &test_huffman_ac_chroma_table,        total, failed);
+    runTest("huffman_dc_luma_table",      &test_huffman_dc_luma_table,          stats);
+    runTest("huffman_dc_chroma_table",    &test_huffman_dc_chroma_table,        stats);
+    runTest("huffman_ac_luma_table",      &test_huffman_ac_luma_table,          stats);
+    runTest("huffman_ac_chroma_table",    &test_huffman_ac_chroma_table,        stats);
 
     // BlockEntropyEncoder tests
-    runTest("entropyenc_constant_block",  &test_entropyencoder_constant_block_luma,     total, failed);
-    runTest("entropyenc_dc_prediction",   &test_entropyencoder_two_blocks_dc_prediction, total, failed);
+    runTest("entropyenc_constant_block",  &test_entropyencoder_constant_block_luma,     stats);
+    runTest("entropyenc_dc_prediction",   &test_entropyencoder_two_blocks_dc_prediction, stats);
 
     // JPEGWriter tests
-    runTest("jpegwriter_small_grayscale", &test_jpegwriter_small_grayscale,              total, failed);
+    runTest("jpegwriter_small_grayscale", &test_jpegwriter_small_grayscale,              stats);
 
-    std::cout << "----------------------------------------\n";
-    std::cout << "Tests run:   " << total  << "\n";
-    std::cout << "Tests failed:" << failed << "\n";
-
-    return (failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    stats.printSummary("Core codec tests");
+    return stats.exitCode();
 }

@@ -1,11 +1,13 @@
 // tests/unit/test_colorspace.cpp
 #include "jpegdsp/core/Image.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 
 using namespace jpegdsp::core;
+using namespace jpegdsp::test;
 
-int main()
+bool test_colorspace_roundtrip_red()
 {
     // 1x1 pixel test: pure red
     Image rgb(1, 1, ColorSpace::RGB, 3);
@@ -16,9 +18,22 @@ int main()
     Image ycbcr = ColorConverter::RGBtoYCbCr(rgb);
     Image rgb2  = ColorConverter::YCbCrtoRGB(ycbcr);
 
-    std::cout << "R=" << int(rgb2.at(0,0,0))
-              << " G=" << int(rgb2.at(0,0,1))
-              << " B=" << int(rgb2.at(0,0,2)) << "\n";
+    uint8_t r = rgb2.at(0, 0, 0);
+    uint8_t g = rgb2.at(0, 0, 1);
+    uint8_t b = rgb2.at(0, 0, 2);
+    
+    std::cout << "  RGB roundtrip: R=" << int(r) << " G=" << int(g) << " B=" << int(b) << "\n";
+    
+    // Allow tolerance of ±2 for color conversion rounding
+    return (r >= 253 && r <= 255) && (g <= 2) && (b <= 2);
+}
 
-    return 0;
+int main()
+{
+    TestStats stats;
+    
+    runTest("colorspace_roundtrip_red", &test_colorspace_roundtrip_red, stats);
+    
+    stats.printSummary("ColorSpace tests");
+    return stats.exitCode();
 }

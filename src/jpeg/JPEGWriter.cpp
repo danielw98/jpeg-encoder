@@ -1,4 +1,6 @@
 ﻿#include "jpegdsp/jpeg/JPEGWriter.hpp"
+#include "jpegdsp/jpeg/JPEGConstants.hpp"
+#include "jpegdsp/jpeg/HuffmanTables.hpp"
 #include "jpegdsp/jpeg/Quantization.hpp"
 #include "jpegdsp/jpeg/BlockEntropyEncoder.hpp"
 #include "jpegdsp/jpeg/Huffman.hpp"
@@ -13,81 +15,7 @@
 
 namespace jpegdsp::jpeg {
 
-// JPEG markers
-static constexpr std::uint16_t SOI  = 0xFFD8;  // Start of Image
-static constexpr std::uint16_t EOI  = 0xFFD9;  // End of Image
-static constexpr std::uint16_t APP0 = 0xFFE0;  // Application segment 0 (JFIF)
-static constexpr std::uint16_t DQT  = 0xFFDB;  // Define Quantization Table
-static constexpr std::uint16_t SOF0 = 0xFFC0;  // Start of Frame (Baseline DCT)
-static constexpr std::uint16_t DHT  = 0xFFC4;  // Define Huffman Table
-static constexpr std::uint16_t SOS  = 0xFFDA;  // Start of Scan
-
-// Standard JPEG Huffman tables (from ITU-T.81 Annex K.3)
-static const std::array<std::uint8_t, 16> STD_DC_LUMINANCE_NBITS = {
-    0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0
-};
-static const std::array<std::uint8_t, 12> STD_DC_LUMINANCE_VALS = {
-    0,1,2,3,4,5,6,7,8,9,10,11
-};
-static const std::array<std::uint8_t, 16> STD_AC_LUMINANCE_NBITS = {
-    0,2,1,3,3,2,4,3,5,5,4,4,0,0,1,125
-};
-static const std::array<std::uint8_t,162> STD_AC_LUMINANCE_VALS = {
-    0x01,0x02,0x03,0x00,0x04,0x11,0x05,0x12,
-    0x21,0x31,0x41,0x06,0x13,0x51,0x61,0x07,
-    0x22,0x71,0x14,0x32,0x81,0x91,0xa1,0x08,
-    0x23,0x42,0xb1,0xc1,0x15,0x52,0xd1,0xf0,
-    0x24,0x33,0x62,0x72,0x82,0x09,0x0a,0x16,
-    0x17,0x18,0x19,0x1a,0x25,0x26,0x27,0x28,
-    0x29,0x2a,0x34,0x35,0x36,0x37,0x38,0x39,
-    0x3a,0x43,0x44,0x45,0x46,0x47,0x48,0x49,
-    0x4a,0x53,0x54,0x55,0x56,0x57,0x58,0x59,
-    0x5a,0x63,0x64,0x65,0x66,0x67,0x68,0x69,
-    0x6a,0x73,0x74,0x75,0x76,0x77,0x78,0x79,
-    0x7a,0x83,0x84,0x85,0x86,0x87,0x88,0x89,
-    0x8a,0x92,0x93,0x94,0x95,0x96,0x97,0x98,
-    0x99,0x9a,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,
-    0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,0xb5,0xb6,
-    0xb7,0xb8,0xb9,0xba,0xc2,0xc3,0xc4,0xc5,
-    0xc6,0xc7,0xc8,0xc9,0xca,0xd2,0xd3,0xd4,
-    0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xe1,0xe2,
-    0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,
-    0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,
-    0xf9,0xfa
-};
-
-static const std::array<std::uint8_t, 16> STD_DC_CHROMINANCE_NBITS = {
-    0,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0
-};
-static const std::array<std::uint8_t, 12> STD_DC_CHROMINANCE_VALS = {
-    0,1,2,3,4,5,6,7,8,9,10,11
-};
-static const std::array<std::uint8_t, 16> STD_AC_CHROMINANCE_NBITS = {
-    0,2,1,2,4,4,3,4,7,5,4,4,0,1,2,119
-};
-static const std::array<std::uint8_t,162> STD_AC_CHROMINANCE_VALS = {
-    0x00,0x01,0x02,0x03,0x11,0x04,0x05,0x21,
-    0x31,0x06,0x12,0x41,0x51,0x07,0x61,0x71,
-    0x13,0x22,0x32,0x81,0x08,0x14,0x42,0x91,
-    0xa1,0xb1,0xc1,0x09,0x23,0x33,0x52,0xf0,
-    0x15,0x62,0x72,0xd1,0x0a,0x16,0x24,0x34,
-    0xe1,0x25,0xf1,0x17,0x18,0x19,0x1a,0x26,
-    0x27,0x28,0x29,0x2a,0x35,0x36,0x37,0x38,
-    0x39,0x3a,0x43,0x44,0x45,0x46,0x47,0x48,
-    0x49,0x4a,0x53,0x54,0x55,0x56,0x57,0x58,
-    0x59,0x5a,0x63,0x64,0x65,0x66,0x67,0x68,
-    0x69,0x6a,0x73,0x74,0x75,0x76,0x77,0x78,
-    0x79,0x7a,0x82,0x83,0x84,0x85,0x86,0x87,
-    0x88,0x89,0x8a,0x92,0x93,0x94,0x95,0x96,
-    0x97,0x98,0x99,0x9a,0xa2,0xa3,0xa4,0xa5,
-    0xa6,0xa7,0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,
-    0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xc2,0xc3,
-    0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xd2,
-    0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,
-    0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,
-    0xea,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,
-    0xf9,0xfa
-};
+// Huffman tables now in HuffmanTables.hpp
 
 std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, int quality)
 {
@@ -117,8 +45,14 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
               static_cast<std::uint16_t>(img.height()));
     
     // Write Huffman tables for luma DC and AC
-    writeDHT(0, 0, STD_DC_LUMINANCE_NBITS.data(), STD_DC_LUMINANCE_VALS.data(), STD_DC_LUMINANCE_VALS.size());
-    writeDHT(1, 0, STD_AC_LUMINANCE_NBITS.data(), STD_AC_LUMINANCE_VALS.data(), STD_AC_LUMINANCE_VALS.size());
+    writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA, 
+             StandardHuffmanTables::DC_LUMA_NBITS.data(), 
+             StandardHuffmanTables::DC_LUMA_VALS.data(), 
+             StandardHuffmanTables::DC_LUMA_VALS.size());
+    writeDHT(HUFFMAN_CLASS_AC, HUFFMAN_DEST_LUMA, 
+             StandardHuffmanTables::AC_LUMA_NBITS.data(), 
+             StandardHuffmanTables::AC_LUMA_VALS.data(), 
+             StandardHuffmanTables::AC_LUMA_VALS.size());
     
     writeSOS();
     
@@ -149,13 +83,13 @@ void JPEGWriter::writeByte(std::uint8_t value)
 
 void JPEGWriter::writeSOI()
 {
-    writeMarker(SOI);
+    writeMarker(MARKER_SOI);
 }
 
 void JPEGWriter::writeAPP0()
 {
-    writeMarker(APP0);
-    writeWord(16); // Segment length (including this length field)
+    writeMarker(MARKER_APP0);
+    writeWord(APP0_LENGTH); // Segment length (including this length field)
     
     // JFIF identifier (null-terminated)
     writeByte('J');
@@ -174,8 +108,8 @@ void JPEGWriter::writeAPP0()
 
 void JPEGWriter::writeDQT(const std::uint16_t* quantTable)
 {
-    writeMarker(DQT);
-    writeWord(67); // Length: 2 + 1 + 64 = 67 bytes
+    writeMarker(MARKER_DQT);
+    writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(0);  // Precision (0 = 8-bit) | Table ID (0 = luma)
     
     // Write quantization table values
@@ -187,24 +121,24 @@ void JPEGWriter::writeDQT(const std::uint16_t* quantTable)
 
 void JPEGWriter::writeSOF0(std::uint16_t width, std::uint16_t height)
 {
-    writeMarker(SOF0);
+    writeMarker(MARKER_SOF0);
     writeWord(11); // Length: 2 + 1 + 2 + 2 + 1 + (1*3) = 11 bytes
-    writeByte(8);  // Sample precision (8 bits per component)
+    writeByte(PRECISION);  // Sample precision (8 bits per component)
     writeWord(height);
     writeWord(width);
     writeByte(1);  // Number of components (grayscale = 1)
     
     // Component specification (1 component):
-    writeByte(1);  // Component ID (Y)
-    writeByte(0x11); // Sampling factors: horizontal=1, vertical=1 (no subsampling)
+    writeByte(COMPONENT_Y);  // Component ID (Y)
+    writeByte(SAMPLING_1x1); // Sampling factors: horizontal=1, vertical=1 (no subsampling)
     writeByte(0);  // Quantization table ID (0 = luma table)
 }
 
 void JPEGWriter::writeDHT(std::uint8_t tableClass, std::uint8_t tableId,
                           const std::uint8_t* bits, const std::uint8_t* values, std::size_t numValues)
 {
-    writeMarker(DHT);
-    writeWord(static_cast<std::uint16_t>(19 + numValues)); // Length: 2 + 1 + 16 + numValues
+    writeMarker(MARKER_DHT);
+    writeWord(static_cast<std::uint16_t>(DHT_BASE_LENGTH + numValues)); // Length: 2 + 1 + 16 + numValues
     writeByte((tableClass << 4) | tableId); // Table class (0=DC, 1=AC) | Table ID
     
     // Write 16 bytes of bit lengths
@@ -222,7 +156,7 @@ void JPEGWriter::writeDHT(std::uint8_t tableClass, std::uint8_t tableId,
 
 void JPEGWriter::writeSOS()
 {
-    writeMarker(SOS);
+    writeMarker(MARKER_SOS);
     writeWord(8); // Length: 2 + 1 + 1 + (1*2) + 3 = 8 bytes
     writeByte(1); // Number of components in scan (grayscale = 1)
     
@@ -238,7 +172,7 @@ void JPEGWriter::writeSOS()
 
 void JPEGWriter::writeEOI()
 {
-    writeMarker(EOI);
+    writeMarker(MARKER_EOI);
 }
 
 void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quantTable)
@@ -358,10 +292,10 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
     writeSOF0Color(static_cast<std::uint16_t>(img.width()), static_cast<std::uint16_t>(img.height()));
     
     // Write Huffman tables (DC and AC for both luma and chroma)
-    writeDHT(0, 0, STD_DC_LUMINANCE_NBITS.data(), STD_DC_LUMINANCE_VALS.data(), 12);
-    writeDHT(1, 0, STD_AC_LUMINANCE_NBITS.data(), STD_AC_LUMINANCE_VALS.data(), 162);
-    writeDHT(0, 1, STD_DC_CHROMINANCE_NBITS.data(), STD_DC_CHROMINANCE_VALS.data(), 12);
-    writeDHT(1, 1, STD_AC_CHROMINANCE_NBITS.data(), STD_AC_CHROMINANCE_VALS.data(), 162);
+    writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA,   StandardHuffmanTables::DC_LUMA_NBITS.data(),   StandardHuffmanTables::DC_LUMA_VALS.data(),   12);
+    writeDHT(HUFFMAN_CLASS_AC, HUFFMAN_DEST_LUMA,   StandardHuffmanTables::AC_LUMA_NBITS.data(),   StandardHuffmanTables::AC_LUMA_VALS.data(),   162);
+    writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_CHROMA, StandardHuffmanTables::DC_CHROMA_NBITS.data(), StandardHuffmanTables::DC_CHROMA_VALS.data(), 12);
+    writeDHT(HUFFMAN_CLASS_AC, HUFFMAN_DEST_CHROMA, StandardHuffmanTables::AC_CHROMA_NBITS.data(), StandardHuffmanTables::AC_CHROMA_VALS.data(), 162);
     
     writeSOSColor();
     
@@ -376,8 +310,8 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
 void JPEGWriter::writeDQT2(const std::uint16_t* lumaTable, const std::uint16_t* chromaTable)
 {
     // Write luma quantization table (table ID 0)
-    writeMarker(DQT);
-    writeWord(67); // Length: 2 + 1 + 64 = 67 bytes
+    writeMarker(MARKER_DQT);
+    writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(0);  // Precision (0 = 8-bit) | Table ID (0 = luma)
     
     for (std::size_t i = 0; i < core::BlockElementCount; ++i)
@@ -386,8 +320,8 @@ void JPEGWriter::writeDQT2(const std::uint16_t* lumaTable, const std::uint16_t* 
     }
     
     // Write chroma quantization table (table ID 1)
-    writeMarker(DQT);
-    writeWord(67); // Length: 2 + 1 + 64 = 67 bytes
+    writeMarker(MARKER_DQT);
+    writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(1);  // Precision (0 = 8-bit) | Table ID (1 = chroma)
     
     for (std::size_t i = 0; i < core::BlockElementCount; ++i)
@@ -398,7 +332,7 @@ void JPEGWriter::writeDQT2(const std::uint16_t* lumaTable, const std::uint16_t* 
 
 void JPEGWriter::writeSOF0Color(std::uint16_t width, std::uint16_t height)
 {
-    writeMarker(SOF0);
+    writeMarker(MARKER_SOF0);
     writeWord(17); // Length: 2 + 1 + 2 + 2 + 1 + (3*3) = 17 bytes
     writeByte(8);  // Sample precision (8 bits per component)
     writeWord(height);
@@ -423,7 +357,7 @@ void JPEGWriter::writeSOF0Color(std::uint16_t width, std::uint16_t height)
 
 void JPEGWriter::writeSOSColor()
 {
-    writeMarker(SOS);
+    writeMarker(MARKER_SOS);
     writeWord(12); // Length: 2 + 1 + (3*2) + 3 = 12 bytes
     writeByte(3);  // Number of components (YCbCr = 3)
     

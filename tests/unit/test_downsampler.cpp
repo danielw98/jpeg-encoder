@@ -4,32 +4,12 @@
  */
 
 #include "jpegdsp/core/Downsampler.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <cmath>
 
 using namespace jpegdsp::core;
-
-/**
- * @brief Test helper: Run test and report result
- * @param testName Name of the test
- * @param testFunc Function returning true on pass, false on fail
- * @return Number of failures (0 or 1)
- */
-int runTest(const char* testName, bool (*testFunc)())
-{
-    std::cout << "Running " << testName << "... ";
-    const bool passed = testFunc();
-    if (passed)
-    {
-        std::cout << "[PASS]" << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "[FAIL]" << std::endl;
-        return 1;
-    }
-}
+using namespace jpegdsp::test;
 
 /**
  * @brief Test basic 4:2:0 downsampling with uniform 2x2 blocks
@@ -192,21 +172,13 @@ bool test_downsample_420_invalid_dimensions()
 
 int main()
 {
-    int failCount = 0;
+    TestStats stats;
     
-    failCount += runTest("test_downsample_420_basic", test_downsample_420_basic);
-    failCount += runTest("test_downsample_420_checkerboard", test_downsample_420_checkerboard);
-    failCount += runTest("test_downsample_420_dimension_mismatch", test_downsample_420_dimension_mismatch);
-    failCount += runTest("test_downsample_420_invalid_dimensions", test_downsample_420_invalid_dimensions);
+    runTest("test_downsample_420_basic", test_downsample_420_basic, stats);
+    runTest("test_downsample_420_checkerboard", test_downsample_420_checkerboard, stats);
+    runTest("test_downsample_420_dimension_mismatch", test_downsample_420_dimension_mismatch, stats);
+    runTest("test_downsample_420_invalid_dimensions", test_downsample_420_invalid_dimensions, stats);
     
-    if (failCount == 0)
-    {
-        std::cout << "\nAll Downsampler tests passed!" << std::endl;
-    }
-    else
-    {
-        std::cout << "\n" << failCount << " Downsampler test(s) failed." << std::endl;
-    }
-    
-    return (failCount == 0) ? 0 : 1;
+    stats.printSummary("Downsampler tests");
+    return stats.exitCode();
 }

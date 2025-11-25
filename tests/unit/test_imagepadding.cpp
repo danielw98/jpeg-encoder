@@ -1,29 +1,12 @@
 #include "jpegdsp/core/ImagePadding.hpp"
 #include "jpegdsp/core/Image.hpp"
 #include "jpegdsp/core/Constants.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <cstdlib>
 
 using namespace jpegdsp;
-
-// ---------------------------------------------------------------------
-// Test harness
-// ---------------------------------------------------------------------
-static int failedTests = 0;
-
-static void runTest(const char* testName, bool (*testFunc)())
-{
-    std::cout << "Running " << testName << "... ";
-    if (testFunc())
-    {
-        std::cout << "[PASS]\n";
-    }
-    else
-    {
-        std::cout << "[FAIL]\n";
-        failedTests++;
-    }
-}
+using namespace jpegdsp::test;
 
 // ---------------------------------------------------------------------
 // Test: No padding needed (already valid dimensions)
@@ -348,26 +331,20 @@ bool test_get_padded_dimensions()
 // ---------------------------------------------------------------------
 int main()
 {
+    TestStats stats;
+    
     std::cout << "======================================\n";
     std::cout << "ImagePadding Unit Tests\n";
     std::cout << "======================================\n";
     
-    runTest("test_no_padding_needed", test_no_padding_needed);
-    runTest("test_pad_width_only", test_pad_width_only);
-    runTest("test_pad_height_only", test_pad_height_only);
-    runTest("test_pad_both_dimensions", test_pad_both_dimensions);
-    runTest("test_is_dimension_valid", test_is_dimension_valid);
-    runTest("test_get_padded_dimensions", test_get_padded_dimensions);
+    runTest("test_no_padding_needed", test_no_padding_needed, stats);
+    runTest("test_pad_width_only", test_pad_width_only, stats);
+    runTest("test_pad_height_only", test_pad_height_only, stats);
+    runTest("test_pad_both_dimensions", test_pad_both_dimensions, stats);
+    runTest("test_is_dimension_valid", test_is_dimension_valid, stats);
+    runTest("test_get_padded_dimensions", test_get_padded_dimensions, stats);
     
     std::cout << "======================================\n";
-    if (failedTests == 0)
-    {
-        std::cout << "All tests passed!\n";
-        return EXIT_SUCCESS;
-    }
-    else
-    {
-        std::cout << failedTests << " test(s) failed.\n";
-        return EXIT_FAILURE;
-    }
+    stats.printSummary("ImagePadding tests");
+    return stats.exitCode();
 }

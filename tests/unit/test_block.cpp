@@ -1,28 +1,13 @@
 #include "jpegdsp/core/Image.hpp"
 #include "jpegdsp/core/Block.hpp"
 #include "jpegdsp/core/Constants.hpp"
+#include "../TestFramework.hpp"
 #include <iostream>
 #include <vector>
 #include <cstdlib>
 
 using namespace jpegdsp::core;
-
-namespace
-{
-    void runTest(const char* name, bool (*fn)(), int& total, int& failed)
-    {
-        total++;
-        if (!fn())
-        {
-            failed++;
-            std::cerr << "[FAIL] " << name << "\n";
-        }
-        else
-        {
-            std::cout << "[PASS] " << name << "\n";
-        }
-    }
-}
+using namespace jpegdsp::test;
 
 bool test_block_single_8x8()
 {
@@ -122,15 +107,11 @@ bool test_block_16x8_two_blocks()
 
 int main()
 {
-    int total = 0;
-    int failed = 0;
+    TestStats stats;
 
-    runTest("block_single_8x8", &test_block_single_8x8, total, failed);
-    runTest("block_16x8_two_blocks", &test_block_16x8_two_blocks, total, failed);
+    runTest("block_single_8x8", &test_block_single_8x8, stats);
+    runTest("block_16x8_two_blocks", &test_block_16x8_two_blocks, stats);
 
-    std::cout << "----------------------------------------\n";
-    std::cout << "Block tests run:   " << total << "\n";
-    std::cout << "Block tests failed:" << failed << "\n";
-
-    return (failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    stats.printSummary("Block tests");
+    return stats.exitCode();
 }
