@@ -3,6 +3,7 @@
 #include "jpegdsp/jpeg/JPEGTypes.hpp"
 #include "jpegdsp/core/ImagePadding.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -21,6 +22,22 @@ std::string JPEGEncoder::EncodeResult::toString() const
         << "  Compression ratio:   " << std::fixed << std::setprecision(2) 
         << compressionRatio << "x\n";
     return oss.str();
+}
+
+std::string JPEGEncoder::EncodeResult::toJson() const
+{
+    nlohmann::json j;
+    j["original_width"] = originalWidth;
+    j["original_height"] = originalHeight;
+    j["padded_width"] = paddedWidth;
+    j["padded_height"] = paddedHeight;
+    j["original_bytes"] = originalBytes;
+    j["compressed_bytes"] = compressedBytes;
+    j["compression_ratio"] = compressionRatio;
+    j["quality"] = quality;
+    j["format"] = (format == Format::GRAYSCALE) ? "GRAYSCALE" : "COLOR_420";
+    
+    return j.dump(2);  // Pretty-print with 2-space indentation
 }
 
 JPEGEncoder::Format JPEGEncoder::autoDetectFormat(const core::Image& img)
@@ -125,6 +142,8 @@ JPEGEncoder::EncodeResult JPEGEncoder::encode(
     result.originalBytes = img.width() * img.height() * img.channels();
     result.compressedBytes = result.jpegData.size();
     result.compressionRatio = static_cast<double>(result.originalBytes) / result.compressedBytes;
+    result.format = format;
+    result.quality = quality;
     
     return result;
 }

@@ -41,8 +41,11 @@ public:
         std::size_t originalBytes;              // Uncompressed size
         std::size_t compressedBytes;            // JPEG size
         double compressionRatio;                // originalBytes / compressedBytes
+        Format format;                          // Encoding format used
+        int quality;                            // Quality level [1-100]
         
         std::string toString() const;
+        std::string toJson() const;             // JSON serialization for CLI/web
     };
     
     /**

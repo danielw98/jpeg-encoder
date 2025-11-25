@@ -11,6 +11,19 @@ option(BUILD_TESTS "Build unit/integration tests" ON)
 option(BUILD_EXAMPLES "Build example binaries" ON)
 
 # ---------------------------------------------------------------------
+# External dependencies
+# ---------------------------------------------------------------------
+include(FetchContent)
+
+# nlohmann::json for JSON serialization (header-only)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+
+# ---------------------------------------------------------------------
 # Core library
 # ---------------------------------------------------------------------
 add_library(jpegdsp_core
@@ -44,6 +57,11 @@ add_library(jpegdsp_core
 target_include_directories(jpegdsp_core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(jpegdsp_core
+    PUBLIC
+        nlohmann_json::nlohmann_json
 )
 
 # ---------------------------------------------------------------------
