@@ -11,8 +11,6 @@ A baseline JPEG encoder in C++17 for exploring DSP techniques in image compressi
 - **Self-documenting code**: All constants reference ITU-T.81 standard sections
 - **100% test pass rate**: All tests validated after refactor, bit-identical JPEG output
 
-See `internals/PHASE1_COMPLETE.md` for detailed refactor summary and `internals/REFACTOR_ROADMAP.md` for future phases.
-
 ## What This Is
 
 Educational JPEG codec implementing the complete ITU-T.81 baseline sequential encoding pipeline. Focus is on clean code structure and demonstrating how frequency-domain transforms enable lossy compression.
@@ -193,6 +191,72 @@ int main() {
 ```
 
 Use from C#/Python/other languages via `Process.Start()` for easy integration.
+
+## Test Images & Validation
+
+**Generate synthetic test images:**
+```powershell
+python scripts/generate_test_images.py
+```
+Creates 14 test images (512×512) in `data/test_images/`:
+- Solid colors (red, green, blue, white, black) - tests minimal entropy
+- Gradients (horizontal, vertical) - tests low-frequency DCT
+- Checkerboards (32px, 64px) - tests high-frequency content and block artifacts
+- Frequency patterns (horizontal, vertical lines) - tests specific DCT bins
+- Complex patterns - tests multiple frequencies
+- Color bars (SMPTE-style) - tests chroma subsampling
+- Grayscale ramp - tests quantization levels
+
+**Run CLI validation:**
+```powershell
+python scripts/validate_cli.py
+```
+Validates:
+1. All test images encode successfully
+2. JPEG markers are correct (SOI, APP0, DQT, SOF0, DHT, SOS, EOI)
+3. Quality scaling (Q10 < Q50 < Q90 file sizes)
+4. JSON output format
+5. Error handling (missing files, invalid args)
+
+**Expected compression ratios:**
+- Solid colors: >100:1 (minimal entropy)
+- Gradients: 50-100:1 (low-frequency content)
+- Checkerboards: 10-30:1 (high-frequency content)
+- Complex patterns: 20-40:1 (real-world-like)
+
+See `data/test_images/README.md` for detailed test image documentation.
+
+## Implementation Completeness
+
+**Status: ~90% of baseline sequential JPEG encoder**
+
+✅ **Implemented:**
+- Baseline DCT encoding (SOF0) - ITU-T.81 Annex A
+- Grayscale + YCbCr 4:2:0 color
+- Standard quantization tables with quality scaling
+- Standard Huffman tables (ITU-T.81 Annex K.3)
+- Full entropy pipeline (ZigZag, DC prediction, RLE, Huffman)
+- JFIF 1.01 markers
+- Image padding (arbitrary dimensions → 8/16-pixel multiples)
+- CLI tool with PNG/PPM/PGM input
+- JSON API for integration
+
+❌ **Missing:**
+- JPEG decoder (inverse pipeline)
+- Progressive JPEG (SOF2)
+- 4:2:2 and 4:4:4 chroma formats
+- Optimized Huffman tables (two-pass encoding)
+- Restart markers (error resilience)
+- EXIF metadata (APP1)
+- Arithmetic coding (SOF9/SOF10)
+- Lossless mode (SOF3)
+
+**Production Readiness:**
+- ✅ Safe for: Education, research, prototyping
+- ⚠️ Use with caution: Web apps (no progressive), high-volume processing
+- ❌ Not recommended: Production servers, real-time video, critical applications
+
+See `docs/COMPLETENESS.md` for detailed assessment.
 - `test_core_codec`: Integration (Huffman, BitWriter, BlockEntropyEncoder)
 - `test_entropy`: Shannon entropy calculation
 - `test_jpeg_encoder`: High-level encoder interface
