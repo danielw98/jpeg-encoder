@@ -491,8 +491,9 @@ bool test_rle_simple()
 
     auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
 
-    if (out.size() != 2) {
-        std::cerr << "test_rle_simple: expected size=2, got " << out.size() << "\n";
+    // Should be: (0,5), (3,3), EOB
+    if (out.size() != 3) {
+        std::cerr << "test_rle_simple: expected size=3, got " << out.size() << "\n";
         return false;
     }
     if (out[0].run != 0 || out[0].value != 5) {
@@ -501,6 +502,10 @@ bool test_rle_simple()
     }
     if (out[1].run != 3 || out[1].value != 3) {
         std::cerr << "test_rle_simple: out[1] expected (3,3), got (" << (int)out[1].run << "," << out[1].value << ")\n";
+        return false;
+    }
+    if (out[2].run != jpegdsp::jpeg::EOB || out[2].value != 0) {
+        std::cerr << "test_rle_simple: out[2] expected (EOB,0), got (" << (int)out[2].run << "," << out[2].value << ")\n";
         return false;
     }
     return true;
@@ -514,12 +519,14 @@ bool test_rle_zrl()
 
     auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
 
-    if (out.size() != 2) return false;
+    // Should be: ZRL (16 zeros), (0,7), EOB
+    if (out.size() != 3) return false;
 
     bool hasZRL = (out[0].run == jpegdsp::jpeg::ZRL && out[0].value == 0);
     bool next = (out[1].run == 0 && out[1].value == 7);
+    bool hasEOB = (out[2].run == jpegdsp::jpeg::EOB && out[2].value == 0);
 
-    return hasZRL && next;
+    return hasZRL && next && hasEOB;
 }
 
 bool test_rle_trailing_zeroes()
@@ -530,8 +537,7 @@ bool test_rle_trailing_zeroes()
 
     auto out = jpegdsp::jpeg::RLE::encodeAC(zz);
     
-    // Manually add EOB for this test (since encodeAC doesn't automatically add it)
-    out.push_back({jpegdsp::jpeg::EOB, 0});
+    // EOB is now automatically emitted by encodeAC (per ITU-T.81)
 
     if (!(out.size() == 3)) {
         std::cerr << "test_rle_trailing_zeroes: expected size=3, got " << out.size() << "\n";

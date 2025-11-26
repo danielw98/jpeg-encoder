@@ -24,6 +24,9 @@ public:
     Pixel8& at(std::size_t x, std::size_t y, std::size_t c);
     const Pixel8& at(std::size_t x, std::size_t y, std::size_t c) const;
 
+    // Pad image to nearest multiple of block size (edge replication)
+    Image padToMultiple(std::size_t blockWidth, std::size_t blockHeight) const;
+
 private:
     std::size_t m_width = 0;
     std::size_t m_height = 0;

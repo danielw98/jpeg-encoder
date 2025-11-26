@@ -2,6 +2,7 @@
 #include "jpegdsp/core/Entropy.hpp"
 #include "jpegdsp/jpeg/JPEGConstants.hpp"
 #include <nlohmann/json.hpp>
+// #include <opencv2/opencv.hpp>  // Disabled: replaced with stb_image
 #include <sstream>
 #include <iomanip>
 #include <cmath>
@@ -51,7 +52,8 @@ std::string EncodingAnalysis::toJson() const
         {"avg_ac_coefficient", avgACCoefficient},
         {"dc_energy_percent", dcEnergy},
         {"ac_energy_percent", acEnergy},
-        {"frequency_band_energy", frequencyBandEnergy}
+        {"frequency_band_energy", frequencyBandEnergy},
+        {"sample_dct_matrices", sampleDCTMatrices}
     };
     
     j["quantization"] = {
@@ -296,10 +298,13 @@ EncodingAnalysis JPEGAnalyzer::analyze(
     analysis.quantizationTimeMs = 0.0;
     analysis.entropyEncodingTimeMs = 0.0;
     
-    // Quality metrics
-    analysis.hasQualityMetrics = false;
-    analysis.psnr = 0.0;
-    analysis.mse = 0.0;
+    // Quality metrics (compute using OpenCV if available)
+    analysis.hasQualityMetrics = computeQualityMetrics(
+        originalImage, 
+        jpegData, 
+        analysis.psnr, 
+        analysis.mse
+    );
     
     // JPEG compliance
     analysis.isBaseline = true;
@@ -411,6 +416,21 @@ std::size_t JPEGAnalyzer::countMarkerBytes(const std::vector<std::uint8_t>& jpeg
     }
     
     return overhead;
+}
+
+bool JPEGAnalyzer::computeQualityMetrics(
+    const core::Image& originalImage,
+    const std::vector<std::uint8_t>& jpegData,
+    double& psnr,
+    double& mse)
+{
+    // TODO: Implement quality metrics without OpenCV
+    // For now, just return placeholder values
+    (void)originalImage;
+    (void)jpegData;
+    mse = 0.0;
+    psnr = 0.0;
+    return false;  // Not implemented
 }
 
 } // namespace jpegdsp::analysis

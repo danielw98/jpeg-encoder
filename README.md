@@ -2,20 +2,33 @@
 
 A baseline JPEG encoder in C++17 for exploring DSP techniques in image compression.
 
-## Recent Changes (Phase 1 Refactor)
-
-**Code Quality Improvements (November 2025):**
-- **Eliminated magic numbers**: Created `JPEGConstants.hpp`, `DCTConstants.hpp`, `HuffmanTables.hpp` with all JPEG/DCT constants
-- **Centralized test framework**: All 10 tests now use `tests/TestFramework.hpp` (eliminates 150+ lines of duplicate test harness code)
-- **Removed duplicates**: 158 lines of duplicate Huffman table definitions eliminated
-- **Self-documenting code**: All constants reference ITU-T.81 standard sections
-- **100% test pass rate**: All tests validated after refactor, bit-identical JPEG output
-
 ## What This Is
 
 Educational JPEG codec implementing the complete ITU-T.81 baseline sequential encoding pipeline. Focus is on clean code structure and demonstrating how frequency-domain transforms enable lossy compression.
 
 **Research goal**: Understand how DSP concepts (DCT, quantization, entropy coding) combine to achieve compression, and explore trade-offs between compression ratio and perceptual quality.
+
+## Current Status
+
+**Core Encoder: 100% Complete**
+- Grayscale JPEG encoding (baseline sequential SOF0)
+- YCbCr 4:2:0 color JPEG encoding with 2×2 chroma subsampling
+- Full entropy coding pipeline (ZigZag, RLE, Huffman, DC prediction, byte-stuffing)
+- DCT-II transform (forward/inverse, <0.01 round-trip error)
+- Standard JPEG quantization tables with quality scaling [1-100]
+- Automatic MCU padding with edge replication (supports arbitrary dimensions)
+- CLI tool for batch encoding (PNG/PPM/PGM input)
+- 15 test executables, 100% pass rate
+
+**Analysis Layer: ~30% Complete**
+- `PipelineObserver` interface exists
+- `Entropy::calculate()` works
+- **Missing:** `BlockAnalyzer`, `EntropyProfiler`, JSON export
+
+**Web UI: Planned**
+- ASP.NET Core + Razor Pages
+- Docker containerization
+- Integration via CLI shelling
 
 ## Encoding Pipeline
 
@@ -29,60 +42,118 @@ Standard JPEG baseline sequential (ITU-T.81):
 6. **Bitstream**: JFIF markers (SOI, APP0, DQT, SOF0, DHT, SOS, EOI)
 
 **Two encoding modes:**
-- Grayscale: Single luminance channel, 1 quantization table, 2 Huffman tables (DC/AC luma)
-- YCbCr 4:2:0: Full color, 2×2 chroma subsampling, 2 quantization tables, 4 Huffman tables (DC/AC luma, DC/AC chroma)
+- **Grayscale**: Single luminance channel, 1 quantization table, 2 Huffman tables (DC/AC luma)
+- **YCbCr 4:2:0**: Full color, 2×2 chroma subsampling, 2 quantization tables, 4 Huffman tables (DC/AC luma, DC/AC chroma)
 
 ## Code Structure
 
 Modular design with clean separation between DSP primitives and JPEG-specific logic:
 
-**`jpegdsp::core`** – DSP primitives
-- `Image`: Multi-channel pixel buffer (RGB/YCbCr/GRAY)
+```
+jpegdsp/
+├── include/jpegdsp/           # Public headers
+│   ├── core/                  # DSP primitives
+│   │   ├── Image.hpp          # Multi-channel pixel buffer
+│   │   ├── Block.hpp          # Generic N×N blocks (Block8x8f, Block8x8i)
+│   │   ├── ColorSpace.hpp     # RGB ↔ YCbCr conversion
+│   │   ├── Downsampler.hpp    # 4:2:0 chroma subsampling
+│   │   ├── Entropy.hpp        # Shannon entropy calculation
+│   │   ├── ImagePadding.hpp   # MCU boundary padding
+│   │   └── Constants.hpp      # BlockSize, BlockElementCount
+│   │
+│   ├── transforms/            # Transform interfaces
+│   │   ├── ITransform2D.hpp   # Generic transform interface
+│   │   ├── DCTTransform.hpp   # Forward/inverse DCT-II
+│   │   └── DCTConstants.hpp   # Scale factors, alpha values
+│   │
+│   ├── jpeg/                  # JPEG encoding
+│   │   ├── JPEGWriter.hpp     # JFIF marker + bitstream generation
+│   │   ├── JPEGEncoder.hpp    # High-level encoding API
+│   │   ├── JPEGConstants.hpp  # Markers, segment lengths (ITU-T.81)
+│   │   ├── HuffmanTables.hpp  # Standard tables (Annex K.3)
+│   │   ├── Huffman.hpp        # Huffman encoder
+│   │   ├── Quantization.hpp   # Quantization tables + scaling
+│   │   ├── ZigZag.hpp         # Zig-zag scan reordering
+│   │   ├── RLE.hpp            # Run-length encoding
+│   │   └── BlockEntropyEncoder.hpp  # Per-block entropy coding
+│   │
+│   ├── analysis/              # Instrumentation
+│   │   ├── PipelineObserver.hpp   # Hooks for visualization
+│   │   └── JPEGAnalyzer.hpp       # Analysis utilities
+│   │
+│   └── util/                  # I/O utilities
+│       ├── BitWriter.hpp      # Bit-level packing + byte-stuffing
+│       ├── FileIO.hpp         # PPM/PGM/PNG loading
+│       └── Timer.hpp          # Performance measurement
+│
+├── src/                       # Implementation files (mirrors include/)
+│   ├── core/
+│   ├── transforms/
+│   ├── jpeg/
+│   ├── analysis/
+│   ├── util/
+│   ├── cli/                   # CLI tool implementation
+│   └── api/                   # High-level API
+│
+├── tests/                     # Test suite
+│   ├── TestFramework.hpp      # Centralized test harness
+│   ├── unit/                  # Unit tests (21 test files)
+│   └── integration/           # Full pipeline tests
+│
+├── examples/                  # Sample programs
+│   ├── encode_basic.cpp       # Minimal JPEG encoding
+│   ├── visualize_dct.cpp      # DCT coefficient visualization
+│   ├── entropy_comparison.cpp # Entropy at each stage
+│   └── api_demo.cpp           # High-level API usage
+│
+├── scripts/                   # Automation
+│   ├── test_encode_all.ps1    # Batch encoding script
+│   ├── generate_test_images.py
+│   ├── download_test_images.py
+│   └── validate_cli.py
+│
+├── data/                      # Test data
+│   ├── test_images/           # Generated test patterns
+│   ├── standard_test_images/  # Kodak dataset, baboon, etc.
+│   └── reference_outputs/     # Expected outputs
+│
+└── ui/web/                    # Web interface (coming soon)
+```
+
+## Module Details
+
+### `jpegdsp::core` – DSP Primitives
+- `Image`: Multi-channel pixel buffer (RGB/YCbCr/GRAY), row-major storage
 - `Block<T, N>`: Generic N×N blocks (`Block8x8f` for DCT, `Block8x8i` for quantized)
-- `BlockExtractor`: 8×8 tiling
-- `ColorConverter`: RGB ↔ YCbCr (ITU-R BT.601)
-- `Downsampler`: 4:2:0 chroma subsampling (2×2 averaging)
-- `Entropy`: Shannon entropy calculation
+- `BlockExtractor`: Extract 8×8 tiles from Image
+- `ColorConverter`: RGB ↔ YCbCr (ITU-R BT.601 coefficients)
+- `Downsampler`: 4:2:0 chroma subsampling (2×2 box averaging)
+- `Entropy`: Shannon entropy calculation for compression analysis
+- `ImagePadding`: Edge replication to MCU boundaries
 
-**`jpegdsp::jpeg`** – JPEG encoding
-- `JPEGConstants`: JPEG markers, segment lengths, component IDs, sampling factors (ITU-T.81)
-- `HuffmanTables`: Standard Huffman tables (ITU-T.81 Annex K.3)
-- `QuantTable`, `Quantizer`: Standard JPEG quantization tables
-- `ZigZag`: Zig-zag scan reordering
-- `RLE`: Run-length encoding for AC coefficients
-- `HuffmanTable`, `HuffmanEncoder`: Huffman encoding with standard tables
-- `BlockEntropyEncoder`: ZigZag → RLE → Huffman per block
-- `JPEGWriter`: JFIF marker formatting + bitstream generation
+### `jpegdsp::transforms` – Transform Interface
+- `ITransform2D<T, N>`: Generic transform interface (extensible to wavelets)
+- `DCT8x8Transform`: Orthonormal DCT-II, precomputed cosine table
+- `DCTConstants`: Mathematical constants (π, scale factors, alpha values)
 
-**`jpegdsp::transforms`** – Generic transform interface
-- `DCTConstants`: DCT-II mathematical constants (scale factors, alpha values, pi)
-- `ITransform2D<T, N>`: Transform interface (extensible to wavelets)
-- `DCT8x8Transform`: Forward/inverse DCT-II
+### `jpegdsp::jpeg` – JPEG Encoding
+- `JPEGWriter`: JFIF marker formatting + scan data generation
+- `JPEGConstants`: All JPEG markers and segment constants (ITU-T.81)
+- `HuffmanTables`: Standard DC/AC tables for luma and chroma (Annex K.3)
+- `HuffmanTable`, `HuffmanEncoder`: Canonical Huffman encoding
+- `QuantTable`, `Quantizer`: Standard tables with quality [1-100] scaling
+- `ZigZag`: Zig-zag scan reordering (low→high frequency)
+- `RLE`: Run-length encoding with ZRL and EOB symbols
+- `BlockEntropyEncoder`: Complete per-block pipeline (ZigZag → RLE → Huffman)
 
-**`jpegdsp::analysis`** – Instrumentation
-- `PipelineObserver`: Hooks for DCT visualization and entropy tracking
-- `Entropy`: Information-theoretic metrics
+### `jpegdsp::analysis` – Instrumentation
+- `PipelineObserver`: Hooks for DCT visualization, entropy tracking
+- `JPEGAnalyzer`: Analysis utilities (planned expansion)
 
-**`jpegdsp::util`** – I/O utilities
-- `BitWriter`: Bit-level packing with byte-stuffing
-- `FileIO`: PPM/PGM loading/saving
-
-## Current Status
-
-**Implemented:**
-- Grayscale JPEG encoding (baseline sequential SOF0)
-- YCbCr 4:2:0 color JPEG encoding with 2×2 chroma subsampling
-- Full entropy coding pipeline (ZigZag, RLE, Huffman, DC prediction, byte-stuffing)
-- DCT-II transform (forward/inverse, <0.01 round-trip error)
-- Standard JPEG quantization tables with quality scaling [1-100]
-- 9 test executables, 100% pass rate
-
-**Missing (next priorities):**
-- Analysis export API: Extract DCT coefficients, entropy metrics per stage
-- Web UI: Image upload, side-by-side comparison, DCT heatmaps, entropy panel
-- Non-multiple-of-8 image dimensions (need padding logic)
-- Progressive JPEG (SOF2)
-- Custom quantization tables
+### `jpegdsp::util` – Utilities
+- `BitWriter`: Bit-level packing with JPEG byte-stuffing (0xFF → 0xFF 0x00)
+- `FileIO`: Load PNG/PPM/PGM via stb_image
+- `Timer`: High-resolution performance measurement
 
 ## Building and Testing
 
@@ -91,7 +162,8 @@ Modular design with clean separation between DSP primitives and JPEG-specific lo
 - C++17 compiler (MSVC/GCC/Clang)
 
 **Dependencies:**
-- [nlohmann/json](https://github.com/nlohmann/json) - JSON serialization (header-only, fetched automatically via CMake)
+- [stb_image](https://github.com/nothings/stb) - Image loading (included in `external/`)
+- [nlohmann/json](https://github.com/nlohmann/json) - JSON serialization (fetched via CMake)
 
 **Build:**
 ```powershell
@@ -102,78 +174,70 @@ cmake --build build --config Debug
 **Run tests:**
 ```powershell
 ctest --test-dir build -C Debug --output-on-failure
-# or verbose mode
-ctest --test-dir build -C Debug -V
-# or use batch script
-.\build_and_run_tests.bat
 ```
 
-**Test Framework:**
-All tests use a centralized framework (`tests/TestFramework.hpp`) providing:
-- `TestStats`: Tracks passed/failed tests with summary reporting
-- `runTest()`: Executes test functions with consistent `[PASS]`/`[FAIL]` output
-- Assertion helpers: `assertEqual()`, `assertClose()`, `assertTrue()`, `assertFalse()`
-- Floating-point comparison: `closeFloat()`, `closeDouble()` with epsilon tolerance
+**Test Suite (15+ executables):**
+| Test | Description |
+|------|-------------|
+| `test_block` | Block data structure and extraction |
+| `test_dct` | DCT transform, round-trip accuracy (<0.01 error) |
+| `test_colorspace` | RGB ↔ YCbCr conversion validation |
+| `test_quantization` | Quantization table generation and scaling |
+| `test_jpegwriter` | Grayscale + YCbCr JPEG marker validation |
+| `test_downsampler` | 4:2:0 chroma subsampling |
+| `test_jpeg_padding` | Arbitrary dimension padding |
+| `test_core_codec` | Integration (Huffman, BitWriter, RLE, full pipeline) |
+| `test_entropy` | Shannon entropy calculation |
+| `test_jpeg_encoder` | High-level API + JSON serialization |
+| `test_zigzag_verify` | Zig-zag scan correctness |
+| `test_solid_color` | Solid color encoding |
+| `test_single_block_encode` | Single block encoding verification |
+| `test_mcu_debug` | MCU structure debugging |
+| `test_jpeg_pipeline` | Full pipeline integration |
 
-**Example test structure:**
+**Test Framework:**
+All tests use `tests/TestFramework.hpp`:
 ```cpp
 #include "../TestFramework.hpp"
 using namespace jpegdsp::test;
 
 bool test_my_feature() {
-    // Test logic
-    return assertEqual(expected, actual, "feature description");
+    return assertEqual(expected, actual, "description");
 }
 
 int main() {
     TestStats stats;
     runTest("my_feature", &test_my_feature, stats);
     stats.printSummary("My test suite");
-    return stats.exitCode();  // 0 on success, 1 on failure
+    return stats.exitCode();
 }
 ```
-
-**Test suite (10 executables):**
-- `test_block`: Block data structure and extraction
-- `test_dct`: DCT transform, round-trip accuracy (<0.01 error)
-- `test_colorspace`: RGB ↔ YCbCr conversion validation
-- `test_quantization`: Quantization table generation and scaling
-- `test_jpegwriter`: Grayscale + YCbCr 4:2:0 JPEG generation, marker validation
-- `test_downsampler`: 4:2:0 chroma subsampling (2×2 averaging)
-- `test_imagepadding`: Arbitrary dimension padding to 8/16-pixel multiples
-- `test_core_codec`: Integration tests (Huffman, BitWriter, BlockEntropyEncoder, full pipeline)
-- `test_entropy`: Shannon entropy calculation
-- `test_jpeg_encoder`: High-level API + JSON serialization validation
-
-**Current test coverage:**
-- ✅ Core DSP primitives (blocks, DCT, quantization, entropy)
-- ✅ JPEG encoding pipeline (ZigZag, RLE, Huffman, DC prediction, byte-stuffing)
-- ✅ Color conversion and chroma subsampling
-- ✅ Bitstream generation (markers, segments, payload)
-- ✅ API + JSON serialization
-- ⚠️ **Missing**: Constant header validation, marker byte sequence tests, edge cases (1×1, 17×17 images)
 
 ## Command-Line Interface
 
 **jpegdsp_cli_encode** - JPEG encoder for automation and language bindings
 
 ```powershell
-# Basic usage
-.\build\Debug\jpegdsp_cli_encode.exe --input image.ppm --output image.jpg --quality 85
+# Basic color encoding
+.\build\Debug\jpegdsp_cli_encode.exe --input image.png --output image.jpg --quality 85
 
 # Grayscale encoding
-.\build\Debug\jpegdsp_cli_encode.exe --input image.pgm --output image.jpg --format grayscale
+.\build\Debug\jpegdsp_cli_encode.exe --input image.png --output image.jpg --format grayscale
 
 # JSON output for programmatic use
-.\build\Debug\jpegdsp_cli_encode.exe --input image.ppm --output image.jpg --json
+.\build\Debug\jpegdsp_cli_encode.exe --input image.png --output image.jpg --json
 ```
 
 **Options:**
-- `--input <path>` - Input image (PPM/PGM/PNG format)
-- `--output <path>` - Output JPEG file
-- `--quality <1-100>` - Quality level (default: 75)
-- `--format <mode>` - `grayscale` or `color_420` (default: color_420)
-- `--json` - Output JSON encoding statistics to stdout
+| Option | Description |
+|--------|-------------|
+| `--input <path>` | Input image (PNG/PPM/PGM) |
+| `--output <path>` | Output JPEG file |
+| `--quality <1-100>` | Quality level (default: 75) |
+| `--format <mode>` | `grayscale` or `color_420` (default: color_420) |
+| `--json` | Output JSON encoding statistics |
+| `--analyze` | Generate analysis report |
+| `--html <path>` | Generate HTML report |
 
 **JSON Output Example:**
 ```json
@@ -190,41 +254,67 @@ int main() {
 }
 ```
 
-Use from C#/Python/other languages via `Process.Start()` for easy integration.
+## Batch Processing
 
-## Test Images & Validation
-
-**Generate synthetic test images:**
 ```powershell
-python scripts/generate_test_images.py
+# Encode all test images at quality 75
+powershell -ExecutionPolicy Bypass -File .\scripts\test_encode_all.ps1 -Quality 75
+
+# Encode at quality 100 (maximum quality)
+powershell -ExecutionPolicy Bypass -File .\scripts\test_encode_all.ps1 -Quality 100 -OutputDir "output_q100"
 ```
-Creates 14 test images (512×512) in `data/test_images/`:
-- Solid colors (red, green, blue, white, black) - tests minimal entropy
-- Gradients (horizontal, vertical) - tests low-frequency DCT
-- Checkerboards (32px, 64px) - tests high-frequency content and block artifacts
-- Frequency patterns (horizontal, vertical lines) - tests specific DCT bins
-- Complex patterns - tests multiple frequencies
-- Color bars (SMPTE-style) - tests chroma subsampling
-- Grayscale ramp - tests quantization levels
 
-**Run CLI validation:**
-```powershell
-python scripts/validate_cli.py
-```
-Validates:
-1. All test images encode successfully
-2. JPEG markers are correct (SOI, APP0, DQT, SOF0, DHT, SOS, EOI)
-3. Quality scaling (Q10 < Q50 < Q90 file sizes)
-4. JSON output format
-5. Error handling (missing files, invalid args)
+## Typical Compression Results
 
-**Expected compression ratios:**
-- Solid colors: >100:1 (minimal entropy)
-- Gradients: 50-100:1 (low-frequency content)
-- Checkerboards: 10-30:1 (high-frequency content)
-- Complex patterns: 20-40:1 (real-world-like)
+| Image Type | Quality 75 | Quality 100 |
+|------------|------------|-------------|
+| Smooth gradients | 10-15x | 2-3x |
+| Natural photos (Kodak) | 8-12x | 1.8-2.1x |
+| High-detail textures | 3-5x | 0.7-1.1x |
 
-See `data/test_images/README.md` for detailed test image documentation.
+## Key DSP Techniques
+
+**DCT (Discrete Cosine Transform)**: Converts 8×8 spatial blocks to frequency domain. Natural images concentrate energy in low frequencies (smooth regions), making high-frequency coefficients compressible.
+
+**Quantization**: Lossy step. Divides DCT coefficients by table values (larger for high frequencies). Human vision is less sensitive to high-frequency changes, so coarse quantization there causes minimal perceptual loss.
+
+**Entropy Coding**: Lossless final stage. ZigZag scan orders coefficients low→high frequency (groups zeros), RLE compresses zero runs, Huffman assigns shorter codes to frequent symbols.
+
+**DC Prediction (DPCM)**: Encode `dc[i] - dc[i-1]` instead of absolute DC. Adjacent blocks have similar brightness, so differences are small.
+
+**Chroma Subsampling (4:2:0)**: Human vision has lower color resolution than luminance resolution. Cb/Cr channels are downsampled 2:1 in both dimensions, reducing color data by 75%.
+
+## Roadmap
+
+### Phase 1: Core Encoder ✅ Complete
+- [x] Grayscale encoding (SOF0)
+- [x] YCbCr 4:2:0 color encoding
+- [x] Standard Huffman tables (ITU-T.81 Annex K.3)
+- [x] Quality scaling [1-100]
+- [x] CLI tool with PNG/PPM/PGM support
+- [x] Comprehensive test suite (15+ tests)
+- [x] Automatic MCU padding
+
+### Phase 2: Web Interface 🚧 In Progress
+- [ ] ASP.NET Core backend (C#)
+- [ ] Razor Pages frontend
+- [ ] Image upload and encoding
+- [ ] Side-by-side quality comparison
+- [ ] Docker containerization
+
+### Phase 3: Analysis Tools
+- [ ] DCT coefficient heatmaps
+- [ ] Entropy analysis per pipeline stage
+- [ ] Block-level quality metrics
+- [ ] Compression statistics dashboard
+- [ ] JSON export API
+
+### Future Extensions
+- [ ] Progressive JPEG (SOF2)
+- [ ] 4:2:2 and 4:4:4 chroma formats
+- [ ] Optimized Huffman tables (two-pass encoding)
+- [ ] JPEG decoder (inverse pipeline)
+- [ ] Wavelet transforms (JPEG2000-style)
 
 ## Implementation Completeness
 
@@ -241,7 +331,7 @@ See `data/test_images/README.md` for detailed test image documentation.
 - CLI tool with PNG/PPM/PGM input
 - JSON API for integration
 
-❌ **Missing:**
+❌ **Not Implemented:**
 - JPEG decoder (inverse pipeline)
 - Progressive JPEG (SOF2)
 - 4:2:2 and 4:4:4 chroma formats
@@ -251,68 +341,17 @@ See `data/test_images/README.md` for detailed test image documentation.
 - Arithmetic coding (SOF9/SOF10)
 - Lossless mode (SOF3)
 
-**Production Readiness:**
-- ✅ Safe for: Education, research, prototyping
-- ⚠️ Use with caution: Web apps (no progressive), high-volume processing
-- ❌ Not recommended: Production servers, real-time video, critical applications
-
-See `docs/COMPLETENESS.md` for detailed assessment.
-- `test_core_codec`: Integration (Huffman, BitWriter, BlockEntropyEncoder)
-- `test_entropy`: Shannon entropy calculation
-- `test_jpeg_encoder`: High-level encoder interface
-
-## Project Structure
-
-```
-jpegdsp/
-├── include/jpegdsp/       # Public headers
-│   ├── core/              # DSP primitives (Image, Block, Entropy)
-│   ├── transforms/        # DCT, wavelets (future)
-│   ├── jpeg/              # JPEG-specific encoding logic
-│   ├── analysis/          # Observers for visualization
-│   └── util/              # I/O, BitWriter, timers
-├── src/                   # Implementation files (mirrors include/)
-├── tests/                 # Unit and integration tests
-│   ├── unit/              # Module-specific tests
-│   └── integration/       # Full pipeline tests
-├── examples/              # Sample programs
-│   ├── encode_basic.cpp   # Minimal JPEG encoding example
-│   ├── visualize_dct.cpp  # DCT coefficient visualization
-│   └── entropy_comparison.cpp  # Entropy analysis at each stage
-├── data/                  # Test images and reference outputs
-├── ui/web/                # Future web interface (placeholder)
-└── CMakeLists.txt         # Build configuration
-```
-
 ## Code Conventions
 
-- Nested namespaces: `jpegdsp::core`, `jpegdsp::jpeg`, etc.
-- Constants: Use `BlockSize`, `BlockElementCount` from `jpegdsp/core/Constants.hpp`
-  - JPEG/JFIF constants in `jpegdsp/jpeg/JPEGConstants.hpp` (markers, segment lengths, sampling factors)
-  - DCT constants in `jpegdsp/transforms/DCTConstants.hpp` (scale factors, alpha values)
-  - Huffman tables in `jpegdsp/jpeg/HuffmanTables.hpp` (ITU-T.81 Annex K.3)
+- Nested namespaces: `jpegdsp::core`, `jpegdsp::jpeg`, `jpegdsp::transforms`
+- Constants from dedicated headers:
+  - `core/Constants.hpp`: BlockSize, BlockElementCount
+  - `jpeg/JPEGConstants.hpp`: JPEG markers, segment lengths
+  - `transforms/DCTConstants.hpp`: DCT scale factors
+  - `jpeg/HuffmanTables.hpp`: Standard Huffman tables
 - Exceptions for invalid input, `noexcept` on getters
 - RAII everywhere, no raw `new`/`delete`
-- Test framework: Use `tests/TestFramework.hpp` for all new tests
-
-## Key Techniques
-
-**DCT (Discrete Cosine Transform)**: Converts 8×8 spatial blocks to frequency domain. Natural images concentrate energy in low frequencies (smooth regions), making high-frequency coefficients compressible.
-
-**Quantization**: Lossy step. Divides DCT coefficients by table values (larger for high frequencies). Human vision is less sensitive to high-frequency changes, so coarse quantization there causes minimal perceptual loss.
-
-**Entropy coding**: Lossless final stage. ZigZag scan orders coefficients low→high frequency (groups zeros), RLE compresses zero runs, Huffman assigns shorter codes to frequent symbols.
-
-**DC prediction (DPCM)**: Encode `dc[i] - dc[i-1]` instead of absolute DC. Adjacent blocks have similar brightness, so differences are small.
-
-## Possible Extensions
-
-- **Wavelet transforms**: Replace DCT with DWT for JPEG2000-style encoding (better edge preservation)
-- **Progressive JPEG**: Multi-scan encoding (spectral selection, successive approximation)
-- **Adaptive quantization**: Vary table per region based on complexity
-- **4:2:2 subsampling**: Half horizontal chroma resolution (alternative to 4:2:0)
-- **Custom Huffman tables**: Two-pass encoding to optimize tables per image
-- **Parallel encoding**: Blocks are independent, easy parallelization
+- One class per header in `include/jpegdsp/<module>/<Class>.hpp`
 
 ## References
 

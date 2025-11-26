@@ -1,4 +1,4 @@
-﻿#include "jpegdsp/jpeg/JPEGWriter.hpp"
+#include "jpegdsp/jpeg/JPEGWriter.hpp"
 #include "jpegdsp/jpeg/JPEGConstants.hpp"
 #include "jpegdsp/jpeg/HuffmanTables.hpp"
 #include "jpegdsp/jpeg/Quantization.hpp"
@@ -24,14 +24,19 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
     {
         throw std::invalid_argument("JPEGWriter::encodeGrayscale requires single-channel grayscale image");
     }
+
+    // Pad to 8x8 MCU grid if needed
+    const core::Image* workImg = &img;
+    core::Image paddedImg;
     if (img.width() % core::BlockSize != 0 || img.height() % core::BlockSize != 0)
     {
-        throw std::invalid_argument("Image dimensions must be multiples of 8");
+        paddedImg = img.padToMultiple(core::BlockSize, core::BlockSize);
+        workImg = &paddedImg;
     }
 
     // Reset output buffer
     m_buffer.clear();
-    m_buffer.reserve(img.width() * img.height() / 4); // Rough estimate
+    m_buffer.reserve(workImg->width() * workImg->height() / 4); // Rough estimate
 
     // Generate standard luma quantization table
     QuantTable qTable = QuantTable::makeLumaStd(quality);
@@ -40,9 +45,11 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
     // Write JPEG file structure
     writeSOI();
     writeAPP0();
+    writeAPP1(static_cast<std::uint16_t>(img.width()), 
+              static_cast<std::uint16_t>(img.height())); // Original dimensions
     writeDQT(quantData);
-    writeSOF0(static_cast<std::uint16_t>(img.width()),
-              static_cast<std::uint16_t>(img.height()));
+    writeSOF0(static_cast<std::uint16_t>(workImg->width()),
+              static_cast<std::uint16_t>(workImg->height()));
     
     // Write Huffman tables for luma DC and AC
     writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA, 
@@ -57,7 +64,7 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
     writeSOS();
     
     // Write entropy-coded scan data
-    writeScanData(img, quantData);
+    writeScanData(*workImg, quantData);
     
     writeEOI();
 
@@ -104,6 +111,26 @@ void JPEGWriter::writeAPP0()
     writeWord(1);      // Y density
     writeByte(0);      // Thumbnail width
     writeByte(0);      // Thumbnail height
+}
+
+void JPEGWriter::writeAPP1(std::uint16_t originalWidth, std::uint16_t originalHeight)
+{
+    writeMarker(MARKER_APP1);
+    writeWord(14); // Length: 2 (length) + 8 (identifier) + 2 (width) + 2 (height) = 14
+    
+    // Custom identifier: "JPEGDSP\0" (8 bytes including null terminator)
+    writeByte('J');
+    writeByte('P');
+    writeByte('E');
+    writeByte('G');
+    writeByte('D');
+    writeByte('S');
+    writeByte('P');
+    writeByte(0x00);
+    
+    // Original dimensions (before padding)
+    writeWord(originalWidth);
+    writeWord(originalHeight);
 }
 
 void JPEGWriter::writeDQT(const std::uint16_t* quantTable)
@@ -181,12 +208,12 @@ void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quan
     transforms::DCT8x8Transform dct;
     HuffmanTable dcLuma(HuffmanTableType::DC_Luma);
     HuffmanTable acLuma(HuffmanTableType::AC_Luma);
-    HuffmanEncoder lumaEncoder(acLuma, dcLuma);
+    HuffmanEncoder lumaEncoder(dcLuma, acLuma);
     
     // Note: chroma encoders not needed for grayscale - use placeholder
     HuffmanTable dcChroma(HuffmanTableType::DC_Chroma);
     HuffmanTable acChroma(HuffmanTableType::AC_Chroma);
-    HuffmanEncoder chromaEncoder(acChroma, dcChroma);
+    HuffmanEncoder chromaEncoder(dcChroma, acChroma);
     
     BlockEntropyEncoder entropyEncoder(lumaEncoder, chromaEncoder);
     
@@ -242,16 +269,20 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
         throw std::invalid_argument("encodeYCbCr requires RGB image with 3 channels");
     }
     
+    // Pad to 16x16 MCU grid if needed (YCbCr 4:2:0 requires 2×2 MCUs of 8×8 luma blocks)
+    const core::Image* workImg = &img;
+    core::Image paddedImg;
     if (img.width() % 16 != 0 || img.height() % 16 != 0)
     {
-        throw std::invalid_argument("YCbCr 4:2:0 encoding requires dimensions multiples of 16");
+        paddedImg = img.padToMultiple(16, 16);
+        workImg = &paddedImg;
     }
     
     m_buffer.clear();
     
     // Convert RGB to YCbCr
     using namespace core;
-    const Image ycbcr = ColorConverter::RGBtoYCbCr(img);
+    const Image ycbcr = ColorConverter::RGBtoYCbCr(*workImg);
     
     // Split YCbCr into separate channels
     Image yChannel(ycbcr.width(), ycbcr.height(), ColorSpace::GRAY, 1);
@@ -288,8 +319,10 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
     // Write JPEG structure
     writeSOI();
     writeAPP0();
+    writeAPP1(static_cast<std::uint16_t>(img.width()),
+              static_cast<std::uint16_t>(img.height())); // Original dimensions
     writeDQT2(lumaData, chromaData); // Write both luma and chroma quantization tables
-    writeSOF0Color(static_cast<std::uint16_t>(img.width()), static_cast<std::uint16_t>(img.height()));
+    writeSOF0Color(static_cast<std::uint16_t>(workImg->width()), static_cast<std::uint16_t>(workImg->height()));
     
     // Write Huffman tables (DC and AC for both luma and chroma)
     writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA,   StandardHuffmanTables::DC_LUMA_NBITS.data(),   StandardHuffmanTables::DC_LUMA_VALS.data(),   12);
@@ -390,11 +423,11 @@ void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Ima
     
     HuffmanTable dcLuma(HuffmanTableType::DC_Luma);
     HuffmanTable acLuma(HuffmanTableType::AC_Luma);
-    HuffmanEncoder lumaEncoder(acLuma, dcLuma);
+    HuffmanEncoder lumaEncoder(dcLuma, acLuma);
     
     HuffmanTable dcChroma(HuffmanTableType::DC_Chroma);
     HuffmanTable acChroma(HuffmanTableType::AC_Chroma);
-    HuffmanEncoder chromaEncoder(acChroma, dcChroma);
+    HuffmanEncoder chromaEncoder(dcChroma, acChroma);
     
     BlockEntropyEncoder entropyEncoder(lumaEncoder, chromaEncoder);
     BitWriter bitWriter;
@@ -439,7 +472,7 @@ void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Ima
                         {
                             const std::size_t imgX = blockX * 8 + x;
                             const std::size_t imgY = blockY * 8 + y;
-                            yBlock.at(y, x) = static_cast<float>(yChannel.at(imgX, imgY, 0)) - 128.0f;
+                            yBlock.at(x, y) = static_cast<float>(yChannel.at(imgX, imgY, 0)) - 128.0f;
                         }
                     }
                     
@@ -462,7 +495,7 @@ void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Ima
                 {
                     const std::size_t imgX = mcuX * 8 + x;
                     const std::size_t imgY = mcuY * 8 + y;
-                    cbBlock.at(y, x) = static_cast<float>(cbcrSubsampled.at(imgX, imgY, 0)) - 128.0f;
+                    cbBlock.at(x, y) = static_cast<float>(cbcrSubsampled.at(imgX, imgY, 0)) - 128.0f;
                 }
             }
             
@@ -480,7 +513,7 @@ void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Ima
                 {
                     const std::size_t imgX = mcuX * 8 + x;
                     const std::size_t imgY = mcuY * 8 + y;
-                    crBlock.at(y, x) = static_cast<float>(cbcrSubsampled.at(imgX, imgY, 1)) - 128.0f;
+                    crBlock.at(x, y) = static_cast<float>(cbcrSubsampled.at(imgX, imgY, 1)) - 128.0f;
                 }
             }
             

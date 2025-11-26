@@ -44,6 +44,10 @@ struct EncodingAnalysis
     double acEnergy;               // Energy in AC coefficients (% of total)
     std::vector<double> frequencyBandEnergy;  // Energy in each frequency band (8×8 grid)
     
+    // Sample DCT matrices (for visualization, first few blocks)
+    std::vector<std::vector<double>> sampleDCTMatrices;  // Pre-zigzag 8×8 DCT matrices
+    std::size_t maxSampleBlocks = 4;  // Number of sample blocks to store
+    
     // === Quantization Impact ===
     double avgQuantizationError;   // Average quantization error per coefficient
     double peakQuantizationError;  // Peak quantization error
@@ -125,6 +129,21 @@ private:
     static double computeEntropy(const std::vector<std::uint8_t>& data);
     static std::vector<std::string> parseJPEGMarkers(const std::vector<std::uint8_t>& jpegData);
     static std::size_t countMarkerBytes(const std::vector<std::uint8_t>& jpegData);
+    
+    /**
+     * @brief Compute PSNR and MSE quality metrics
+     * @param originalImage Original input image
+     * @param jpegData Encoded JPEG to decode and compare
+     * @param psnr Output PSNR value (dB)
+     * @param mse Output MSE value
+     * @return true if metrics computed successfully
+     */
+    static bool computeQualityMetrics(
+        const core::Image& originalImage,
+        const std::vector<std::uint8_t>& jpegData,
+        double& psnr,
+        double& mse
+    );
 };
 
 } // namespace jpegdsp::analysis

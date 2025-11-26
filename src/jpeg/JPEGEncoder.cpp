@@ -1,6 +1,5 @@
 ﻿#include "jpegdsp/jpeg/JPEGEncoder.hpp"
 #include "jpegdsp/jpeg/JPEGWriter.hpp"
-#include "jpegdsp/core/ImagePadding.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
 #include "jpegdsp/analysis/PipelineObserver.hpp"
 #include <stdexcept>
@@ -26,22 +25,20 @@ std::vector<std::uint8_t> JPEGEncoder::encode(const jpegdsp::core::Image& rgbIma
         throw std::invalid_argument("JPEGEncoder::encode: Image dimensions cannot be zero");
     }
     
-    // Use JPEGWriter for actual encoding
+    // Use JPEGWriter for actual encoding (handles padding internally)
     JPEGWriter writer;
     std::vector<std::uint8_t> result;
     
     // Determine encoding path based on image format
     if (rgbImage.channels() == 1 && rgbImage.colorSpace() == ColorSpace::GRAY)
     {
-        // Grayscale encoding
-        Image padded = ImagePadding::padToMultiple(rgbImage, 8);
-        result = writer.encodeGrayscale(padded, m_cfg.quality);
+        // Grayscale encoding (JPEGWriter handles padding)
+        result = writer.encodeGrayscale(rgbImage, m_cfg.quality);
     }
     else if (rgbImage.channels() == 3 && rgbImage.colorSpace() == ColorSpace::RGB)
     {
-        // Color encoding
-        Image padded = ImagePadding::padToMultiple(rgbImage, 16);
-        result = writer.encodeYCbCr(padded, m_cfg.quality);
+        // Color encoding (JPEGWriter handles padding)
+        result = writer.encodeYCbCr(rgbImage, m_cfg.quality);
     }
     else
     {

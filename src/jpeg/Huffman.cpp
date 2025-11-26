@@ -213,8 +213,7 @@ void HuffmanEncoder::encodeBlockAC(
         }
     }
 
-    // IMPORTANT: AC symbols do NOT emit EOB here.
-    // RLE must include EOB explicitly when needed.
+    // EOB is now emitted by RLE::encodeAC when needed (per ITU-T.81)
 }
 
 } // namespace jpegdsp::jpeg

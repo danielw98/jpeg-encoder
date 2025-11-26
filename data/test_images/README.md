@@ -180,14 +180,14 @@ cjpeg -quality 75 -outfile data/reference_outputs/test.jpg data/test_images/test
 
 Current test image constraints:
 - All synthetic images are 512×512 (multiples of 16 for 4:2:0)
-- No images test padding behavior (use 511×511 or odd dimensions)
+- No images specifically test padding behavior with odd dimensions
 - No extreme high-frequency content (white noise, texture)
 - No color edge cases (saturated colors, color gradients)
 
 ## Future Test Coverage
 
 Planned additions:
-- [ ] Non-multiple-of-16 dimensions (test padding)
+- [x] Non-multiple-of-16 dimensions (padding now supported via edge replication)
 - [ ] Extreme aspect ratios (1×512, 512×1)
 - [ ] Very small images (8×8, 16×16)
 - [ ] Very large images (4096×4096)

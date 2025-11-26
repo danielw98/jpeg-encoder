@@ -25,9 +25,9 @@ add_executable(test_downsampler unit/test_downsampler.cpp)
 target_link_libraries(test_downsampler PRIVATE jpegdsp_core)
 add_test(NAME test_downsampler COMMAND $<TARGET_FILE:test_downsampler>)
 
-add_executable(test_imagepadding unit/test_imagepadding.cpp)
-target_link_libraries(test_imagepadding PRIVATE jpegdsp_core)
-add_test(NAME test_imagepadding COMMAND $<TARGET_FILE:test_imagepadding>)
+add_executable(test_jpeg_padding unit/test_jpeg_padding.cpp)
+target_link_libraries(test_jpeg_padding PRIVATE jpegdsp_core)
+add_test(NAME test_jpeg_padding COMMAND $<TARGET_FILE:test_jpeg_padding>)
 
 # Comprehensive codec test (legacy - combines multiple modules)
 add_executable(test_core_codec unit/test_core_codec.cpp)
@@ -41,3 +41,44 @@ add_test(NAME test_entropy COMMAND $<TARGET_FILE:test_entropy>)
 add_executable(test_jpeg_encoder integration/test_jpeg_encoder.cpp)
 target_link_libraries(test_jpeg_encoder PRIVATE jpegdsp_core)
 add_test(NAME test_jpeg_encoder COMMAND $<TARGET_FILE:test_jpeg_encoder>)
+
+# Comprehensive pipeline diagnostic test
+add_executable(test_jpeg_pipeline unit/test_jpeg_pipeline.cpp)
+target_link_libraries(test_jpeg_pipeline PRIVATE jpegdsp_core)
+add_test(NAME test_jpeg_pipeline COMMAND $<TARGET_FILE:test_jpeg_pipeline>)
+
+# Single block encoding test
+add_executable(test_single_block_encode unit/test_single_block_encode.cpp)
+target_link_libraries(test_single_block_encode PRIVATE jpegdsp_core)
+add_test(NAME test_single_block_encode COMMAND $<TARGET_FILE:test_single_block_encode>)
+
+# DC-only encoding test
+add_executable(test_dc_only unit/test_dc_only.cpp)
+target_link_libraries(test_dc_only PRIVATE jpegdsp_core)
+
+# Huffman DC debug test
+add_executable(test_huffman_dc_debug unit/test_huffman_dc_debug.cpp)
+target_link_libraries(test_huffman_dc_debug PRIVATE jpegdsp_core)
+
+# Solid color test to isolate corruption bug
+add_executable(test_solid_color unit/test_solid_color.cpp)
+target_link_libraries(test_solid_color PRIVATE jpegdsp_core)
+add_test(NAME test_solid_color COMMAND $<TARGET_FILE:test_solid_color>)
+
+# MCU debug test to trace data flow
+add_executable(test_mcu_debug unit/test_mcu_debug.cpp)
+target_link_libraries(test_mcu_debug PRIVATE jpegdsp_core)
+add_test(NAME test_mcu_debug COMMAND $<TARGET_FILE:test_mcu_debug>)
+
+# Zigzag verification test
+add_executable(test_zigzag_verify unit/test_zigzag_verify.cpp)
+target_link_libraries(test_zigzag_verify PRIVATE jpegdsp_core)
+add_test(NAME test_zigzag_verify COMMAND $<TARGET_FILE:test_zigzag_verify>)
+
+# Solid red debug
+add_executable(test_solid_red_debug unit/test_solid_red_debug.cpp)
+target_link_libraries(test_solid_red_debug PRIVATE jpegdsp_core)
+
+# Grayscale simple test
+add_executable(test_grayscale_simple unit/test_grayscale_simple.cpp)
+target_link_libraries(test_grayscale_simple PRIVATE jpegdsp_core)

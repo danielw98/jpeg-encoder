@@ -33,6 +33,9 @@ namespace jpegdsp::jpeg
     /// Application Segment 0 - Contains JFIF header
     inline constexpr std::uint16_t MARKER_APP0 = 0xFFE0;
     
+    /// Application Segment 1 - Custom metadata (original dimensions before padding)
+    inline constexpr std::uint16_t MARKER_APP1 = 0xFFE1;
+    
     /// Define Quantization Table - Specifies quantization matrices
     inline constexpr std::uint16_t MARKER_DQT  = 0xFFDB;
     

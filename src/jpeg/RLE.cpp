@@ -54,7 +54,12 @@ RLE::encodeAC(const std::array<std::int16_t, jpegdsp::core::BlockElementCount>& 
         zeroRun = 0;
     }
 
-    // Note: EOB is not automatically emitted. The caller should add it if needed.
+    // Emit EOB (End of Block) marker unless all 63 AC coefficients were non-zero
+    // Per ITU-T.81, EOB signals the end of the AC coefficient sequence for this block
+    if (lastNonZeroIndex < jpegdsp::core::BlockElementCount - 1)
+    {
+        out.push_back({EOB, 0});
+    }
     
     return out;
 }

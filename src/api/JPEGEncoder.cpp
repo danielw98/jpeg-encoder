@@ -1,7 +1,6 @@
 #include "jpegdsp/api/JPEGEncoder.hpp"
 #include "jpegdsp/jpeg/JPEGEncoder.hpp"
 #include "jpegdsp/jpeg/JPEGTypes.hpp"
-#include "jpegdsp/core/ImagePadding.hpp"
 #include "jpegdsp/core/ColorSpace.hpp"
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -132,17 +131,19 @@ JPEGEncoder::EncodeResult JPEGEncoder::encode(
     result.jpegData = encoder.encode(imageToEncode);
     
     // Calculate padded dimensions based on format
+    auto roundUp = [](std::size_t value, std::size_t blockSize) -> std::size_t {
+        return ((value + blockSize - 1) / blockSize) * blockSize;
+    };
+    
     if (format == Format::GRAYSCALE)
     {
-        auto [w, h] = core::ImagePadding::getPaddedDimensions(imageToEncode.width(), imageToEncode.height(), 8);
-        result.paddedWidth = w;
-        result.paddedHeight = h;
+        result.paddedWidth = roundUp(imageToEncode.width(), 8);
+        result.paddedHeight = roundUp(imageToEncode.height(), 8);
     }
     else // COLOR_420
     {
-        auto [w, h] = core::ImagePadding::getPaddedDimensions(imageToEncode.width(), imageToEncode.height(), 16);
-        result.paddedWidth = w;
-        result.paddedHeight = h;
+        result.paddedWidth = roundUp(imageToEncode.width(), 16);
+        result.paddedHeight = roundUp(imageToEncode.height(), 16);
     }
     
     // Calculate statistics
