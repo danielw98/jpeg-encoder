@@ -1,3 +1,5 @@
+
+
 # Ignore all CMake-related files
 CMakeCache.txt
 CMakeFiles/
@@ -38,3 +40,4 @@ docs/
 
 # Files
 build_and_run_tests*
+TODO.md
