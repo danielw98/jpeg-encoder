@@ -61,6 +61,7 @@ add_library(jpegdsp_core
     src/jpeg/JPEGWriter.cpp
 
     src/analysis/PipelineObserver.cpp
+    src/analysis/JPEGAnalyzer.cpp
 
     src/api/JPEGEncoder.cpp
 

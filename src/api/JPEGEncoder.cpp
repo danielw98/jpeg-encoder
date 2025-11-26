@@ -24,7 +24,7 @@ std::string JPEGEncoder::EncodeResult::toString() const
     return oss.str();
 }
 
-std::string JPEGEncoder::EncodeResult::toJson() const
+std::string JPEGEncoder::EncodeResult::toJson(bool includeAnalysis) const
 {
     nlohmann::json j;
     j["original_width"] = originalWidth;
@@ -36,6 +36,12 @@ std::string JPEGEncoder::EncodeResult::toJson() const
     j["compression_ratio"] = compressionRatio;
     j["quality"] = quality;
     j["format"] = (format == Format::GRAYSCALE) ? "GRAYSCALE" : "COLOR_420";
+    
+    // Include detailed analysis if requested and available
+    if (includeAnalysis && analysis.has_value())
+    {
+        j["detailed_analysis"] = nlohmann::json::parse(analysis->toJson());
+    }
     
     return j.dump(2);  // Pretty-print with 2-space indentation
 }
@@ -52,7 +58,8 @@ JPEGEncoder::Format JPEGEncoder::autoDetectFormat(const core::Image& img)
 JPEGEncoder::EncodeResult JPEGEncoder::encode(
     const core::Image& img,
     int quality,
-    Format format)
+    Format format,
+    bool analyze)
 {
     using namespace core;
     
@@ -145,6 +152,13 @@ JPEGEncoder::EncodeResult JPEGEncoder::encode(
     result.format = format;
     result.quality = quality;
     
+    // Perform detailed analysis if requested
+    if (analyze)
+    {
+        std::string formatStr = (format == Format::GRAYSCALE) ? "GRAYSCALE" : "COLOR_420";
+        result.analysis = analysis::JPEGAnalyzer::analyze(imageToEncode, result.jpegData, quality, formatStr);
+    }
+    
     return result;
 }
 
@@ -152,10 +166,11 @@ JPEGEncoder::EncodeResult JPEGEncoder::encodeToFile(
     const core::Image& img,
     const std::string& filename,
     int quality,
-    Format format)
+    Format format,
+    bool analyze)
 {
     // Encode image
-    EncodeResult result = encode(img, quality, format);
+    EncodeResult result = encode(img, quality, format, analyze);
     
     // Write to file
     std::ofstream outFile(filename, std::ios::binary);

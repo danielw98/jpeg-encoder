@@ -17,6 +17,9 @@ public:
 
     Pixel8* data() noexcept { return m_buffer.data(); }
     const Pixel8* data() const noexcept { return m_buffer.data(); }
+    
+    // Get raw byte vector (for entropy calculation, serialization, etc.)
+    const std::vector<Pixel8>& toBytes() const noexcept { return m_buffer; }
 
     Pixel8& at(std::size_t x, std::size_t y, std::size_t c);
     const Pixel8& at(std::size_t x, std::size_t y, std::size_t c) const;

@@ -1,8 +1,10 @@
 #pragma once
 #include "jpegdsp/core/Image.hpp"
+#include "jpegdsp/analysis/JPEGAnalyzer.hpp"
 #include <vector>
 #include <cstdint>
 #include <string>
+#include <optional>
 
 namespace jpegdsp::api {
 
@@ -44,8 +46,11 @@ public:
         Format format;                          // Encoding format used
         int quality;                            // Quality level [1-100]
         
+        // Optional detailed analysis (only populated if analyze=true)
+        std::optional<analysis::EncodingAnalysis> analysis;
+        
         std::string toString() const;
-        std::string toJson() const;             // JSON serialization for CLI/web
+        std::string toJson(bool includeAnalysis = false) const;  // JSON serialization for CLI/web
     };
     
     /**
@@ -53,13 +58,15 @@ public:
      * @param img Source image (any size, will be padded automatically)
      * @param quality Quality level [1-100], higher = better quality
      * @param format Output format (grayscale or color)
+     * @param analyze If true, perform detailed analysis and populate EncodeResult::analysis
      * @return Encoding result with JPEG data and metadata
      * @throws std::invalid_argument if image is invalid
      */
     static EncodeResult encode(
         const core::Image& img,
         int quality = 75,
-        Format format = Format::COLOR_420
+        Format format = Format::COLOR_420,
+        bool analyze = false
     );
     
     /**
@@ -68,6 +75,7 @@ public:
      * @param filename Output filename
      * @param quality Quality level [1-100]
      * @param format Output format
+     * @param analyze If true, perform detailed analysis
      * @return Encoding result
      * @throws std::runtime_error if file cannot be written
      */
@@ -75,7 +83,8 @@ public:
         const core::Image& img,
         const std::string& filename,
         int quality = 75,
-        Format format = Format::COLOR_420
+        Format format = Format::COLOR_420,
+        bool analyze = false
     );
     
 private:

@@ -2,6 +2,7 @@
 #include "jpegdsp/util/FileIO.hpp"
 #include "jpegdsp/core/Image.hpp"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <iomanip>
 #include <cstdlib>
@@ -14,9 +15,11 @@ struct CLIArgs
 {
     std::string inputPath;
     std::string outputPath;
+    std::string htmlPath;  // Optional HTML report output
     int quality = 75;
     jpegdsp::api::JPEGEncoder::Format format = jpegdsp::api::JPEGEncoder::Format::COLOR_420;
     bool printJson = false;
+    bool analyze = false;   // Enable detailed analysis
     bool showHelp = false;
 };
 
@@ -29,16 +32,19 @@ void printUsage(const char* programName)
     std::cout << "Usage:\n";
     std::cout << "  " << programName << " --input <file> --output <file> [options]\n\n";
     std::cout << "Required:\n";
-    std::cout << "  --input <path>    Input image file (PPM/PGM format)\n";
+    std::cout << "  --input <path>    Input image file (PPM/PGM/PNG format)\n";
     std::cout << "  --output <path>   Output JPEG file path\n\n";
     std::cout << "Options:\n";
     std::cout << "  --quality <1-100> JPEG quality level (default: 75)\n";
     std::cout << "  --format <mode>   Encoding format: grayscale | color_420 (default: color_420)\n";
+    std::cout << "  --analyze         Perform detailed encoding analysis\n";
+    std::cout << "  --html <path>     Save HTML analysis report (requires --analyze)\n";
     std::cout << "  --json            Print JSON encoding result to stdout\n";
     std::cout << "  --help            Show this help message\n\n";
     std::cout << "Examples:\n";
     std::cout << "  " << programName << " --input lena.ppm --output lena.jpg --quality 85\n";
     std::cout << "  " << programName << " --input test.pgm --output test.jpg --format grayscale --json\n";
+    std::cout << "  " << programName << " --input image.png --output image.jpg --analyze --html report.html\n";
 }
 
 // ---------------------------------------------------------------------
@@ -92,6 +98,15 @@ bool parseArgs(int argc, char** argv, CLIArgs& args)
         else if (arg == "--json")
         {
             args.printJson = true;
+        }
+        else if (arg == "--analyze")
+        {
+            args.analyze = true;
+        }
+        else if (arg == "--html" && i + 1 < argc)
+        {
+            args.htmlPath = argv[++i];
+            args.analyze = true;  // Auto-enable analysis
         }
         else
         {
@@ -164,13 +179,33 @@ int main(int argc, char** argv)
             img,
             args.outputPath,
             args.quality,
-            args.format
+            args.format,
+            args.analyze  // Perform analysis if requested
         );
+        
+        // Save HTML report if requested
+        if (!args.htmlPath.empty() && result.analysis.has_value())
+        {
+            std::ofstream htmlFile(args.htmlPath);
+            if (!htmlFile)
+            {
+                std::cerr << "Warning: Failed to write HTML report to " << args.htmlPath << "\n";
+            }
+            else
+            {
+                htmlFile << result.analysis->toHtml();
+                htmlFile.close();
+                if (!args.printJson)
+                {
+                    std::cout << "  HTML report:      " << args.htmlPath << "\n";
+                }
+            }
+        }
         
         // Print results
         if (args.printJson)
         {
-            std::cout << result.toJson() << std::endl;
+            std::cout << result.toJson(args.analyze) << std::endl;
         }
         else
         {
@@ -182,6 +217,24 @@ int main(int argc, char** argv)
             std::cout << "  Compressed size:  " << result.compressedBytes << " bytes\n";
             std::cout << "  Compression ratio: " << std::fixed << std::setprecision(2) 
                       << result.compressionRatio << "x\n";
+            
+            // Print analysis summary if available
+            if (result.analysis.has_value())
+            {
+                const auto& a = result.analysis.value();
+                std::cout << "\nEncoding Analysis:\n";
+                std::cout << "  Entropy reduction: " << std::fixed << std::setprecision(1) 
+                          << a.entropyReduction << "%\n";
+                std::cout << "  Total blocks:      " << a.totalBlocks << "\n";
+                std::cout << "  Coefficient sparsity: " << a.sparsity << "%\n";
+                std::cout << "  JPEG markers:      ";
+                for (size_t i = 0; i < a.jpegMarkers.size(); ++i)
+                {
+                    std::cout << a.jpegMarkers[i];
+                    if (i < a.jpegMarkers.size() - 1) std::cout << ", ";
+                }
+                std::cout << "\n";
+            }
         }
         
         return EXIT_SUCCESS;
