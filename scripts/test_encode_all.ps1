@@ -111,9 +111,9 @@ foreach ($Image in $Images)
             $TotalCompressedSize += $CompressedSize
             $SuccessCount++
             
-            Write-Host " → " -NoNewline -ForegroundColor Gray
+            Write-Host " -> " -NoNewline -ForegroundColor Gray
             Write-Host "$([math]::Round($OriginalSize / 1KB, 1))KB" -NoNewline -ForegroundColor Gray
-            Write-Host " → " -NoNewline -ForegroundColor Gray
+            Write-Host " -> " -NoNewline -ForegroundColor Gray
             Write-Host "$([math]::Round($CompressedSize / 1KB, 1))KB" -NoNewline -ForegroundColor Green
             Write-Host " (" -NoNewline -ForegroundColor Gray
             Write-Host "$($Ratio)x" -NoNewline -ForegroundColor Yellow

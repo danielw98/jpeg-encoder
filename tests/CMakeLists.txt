@@ -82,3 +82,8 @@ target_link_libraries(test_solid_red_debug PRIVATE jpegdsp_core)
 # Grayscale simple test
 add_executable(test_grayscale_simple unit/test_grayscale_simple.cpp)
 target_link_libraries(test_grayscale_simple PRIVATE jpegdsp_core)
+
+# DQT zigzag order test (ITU-T.81 B.2.4.1)
+add_executable(test_dqt_zigzag unit/test_dqt_zigzag.cpp)
+target_link_libraries(test_dqt_zigzag PRIVATE jpegdsp_core)
+add_test(NAME test_dqt_zigzag COMMAND $<TARGET_FILE:test_dqt_zigzag>)

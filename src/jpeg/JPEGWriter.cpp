@@ -13,6 +13,22 @@
 #include <stdexcept>
 #include <array>
 
+namespace {
+    // Standard JPEG zig-zag order (ITU-T.81 Figure A.6)
+    // Maps zigzag position to raster-scan position
+    // Used for writing DQT tables in zigzag order per ITU-T.81 B.2.4.1
+    constexpr std::array<std::size_t, jpegdsp::core::BlockElementCount> ZigZagIndex = {
+         0,  1,  8, 16,  9,  2,  3, 10,
+        17, 24, 32, 25, 18, 11,  4,  5,
+        12, 19, 26, 33, 40, 48, 41, 34,
+        27, 20, 13,  6,  7, 14, 21, 28,
+        35, 42, 49, 56, 57, 50, 43, 36,
+        29, 22, 15, 23, 30, 37, 44, 51,
+        58, 59, 52, 45, 38, 31, 39, 46,
+        53, 60, 61, 54, 47, 55, 62, 63
+    };
+}
+
 namespace jpegdsp::jpeg {
 
 // Huffman tables now in HuffmanTables.hpp
@@ -48,8 +64,7 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
     writeAPP1(static_cast<std::uint16_t>(img.width()), 
               static_cast<std::uint16_t>(img.height())); // Original dimensions
     writeDQT(quantData);
-    writeSOF0(static_cast<std::uint16_t>(workImg->width()),
-              static_cast<std::uint16_t>(workImg->height()));
+    writeSOF0(img.width(), img.height()); // Use original dimensions (decoder ignores padding)
     
     // Write Huffman tables for luma DC and AC
     writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA, 
@@ -64,7 +79,8 @@ std::vector<std::uint8_t> JPEGWriter::encodeGrayscale(const core::Image& img, in
     writeSOS();
     
     // Write entropy-coded scan data
-    writeScanData(*workImg, quantData);
+    // Pass original dimensions so we only encode blocks covering the original image
+    writeScanData(*workImg, quantData, img.width(), img.height());
     
     writeEOI();
 
@@ -139,10 +155,12 @@ void JPEGWriter::writeDQT(const std::uint16_t* quantTable)
     writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(0);  // Precision (0 = 8-bit) | Table ID (0 = luma)
     
-    // Write quantization table values
-    for (std::size_t i = 0; i < core::BlockElementCount; ++i)
+    // Write quantization table values in ZIGZAG ORDER (ITU-T.81 B.2.4.1)
+    // The quantization table is stored in raster order, but must be written in zigzag order
+    for (std::size_t zz = 0; zz < core::BlockElementCount; zz++)
     {
-        writeByte(static_cast<std::uint8_t>(quantTable[i]));
+        const std::size_t rasterPos = ZigZagIndex[zz];
+        writeByte(static_cast<std::uint8_t>(quantTable[rasterPos]));
     }
 }
 
@@ -202,7 +220,8 @@ void JPEGWriter::writeEOI()
     writeMarker(MARKER_EOI);
 }
 
-void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quantTable)
+void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quantTable,
+                                std::size_t origWidth, std::size_t origHeight)
 {
     // Create DCT transform and encoder
     transforms::DCT8x8Transform dct;
@@ -216,9 +235,6 @@ void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quan
     HuffmanEncoder chromaEncoder(dcChroma, acChroma);
     
     BlockEntropyEncoder entropyEncoder(lumaEncoder, chromaEncoder);
-    
-    // Extract 8x8 blocks from image
-    std::vector<core::Block8x8f> blocks = core::BlockExtractor::extractBlocks(img);
     
     // Bit writer for entropy-coded data
     util::BitWriter bitWriter;
@@ -234,19 +250,39 @@ void JPEGWriter::writeScanData(const core::Image& img, const std::uint16_t* quan
     }
     QuantTable qTable(qTableArray);
     
-    // Process each block
-    for (std::size_t b = 0; b < blocks.size(); ++b)
+    // Calculate MCU grid based on original dimensions (not padded)
+    // Decoder expects ceil(origWidth/8) * ceil(origHeight/8) blocks
+    const std::size_t mcuCols = (origWidth + 7) / 8;
+    const std::size_t mcuRows = (origHeight + 7) / 8;
+    
+    // Process blocks in row-major order, only encoding what the decoder expects
+    for (std::size_t mcuY = 0; mcuY < mcuRows; ++mcuY)
     {
-        // Forward DCT
-        core::Block8x8f dctBlock;
-        dct.forward(blocks[b], dctBlock);
-        
-        // Quantize
-        core::Block8x8i quantBlock;
-        Quantizer::quantize(dctBlock, qTable, quantBlock);
-        
-        // Entropy encode (ZigZag + RLE + Huffman + DC prediction)
-        prevDC = entropyEncoder.encodeLumaBlock(quantBlock, prevDC, bitWriter);
+        for (std::size_t mcuX = 0; mcuX < mcuCols; ++mcuX)
+        {
+            // Extract 8x8 block from padded image
+            core::Block8x8f block;
+            for (std::size_t y = 0; y < 8; ++y)
+            {
+                for (std::size_t x = 0; x < 8; ++x)
+                {
+                    const std::size_t imgX = mcuX * 8 + x;
+                    const std::size_t imgY = mcuY * 8 + y;
+                    block.at(x, y) = static_cast<float>(img.at(imgX, imgY, 0)) - 128.0f;
+                }
+            }
+            
+            // Forward DCT
+            core::Block8x8f dctBlock;
+            dct.forward(block, dctBlock);
+            
+            // Quantize
+            core::Block8x8i quantBlock;
+            Quantizer::quantize(dctBlock, qTable, quantBlock);
+            
+            // Entropy encode (ZigZag + RLE + Huffman + DC prediction)
+            prevDC = entropyEncoder.encodeLumaBlock(quantBlock, prevDC, bitWriter);
+        }
     }
     
     // Flush remaining bits
@@ -322,7 +358,7 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
     writeAPP1(static_cast<std::uint16_t>(img.width()),
               static_cast<std::uint16_t>(img.height())); // Original dimensions
     writeDQT2(lumaData, chromaData); // Write both luma and chroma quantization tables
-    writeSOF0Color(static_cast<std::uint16_t>(workImg->width()), static_cast<std::uint16_t>(workImg->height()));
+    writeSOF0Color(static_cast<std::uint16_t>(img.width()), static_cast<std::uint16_t>(img.height())); // Use original dimensions
     
     // Write Huffman tables (DC and AC for both luma and chroma)
     writeDHT(HUFFMAN_CLASS_DC, HUFFMAN_DEST_LUMA,   StandardHuffmanTables::DC_LUMA_NBITS.data(),   StandardHuffmanTables::DC_LUMA_VALS.data(),   12);
@@ -333,7 +369,8 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
     writeSOSColor();
     
     // Write entropy-coded scan data (interleaved MCU structure)
-    writeScanDataColor(yChannel, cbcrSubsampled, lumaData, chromaData);
+    // Pass original dimensions so we only encode MCUs covering the original image
+    writeScanDataColor(yChannel, cbcrSubsampled, lumaData, chromaData, img.width(), img.height());
     
     writeEOI();
     
@@ -342,24 +379,26 @@ std::vector<std::uint8_t> JPEGWriter::encodeYCbCr(const core::Image& img, int qu
 
 void JPEGWriter::writeDQT2(const std::uint16_t* lumaTable, const std::uint16_t* chromaTable)
 {
-    // Write luma quantization table (table ID 0)
+    // Write luma quantization table (table ID 0) in ZIGZAG ORDER (ITU-T.81 B.2.4.1)
     writeMarker(MARKER_DQT);
     writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(0);  // Precision (0 = 8-bit) | Table ID (0 = luma)
     
-    for (std::size_t i = 0; i < core::BlockElementCount; ++i)
+    for (std::size_t zz = 0; zz < core::BlockElementCount; zz++)
     {
-        writeByte(static_cast<std::uint8_t>(lumaTable[i]));
+        const std::size_t rasterPos = ZigZagIndex[zz];
+        writeByte(static_cast<std::uint8_t>(lumaTable[rasterPos]));
     }
     
-    // Write chroma quantization table (table ID 1)
+    // Write chroma quantization table (table ID 1) in ZIGZAG ORDER
     writeMarker(MARKER_DQT);
     writeWord(DQT_LENGTH_8BIT); // Length: 2 + 1 + 64 = 67 bytes
     writeByte(1);  // Precision (0 = 8-bit) | Table ID (1 = chroma)
     
-    for (std::size_t i = 0; i < core::BlockElementCount; ++i)
+    for (std::size_t zz = 0; zz < core::BlockElementCount; zz++)
     {
-        writeByte(static_cast<std::uint8_t>(chromaTable[i]));
+        const std::size_t rasterPos = ZigZagIndex[zz];
+        writeByte(static_cast<std::uint8_t>(chromaTable[rasterPos]));
     }
 }
 
@@ -412,7 +451,8 @@ void JPEGWriter::writeSOSColor()
 }
 
 void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Image& cbcrSubsampled,
-                                     const std::uint16_t* lumaTable, const std::uint16_t* chromaTable)
+                                     const std::uint16_t* lumaTable, const std::uint16_t* chromaTable,
+                                     std::size_t origWidth, std::size_t origHeight)
 {
     using namespace core;
     using namespace transforms;
@@ -448,13 +488,15 @@ void JPEGWriter::writeScanDataColor(const core::Image& yChannel, const core::Ima
     std::int16_t prevDC_Cb = 0;
     std::int16_t prevDC_Cr = 0;
     
-    // Process in MCUs: each MCU = 2×2 Y blocks (16×16 pixels) + 1 Cb block + 1 Cr block (8×8 each)
-    const std::size_t mcuWidth = yChannel.width() / 16;
-    const std::size_t mcuHeight = yChannel.height() / 16;
+    // Calculate MCU grid based on original dimensions (not padded)
+    // For 4:2:0, each MCU covers 16x16 pixels of the original image
+    // Decoder expects ceil(origWidth/16) * ceil(origHeight/16) MCUs
+    const std::size_t mcuCols = (origWidth + 15) / 16;
+    const std::size_t mcuRows = (origHeight + 15) / 16;
     
-    for (std::size_t mcuY = 0; mcuY < mcuHeight; ++mcuY)
+    for (std::size_t mcuY = 0; mcuY < mcuRows; ++mcuY)
     {
-        for (std::size_t mcuX = 0; mcuX < mcuWidth; ++mcuX)
+        for (std::size_t mcuX = 0; mcuX < mcuCols; ++mcuX)
         {
             // Process 4 Y blocks in this MCU (2×2 grid)
             for (std::size_t subY = 0; subY < 2; ++subY)

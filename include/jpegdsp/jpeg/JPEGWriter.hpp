@@ -65,9 +65,11 @@ private:
     void writeSOSColor();
     void writeEOI();
     
-    void writeScanData(const core::Image& img, const std::uint16_t* quantTable);
+    void writeScanData(const core::Image& img, const std::uint16_t* quantTable,
+                       std::size_t origWidth, std::size_t origHeight);
     void writeScanDataColor(const core::Image& yChannel, const core::Image& cbcrSubsampled,
-                             const std::uint16_t* lumaTable, const std::uint16_t* chromaTable);
+                             const std::uint16_t* lumaTable, const std::uint16_t* chromaTable,
+                             std::size_t origWidth, std::size_t origHeight);
 };
 
 } // namespace jpegdsp::jpeg

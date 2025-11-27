@@ -37,6 +37,7 @@ internals/
 .github
 .vscode
 docs/
+ui/web/
 
 # Files
 build_and_run_tests*
