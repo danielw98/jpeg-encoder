@@ -21,6 +21,7 @@ CMakeScripts/
 **/README.*
 !README.md
 !tests/README.md
+!data/standard_test_images/README.md
 
 # Ignore build output folder
 build/
@@ -42,3 +43,21 @@ ui/web/
 # Files
 build_and_run_tests*
 TODO.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Node.js
+node_modules/
+dist/
+.cache/
+
+# IDE
+.idea/
+*.swp
+*.swo
