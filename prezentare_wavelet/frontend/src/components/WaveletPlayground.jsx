@@ -1,19 +1,22 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import LaTeX, { LaTeXBlock } from './LaTeX'
 
 /**
  * WaveletPlayground - Beginner-friendly interactive wavelet visualization
- * Allows adjusting scale and translation parameters to see how wavelets work
+ * Presentation-style layout with scalable canvas and sidebar controls
  */
 
 // Simple wavelet functions for visualization
 const WAVELET_TYPES = {
-  sine: {
-    name: 'Sinusoidă',
-    description: 'Funcție sinusoidală de bază - fundamentul analizei Fourier',
-    func: (t, scale, shift) => Math.sin(2 * Math.PI * (t - shift) / scale),
-    equation: String.raw`\psi(t) = \sin\left(\frac{2\pi(t-b)}{a}\right)`,
-    color: '#00d9ff'
+  morlet: {
+    name: 'Morlet',
+    description: 'Sinusoidă modulată de Gaussiană - cel mai folosit în practică',
+    func: (t, scale, shift, omega = 5) => {
+      const x = (t - shift) / scale
+      return Math.exp(-x * x / 2) * Math.cos(omega * x)
+    },
+    equation: String.raw`\psi(t) = e^{-\frac{(t-b)^2}{2a^2}} \cos\left(\omega_0 \frac{t-b}{a}\right)`,
+    color: '#ffaa00'
   },
   haar: {
     name: 'Haar',
@@ -37,88 +40,76 @@ const WAVELET_TYPES = {
     equation: String.raw`\psi(t) = \left(1 - \left(\frac{t-b}{a}\right)^2\right) e^{-\frac{(t-b)^2}{2a^2}}`,
     color: '#ff6b9d'
   },
-  morlet: {
-    name: 'Morlet',
-    description: 'Sinusoidă modulată de Gaussiană - cel mai folosit în practică',
-    func: (t, scale, shift, omega = 5) => {
-      const x = (t - shift) / scale
-      return Math.exp(-x * x / 2) * Math.cos(omega * x)
-    },
-    equation: String.raw`\psi(t) = e^{-\frac{(t-b)^2}{2a^2}} \cos\left(\omega_0 \frac{t-b}{a}\right)`,
-    color: '#ffaa00'
+  sine: {
+    name: 'Sinusoidă',
+    description: 'Funcție sinusoidală de bază - fundamentul analizei Fourier',
+    func: (t, scale, shift) => Math.sin(2 * Math.PI * (t - shift) / scale),
+    equation: String.raw`\psi(t) = \sin\left(\frac{2\pi(t-b)}{a}\right)`,
+    color: '#00d9ff'
   }
 }
 
-export default function WaveletPlayground() {
+// Default values
+const DEFAULTS = {
+  scale: 1.0,
+  shift: 0.0,
+  omega: 5,
+  waveletType: 'morlet',
+  showOriginal: true
+}
+
+export default function WaveletPlayground({ compact = false }) {
   // Parameters
-  const [waveletType, setWaveletType] = useState('morlet')
-  const [scale, setScale] = useState(1.0)
-  const [shift, setShift] = useState(0.0)
-  const [omega, setOmega] = useState(5)
-  const [showOriginal, setShowOriginal] = useState(true)
+  const [waveletType, setWaveletType] = useState(DEFAULTS.waveletType)
+  const [scale, setScale] = useState(DEFAULTS.scale)
+  const [shift, setShift] = useState(DEFAULTS.shift)
+  const [omega, setOmega] = useState(DEFAULTS.omega)
+  const [showOriginal, setShowOriginal] = useState(DEFAULTS.showOriginal)
   
   // Animation
   const [animating, setAnimating] = useState(false)
   const [animParam, setAnimParam] = useState('shift')
-  const [lastAnimParam, setLastAnimParam] = useState(null)
+  
+  // Collapsible sections
+  const [showWaveletInfo, setShowWaveletInfo] = useState(true)
+  const [showTheory, setShowTheory] = useState(false)
   
   const canvasRef = useRef()
+  const containerRef = useRef()
   const animRef = useRef()
 
-  // Default values for reset
-  const DEFAULT_SCALE = 1.0
-  const DEFAULT_SHIFT = 0.0
-
-  // Draw wavelet
-  useEffect(() => {
-    drawWavelet()
-  }, [waveletType, scale, shift, omega, showOriginal])
-
-  // Animation loop
-  useEffect(() => {
-    if (animating) {
-      // If starting a different animation type, reset to defaults
-      if (lastAnimParam !== null && lastAnimParam !== animParam) {
-        setScale(DEFAULT_SCALE)
-        setShift(DEFAULT_SHIFT)
-      }
-      setLastAnimParam(animParam)
-      
-      let frame = 0
-      const animate = () => {
-        frame += 0.02
-        if (animParam === 'shift') {
-          setShift(Math.sin(frame) * 2)
-        } else if (animParam === 'scale') {
-          setScale(0.5 + Math.abs(Math.sin(frame)) * 1.5)
-        }
-        animRef.current = requestAnimationFrame(animate)
-      }
-      animRef.current = requestAnimationFrame(animate)
-    }
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current)
-    }
-  }, [animating, animParam])
-
-  // Handle animation type change - reset params when switching while animating
-  const handleAnimParamChange = (newParam) => {
-    if (animating) {
-      // Reset to defaults when switching animation type while running
-      setScale(DEFAULT_SCALE)
-      setShift(DEFAULT_SHIFT)
-    }
-    setAnimParam(newParam)
+  // Reset to defaults
+  const handleReset = () => {
+    setScale(DEFAULTS.scale)
+    setShift(DEFAULTS.shift)
+    setOmega(DEFAULTS.omega)
+    setShowOriginal(DEFAULTS.showOriginal)
+    setAnimating(false)
   }
 
-  const drawWavelet = () => {
+  // Draw wavelet
+  const drawWavelet = useCallback(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const container = containerRef.current
+    if (!canvas || !container) return
     
-    const width = canvas.width
-    const height = canvas.height
-    const margin = 50
+    // HiDPI support - responsive sizing
+    const dpr = window.devicePixelRatio || 1
+    const rect = container.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    
+    if (width === 0 || height === 0) return
+    
+    canvas.width = width * dpr
+    canvas.height = height * dpr
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${height}px`
+    
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+    
+    const margin = compact ? 35 : 45
     
     // Clear
     ctx.fillStyle = '#050510'
@@ -156,7 +147,7 @@ export default function WaveletPlayground() {
     ctx.stroke()
 
     // Vertical axis at t=0 (center)
-    const zeroX = margin + (4 / 8) * (width - 2 * margin) // t=0 is at index 4 in range [-4, 4]
+    const zeroX = margin + (4 / 8) * (width - 2 * margin)
     ctx.strokeStyle = '#3a3a5a'
     ctx.lineWidth = 2
     ctx.beginPath()
@@ -194,7 +185,7 @@ export default function WaveletPlayground() {
     
     // b label on the translation marker
     ctx.fillStyle = '#ffaa00'
-    ctx.font = 'bold 14px sans-serif'
+    ctx.font = 'bold 12px sans-serif'
     ctx.fillText(`b = ${shift.toFixed(1)}`, shiftX + 5, margin + 15)
     
     // Draw original wavelet (scale=1, shift=0) if enabled
@@ -244,22 +235,49 @@ export default function WaveletPlayground() {
       ctx.fillStyle = '#666'
       ctx.fillText(val.toString(), x - 5, height - margin + 15)
     }
-  }
+  }, [waveletType, scale, shift, omega, showOriginal, compact])
+
+  // Redraw on mount and data change
+  useEffect(() => {
+    drawWavelet()
+  }, [drawWavelet])
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => drawWavelet()
+    const resizeObserver = new ResizeObserver(handleResize)
+    if (containerRef.current) resizeObserver.observe(containerRef.current)
+    return () => resizeObserver.disconnect()
+  }, [drawWavelet])
+
+  // Animation loop
+  useEffect(() => {
+    if (animating) {
+      let frame = 0
+      const animate = () => {
+        frame += 0.02
+        if (animParam === 'shift') {
+          setShift(Math.sin(frame) * 2)
+        } else if (animParam === 'scale') {
+          setScale(0.5 + Math.abs(Math.sin(frame)) * 1.5)
+        }
+        animRef.current = requestAnimationFrame(animate)
+      }
+      animRef.current = requestAnimationFrame(animate)
+    }
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current)
+    }
+  }, [animating, animParam])
 
   const wavelet = WAVELET_TYPES[waveletType]
 
   return (
-    <div className="wavelet-playground">
-      {/* Header - compact */}
-      <div className="playground-header">
-        <h2>🎮 Wavelet Playground</h2>
-        <p className="subtitle">Explorează cum parametrii afectează forma wavelet-ului</p>
-      </div>
-
-      {/* Canvas - central focus */}
-      <div className="panel visualization-panel">
-        {/* LaTeX formula above canvas */}
-        <div className="formula-display">
+    <div className="wavelet-playground-v2">
+      {/* Main content area */}
+      <div className="playground-main">
+        {/* Formula bar at top */}
+        <div className="formula-bar">
           <LaTeX math={`\\psi_{${scale.toFixed(1)},${shift.toFixed(1)}}(t) = \\frac{1}{\\sqrt{${scale.toFixed(1)}}} \\cdot \\psi\\left(\\frac{t - ${shift.toFixed(1)}}{${scale.toFixed(1)}}\\right)`} />
         </div>
         
@@ -275,104 +293,111 @@ export default function WaveletPlayground() {
           </span>
         </div>
         
-        <div className="plot-container">
-          <canvas ref={canvasRef} width={800} height={350} />
-        </div>
-        
-        {/* Wavelet name below */}
-        <div className="wavelet-label" style={{ color: wavelet.color }}>
-          {wavelet.name} Wavelet
+        {/* Canvas container - fills available space */}
+        <div className="plot-container" ref={containerRef}>
+          <canvas ref={canvasRef} />
+          <div className="plot-title-overlay" style={{ color: wavelet.color }}>
+            {wavelet.name} Wavelet
+          </div>
         </div>
       </div>
-
-      {/* Controls - directly below canvas */}
-      <div className="panel controls-panel">
-        <div className="playground-controls">
-          {/* Wavelet Type */}
-          <div className="control-section">
-            <label>Tip Wavelet</label>
-            <div className="button-group">
-              {Object.entries(WAVELET_TYPES).map(([key, w]) => (
-                <button
-                  key={key}
-                  className={waveletType === key ? 'active' : ''}
-                  style={{ borderColor: waveletType === key ? w.color : undefined }}
-                  onClick={() => setWaveletType(key)}
-                >
-                  {w.name}
-                </button>
-              ))}
-            </div>
+      
+      {/* Right sidebar with controls */}
+      <div className="playground-sidebar">
+        {/* Wavelet Type Section */}
+        <div className="sidebar-section">
+          <div 
+            className="section-header clickable"
+            onClick={() => setShowWaveletInfo(!showWaveletInfo)}
+          >
+            <span>🌊 Tip Wavelet</span>
+            <span className="toggle-icon">{showWaveletInfo ? '▼' : '▶'}</span>
           </div>
-          
-          {/* Scale Slider */}
-          <div className="control-section">
-            <label>
-              <strong style={{ color: '#00d9ff' }}>a</strong> (Scalare): {scale.toFixed(2)}
-              <span className="hint">
-                {scale < 1 ? ' ← comprimat (frecvențe înalte)' : scale > 1 ? ' ← dilatat (frecvențe joase)' : ' ← original'}
-              </span>
-            </label>
-            <input
-              type="range"
-              min="0.2"
-              max="3"
-              step="0.05"
-              value={scale}
-              onChange={e => setScale(parseFloat(e.target.value))}
-              disabled={animating && animParam === 'scale'}
-            />
-            <div className="slider-labels">
-              <span>0.2 (îngust)</span>
-              <span>3.0 (larg)</span>
-            </div>
-          </div>
-          
-          {/* Shift Slider */}
-          <div className="control-section">
-            <label>
-              <strong style={{ color: '#ffaa00' }}>b</strong> (Translație): {shift.toFixed(2)}
-              <span className="hint"> ← poziția în timp</span>
-            </label>
-            <input
-              type="range"
-              min="-3"
-              max="3"
-              step="0.1"
-              value={shift}
-              onChange={e => setShift(parseFloat(e.target.value))}
-              disabled={animating && animParam === 'shift'}
-            />
-            <div className="slider-labels">
-              <span>-3 (stânga)</span>
-              <span>+3 (dreapta)</span>
-            </div>
-          </div>
-          
-          {/* Morlet omega parameter */}
-          {waveletType === 'morlet' && (
-            <div className="control-section">
-              <label>
-                <strong style={{ color: '#ff6b9d' }}>ω₀</strong> (Frecvență oscilație): {omega}
-              </label>
-              <input
-                type="range"
-                min="2"
-                max="10"
-                step="1"
-                value={omega}
-                onChange={e => setOmega(parseInt(e.target.value))}
-              />
-              <div className="slider-labels">
-                <span>2 (lent)</span>
-                <span>10 (rapid)</span>
+          {showWaveletInfo && (
+            <div className="section-content">
+              <div className="wavelet-buttons">
+                {Object.entries(WAVELET_TYPES).map(([key, w]) => (
+                  <button
+                    key={key}
+                    className={`wavelet-btn ${waveletType === key ? 'active' : ''}`}
+                    style={{ 
+                      borderColor: waveletType === key ? w.color : 'transparent',
+                      color: waveletType === key ? w.color : undefined
+                    }}
+                    onClick={() => setWaveletType(key)}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+              <p className="wavelet-desc">{wavelet.description}</p>
+              <div className="wavelet-equation">
+                <LaTeXBlock math={wavelet.equation} />
               </div>
             </div>
           )}
-          
-          {/* Options */}
-          <div className="control-section options-row">
-            <label className="checkbox-label">
+        </div>
+        
+        {/* Controls Section */}
+        <div className="sidebar-section">
+          <div className="section-header">
+            <span>⚙️ Parametri</span>
+          </div>
+          <div className="section-content">
+            {/* Scale Slider */}
+            <div className="control-row">
+              <label>
+                <strong style={{ color: '#00d9ff' }}>a</strong> (Scalare): {scale.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="0.2"
+                max="3"
+                step="0.05"
+                value={scale}
+                onChange={e => setScale(parseFloat(e.target.value))}
+                disabled={animating && animParam === 'scale'}
+              />
+              <div className="slider-hint">
+                {scale < 1 ? 'comprimat (frecvențe înalte)' : scale > 1 ? 'dilatat (frecvențe joase)' : 'original'}
+              </div>
+            </div>
+            
+            {/* Shift Slider */}
+            <div className="control-row">
+              <label>
+                <strong style={{ color: '#ffaa00' }}>b</strong> (Translație): {shift.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="-3"
+                max="3"
+                step="0.1"
+                value={shift}
+                onChange={e => setShift(parseFloat(e.target.value))}
+                disabled={animating && animParam === 'shift'}
+              />
+            </div>
+            
+            {/* Morlet omega parameter */}
+            {waveletType === 'morlet' && (
+              <div className="control-row">
+                <label>
+                  <strong style={{ color: '#ff6b9d' }}><LaTeX math="\omega_0" /></strong>: {omega}
+                </label>
+                <input
+                  type="range"
+                  min="2"
+                  max="10"
+                  step="1"
+                  value={omega}
+                  onChange={e => setOmega(parseInt(e.target.value))}
+                />
+              </div>
+            )}
+            
+            {/* Show original checkbox */}
+            <label className="checkbox-row">
               <input
                 type="checkbox"
                 checked={showOriginal}
@@ -380,72 +405,59 @@ export default function WaveletPlayground() {
               />
               Arată originalul (a=1, b=0)
             </label>
-            
-            <div className="animation-controls">
-              <button 
-                className={animating ? 'active danger' : 'primary'}
-                onClick={() => setAnimating(!animating)}
+          </div>
+        </div>
+        
+        {/* Animation Section */}
+        <div className="sidebar-section">
+          <div className="section-header">
+            <span>▶️ Animație</span>
+          </div>
+          <div className="section-content">
+            <div className="animation-row">
+              <select 
+                value={animParam} 
+                onChange={e => setAnimParam(e.target.value)}
+                disabled={animating}
               >
-                {animating ? '⏹ Stop' : '▶️ Animează'}
-              </button>
-              <select value={animParam} onChange={e => handleAnimParamChange(e.target.value)}>
                 <option value="shift">Translație (b)</option>
                 <option value="scale">Scalare (a)</option>
               </select>
+              <button 
+                className={`anim-btn ${animating ? 'stop' : 'play'}`}
+                onClick={() => setAnimating(!animating)}
+              >
+                {animating ? '⏹ Stop' : '▶ Play'}
+              </button>
+              <button 
+                className="anim-btn reset"
+                onClick={handleReset}
+                title="Reset la valori implicite"
+              >
+                🔄
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Parameter Explanation - Always visible */}
+        <div className="sidebar-section explanation-section">
+          <div className="section-content theory-content">
+            <div className="theory-item">
+              <h5 style={{ color: '#00d9ff' }}>Scalare (a)</h5>
+              <p><strong>a mic</strong> → frecvențe înalte (detalii)</p>
+              <p><strong>a mare</strong> → frecvențe joase (structuri)</p>
+            </div>
+            <div className="theory-item">
+              <h5 style={{ color: '#ffaa00' }}>Translație (b)</h5>
+              <p>Localizează <em>unde</em> apar frecvențele în semnal.</p>
+            </div>
+            <div className="theory-formula">
+              <LaTeXBlock math={String.raw`W(a,b) = \int f(t) \cdot \psi_{a,b}(t) \, dt`} />
             </div>
           </div>
         </div>
       </div>
-
-      {/* Wavelet Info */}
-      <div className="panel info-panel">
-        <h3>📝 {wavelet.name}</h3>
-        <p style={{ color: 'var(--text-muted)' }}>{wavelet.description}</p>
-        
-        <div className="math-block">
-          <LaTeXBlock math={wavelet.equation} />
-        </div>
-        
-        <div className="info-box success">
-          <strong>💡 Încearcă:</strong>
-          <ul style={{ marginTop: '0.5rem', marginLeft: '1.5rem' }}>
-            <li>Mută slider-ul <strong>b</strong> pentru a vedea cum wavelet-ul "scanează" semnalul</li>
-            <li>Schimbă <strong>a</strong> pentru a detecta frecvențe diferite</li>
-            <li>Activează animația pentru a vedea transformarea în mișcare!</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Theory Section - collapsible or at bottom */}
-      <details className="panel theory-panel">
-        <summary><h3 style={{ display: 'inline' }}>🎓 De ce contează?</h3></summary>
-        
-        <div className="insight-grid" style={{ marginTop: '1rem' }}>
-          <div className="info-box">
-            <h4 style={{ color: 'var(--primary)' }}>Scalare (a)</h4>
-            <p>
-              <strong>a mic</strong> = wavelet îngust = detectează frecvențe înalte (detalii fine)<br/>
-              <strong>a mare</strong> = wavelet larg = detectează frecvențe joase (structuri mari)
-            </p>
-          </div>
-          
-          <div className="info-box">
-            <h4 style={{ color: '#ffaa00' }}>Translație (b)</h4>
-            <p>
-              Mută wavelet-ul de-a lungul semnalului pentru a <em>localiza</em> unde apar anumite frecvențe.
-              Aceasta este superputerea wavelet-ilor față de Fourier!
-            </p>
-          </div>
-        </div>
-        
-        <div className="math-block" style={{ marginTop: '1rem' }}>
-          <strong>Transformata Wavelet Continuă:</strong>
-          <LaTeXBlock math={String.raw`W(a,b) = \int_{-\infty}^{\infty} f(t) \cdot \psi_{a,b}(t) \, dt`} />
-          <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Corelația dintre semnal și wavelet-ul la diferite scale și poziții
-          </p>
-        </div>
-      </details>
     </div>
   )
 }
