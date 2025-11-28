@@ -1,0 +1,28 @@
+/* ========================================
+   Decompose View Styles
+   Uses: .view-container--lg, .toggle-btn-group
+======================================== */
+
+/* Level selector - legacy, prefer .toggle-btn-group from components.css */
+.decompose-view .level-selector {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.decompose-view .level-selector button {
+  padding: 0.5rem var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.decompose-view .level-selector button.active,
+.decompose-view .level-selector button:hover {
+  background: var(--primary);
+  color: var(--bg-dark);
+  border-color: var(--primary);
+}

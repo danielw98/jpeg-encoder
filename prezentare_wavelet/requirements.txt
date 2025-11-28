@@ -1,0 +1,25 @@
+# Wavelet Presentation Project Dependencies
+
+# Core scientific computing
+numpy>=1.24.0
+scipy>=1.11.0
+pillow>=10.0.0
+
+# Wavelet processing
+PyWavelets>=1.4.0
+
+# Animations
+manim>=0.18.0
+
+# Web frontend (Streamlit for Python-native UI)
+streamlit>=1.28.0
+
+# Image quality metrics
+scikit-image>=0.21.0
+
+# Plotting
+matplotlib>=3.7.0
+
+# Optional: Jupyter for prototyping
+jupyter>=1.0.0
+ipywidgets>=8.0.0

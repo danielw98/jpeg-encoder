@@ -1,0 +1,15 @@
+/* ========================================
+   Compare View Styles
+   Uses: .view-container--lg
+======================================== */
+
+.compare-view .comparison-controls {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-lg);
+}
+
+.compare-view .quality-slider {
+  width: 200px;
+}

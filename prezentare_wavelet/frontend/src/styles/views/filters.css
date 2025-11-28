@@ -1,0 +1,275 @@
+/* ========================================
+   Filters View Styles
+   Uses: .view-container, .controls-grid, .control-section
+======================================== */
+
+/* Signal Comparison Grid - Side by Side */
+.signal-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .signal-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.signal-comparison-grid .plot-container {
+  background: var(--bg-darker);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+}
+
+.signal-comparison-grid canvas {
+  width: 100%;
+  height: auto;
+}
+
+/* Control Grid Layout - uses .controls-grid from components.css */
+.filter-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+/* Control section styles now in components.css as .control-section */
+.filter-controls-grid .control-section {
+  /* Uses .control-section from components.css */
+}
+
+/* ========================================
+   Plot Container with Overlays (responsive)
+======================================== */
+
+.filters-view .plot-container-with-overlay {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #050510;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* In compact layout, plots flex to fill space */
+.filters-compact-layout .plot-container-with-overlay {
+  height: auto;
+  flex: 1;
+  min-height: 100px;
+}
+
+.filters-view .plot-container-with-overlay canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.filters-view .plot-title-overlay {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.filters-view .plot-title-overlay.white {
+  color: #ffffff;
+}
+
+.filters-view .plot-title-overlay.yellow {
+  color: #ffd93d;
+}
+
+.filters-view .plot-legend-overlay {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: rgba(5, 5, 16, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 4px 8px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.7rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.filters-view .plot-axis-label {
+  position: absolute;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #aaaacc;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.filters-view .plot-axis-label.y-label {
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center center;
+}
+
+.filters-view .plot-axis-label.x-label {
+  bottom: 6px;
+  right: 10px;
+}
+
+/* ========================================
+   Compact Layout for Tour Mode
+   Top: Filter + Spectrum side by side
+   Bottom: Comparison + Controls side by side
+======================================== */
+
+.filters-compact-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  width: 100%;
+}
+
+.filters-top-row {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.filters-top-row .plot-container-with-overlay {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.filters-bottom-row {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.filters-bottom-row .plot-container-with-overlay {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+/* Inline controls panel for compact mode */
+.filters-inline-controls {
+  width: 200px;
+  flex-shrink: 0;
+  background: rgba(20, 25, 35, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.filters-inline-controls h4 {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.95rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filters-inline-controls .control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filters-inline-controls .control-row label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.filters-inline-controls .control-row label strong {
+  color: #ffaa00;
+}
+
+.filters-inline-controls .button-group.mini {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.filters-inline-controls .button-group.mini button {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filters-inline-controls .button-group.mini button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.filters-inline-controls .button-group.mini button.active {
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.2);
+  color: white;
+}
+
+.filters-inline-controls .button-group.mini button.active.success {
+  border-color: #00ff88;
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.filters-inline-controls .button-group.mini button.active.danger {
+  border-color: #ff6b9d;
+  background: rgba(255, 107, 157, 0.2);
+}
+
+.filters-inline-controls select {
+  width: 100%;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 35, 50, 0.95);
+  color: white;
+  cursor: pointer;
+}
+
+.filters-inline-controls select option {
+  background: #1e2332;
+  color: white;
+  padding: 0.5rem;
+}
+
+.filters-inline-controls input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  appearance: none;
+  cursor: pointer;
+}
+
+.filters-inline-controls input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffaa00;
+  cursor: pointer;
+}

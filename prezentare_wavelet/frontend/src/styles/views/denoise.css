@@ -1,0 +1,11 @@
+/* ========================================
+   Denoise View Styles
+   Uses: .view-container--lg, .control-section
+======================================== */
+
+.denoise-view .noise-controls {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-lg);
+}

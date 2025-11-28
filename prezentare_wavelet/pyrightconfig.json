@@ -1,0 +1,16 @@
+{
+    "include": [
+        "backend",
+        "src",
+        "app",
+        "scripts"
+    ],
+    "extraPaths": [
+        "backend",
+        "src"
+    ],
+    "pythonVersion": "3.11",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": "warning",
+    "reportMissingModuleSource": "warning"
+}

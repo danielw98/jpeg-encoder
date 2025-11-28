@@ -1,0 +1,368 @@
+/* ========================================
+   Wavelet Playground Styles
+   Uses: .view-container
+======================================== */
+
+.wavelet-playground {
+  /* Uses .view-container from components.css */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header - compact at top */
+.wavelet-playground .playground-header {
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.wavelet-playground .playground-header h2 {
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+  font-size: 1.5rem;
+}
+
+.wavelet-playground .playground-header .subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Visualization panel - central focus */
+.wavelet-playground .visualization-panel {
+  margin-bottom: var(--space-sm);
+  padding: var(--space-md);
+}
+
+.wavelet-playground .visualization-panel .plot-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* LaTeX formula display above canvas */
+.wavelet-playground .formula-display {
+  text-align: center;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+}
+
+/* Parameter badges */
+.wavelet-playground .param-badges {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.wavelet-playground .param-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.wavelet-playground .param-badge.scale {
+  background: rgba(0, 217, 255, 0.15);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  color: #00d9ff;
+}
+
+.wavelet-playground .param-badge.shift {
+  background: rgba(255, 170, 0, 0.15);
+  border: 1px solid rgba(255, 170, 0, 0.4);
+  color: #ffaa00;
+}
+
+.wavelet-playground .param-badge small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Wavelet name label below canvas */
+.wavelet-playground .wavelet-label {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: var(--space-sm);
+}
+
+/* Controls panel - directly below canvas */
+.wavelet-playground .controls-panel {
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+/* Info and theory panels - less prominent */
+.wavelet-playground .info-panel {
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.wavelet-playground .theory-panel {
+  padding: var(--space-md);
+  cursor: pointer;
+}
+
+.wavelet-playground .theory-panel summary {
+  list-style: none;
+  user-select: none;
+}
+
+.wavelet-playground .theory-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.wavelet-playground .theory-panel summary h3::before {
+  content: '▶ ';
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+.wavelet-playground .theory-panel[open] summary h3::before {
+  content: '▼ ';
+}
+
+.wavelet-playground h2 {
+  color: var(--primary);
+  margin-bottom: var(--space-sm);
+}
+
+.wavelet-playground .subtitle {
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.wavelet-playground > p {
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* Playground Controls Grid */
+.playground-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.playground-controls .control-section {
+  background: var(--bg-elevated);
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.playground-controls .control-section label {
+  display: block;
+  color: var(--primary);
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+}
+
+.playground-controls .hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+  font-style: italic;
+}
+
+/* Playground Range Inputs */
+.playground-controls input[type="range"] {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  outline: none;
+  margin: var(--space-sm) 0;
+}
+
+.playground-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 217, 255, 0.3);
+}
+
+.playground-controls input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: none;
+}
+
+.playground-controls .value-display {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--primary);
+  font-weight: 600;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+/* Options Row */
+.playground-controls .options-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.playground-controls .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: all var(--transition-normal);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.playground-controls .checkbox-label:hover {
+  border-color: var(--primary);
+}
+
+.playground-controls input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}
+
+/* Animation Controls */
+.animation-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-left: auto;
+}
+
+.animation-controls span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.animation-controls select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.animation-controls button {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: 0.85rem;
+}
+
+.animation-controls button:hover {
+  background: var(--primary);
+  color: var(--bg-dark);
+  border-color: var(--primary);
+}
+
+.animation-controls button.active {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+.animation-controls button.danger {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+/* Canvas Container */
+.playground-canvas-container {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.playground-canvas-container h4 {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.playground-canvas-container canvas {
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--bg-darker);
+}
+
+/* Legend */
+.playground-legend {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.playground-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.playground-legend .legend-color {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Insight Grid */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-md);
+}
+
+.insight-grid .insight-box {
+  background: var(--bg-elevated);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary);
+}
+
+.insight-grid .insight-box h5 {
+  color: var(--primary);
+  margin-bottom: var(--space-sm);
+  font-size: 0.9rem;
+}
+
+.insight-grid .insight-box p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}

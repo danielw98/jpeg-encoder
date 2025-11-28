@@ -1,0 +1,255 @@
+/* ========================================
+   Convolution View Styles
+   Uses: .view-container, .plot-with-labels, .plot-legend
+======================================== */
+
+.convolution-view .kernel-display canvas {
+  border: 1px solid var(--border);
+}
+
+.convolution-view pre {
+  background: var(--bg-darker);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  margin: var(--space-sm) 0;
+  line-height: 1.4;
+}
+
+/* ========================================
+   Compact Mode for Tour Embed
+======================================== */
+
+.convolution-view.compact-mode {
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-conv-layout {
+  display: flex;
+  gap: 1rem;
+  height: 100%;
+  padding: 0.5rem;
+}
+
+.compact-conv-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.compact-conv-sidebar .compact-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.compact-conv-sidebar h4 {
+  margin: 0 0 0.6rem 0;
+  font-size: 0.9rem;
+  color: #c9b1ff;
+}
+
+.compact-control {
+  margin-bottom: 0.6rem;
+}
+
+.compact-control label {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.25rem;
+}
+
+.compact-control select,
+.compact-control input[type="range"] {
+  width: 100%;
+}
+
+.compact-control select {
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: white;
+}
+
+.compact-control select option {
+  background: #1a1d24;
+}
+
+.compact-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.compact-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.compact-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.compact-btn.primary {
+  background: rgba(201, 177, 255, 0.2);
+  border-color: rgba(201, 177, 255, 0.4);
+}
+
+.compact-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.compact-kernel-canvas {
+  width: 100%;
+  height: 70px;
+  background: #0a0a1a;
+  border-radius: 6px;
+}
+
+.compact-kernel-wrapper {
+  width: 100%;
+  height: 70px;
+}
+
+.kernel-formula-mini {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.compact-conv-result {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.5rem;
+  min-height: 0;
+}
+
+.compact-conv-result h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #c9b1ff;
+}
+
+.compact-result-canvas {
+  width: 100%;
+  height: 100%;
+  background: #050510;
+  border-radius: 8px;
+  display: block;
+}
+
+.compact-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-item .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-item .dot.gray {
+  background: rgba(136, 136, 170, 0.6);
+}
+
+.legend-item .dot.green {
+  background: #00ff88;
+}
+
+/* Plot container with HTML overlays */
+.plot-container-with-overlay {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.plot-container-with-overlay canvas {
+  width: 100%;
+  height: 100%;
+  background: #050510;
+  border-radius: 8px;
+  display: block;
+}
+
+.plot-title-overlay {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #00d9ff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.plot-legend-overlay {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: rgba(5, 5, 16, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.legend-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-line {
+  width: 20px;
+  height: 3px;
+  border-radius: 1px;
+}
+
+.legend-line.gray {
+  background: rgba(136, 136, 170, 0.6);
+}
+
+.legend-line.cyan {
+  background: rgba(0, 217, 255, 0.4);
+}
+
+.legend-line.green {
+  background: #00ff88;
+}

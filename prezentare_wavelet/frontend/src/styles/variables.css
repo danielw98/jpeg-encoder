@@ -1,0 +1,79 @@
+/* ========================================
+   CSS Variables - Design System Tokens
+======================================== */
+:root {
+  /* Typography */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+  line-height: 1.6;
+  font-weight: 400;
+  
+  /* Color Scheme */
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: #0a0a1a;
+  
+  /* Primary Colors */
+  --primary: #00d9ff;
+  --primary-dark: #0099cc;
+  --primary-light: #66e5ff;
+  --primary-alpha: rgba(0, 217, 255, 0.1);
+  
+  /* Accent Colors */
+  --secondary: #ff6b9d;
+  --success: #00ff88;
+  --warning: #ffaa00;
+  --error: #ff4d6d;
+  --purple: #c9b1ff;
+  
+  /* Background Colors */
+  --bg-darker: #050510;
+  --bg-dark: #0a0a1a;
+  --bg-card: #12122a;
+  --bg-elevated: #1a1a3a;
+  
+  /* Border & Text */
+  --border: #2a2a4a;
+  --border-light: #3a3a5a;
+  --text-muted: #8888aa;
+  --text-light: rgba(255, 255, 255, 0.85);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 4px 15px rgba(0, 217, 255, 0.3);
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 50%;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-tooltip: 1500;
+  
+  /* View Layout Widths */
+  --view-width-sm: 800px;
+  --view-width-md: 1000px;
+  --view-width-lg: 1200px;
+}
