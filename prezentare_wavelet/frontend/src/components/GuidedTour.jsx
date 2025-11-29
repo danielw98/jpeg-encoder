@@ -8,6 +8,7 @@ import ConvolutionView from './ConvolutionView'
 import KernelsView from './KernelsView'
 import KernelsEducationalView from './KernelsEducationalView'
 import WaveletPlayground from './WaveletPlayground'
+import WaveletScanDemo from './WaveletScanDemo'
 import WaveletEducationView from './WaveletEducationView'
 import WaveletBasisView from './WaveletBasisView'
 import DecomposeView from './DecomposeView'
@@ -262,15 +263,24 @@ const SLIDES = [
     title: 'Demo: Wavelet Playground',
     color: '#00d4ff'
   },
+  {
+    id: 'wavelet-scan',
+    section: 'wavelets',
+    type: 'embed',
+    embedType: 'wavelet-scan',
+    icon: '🔍',
+    title: 'Demo: Scanarea Semnalului',
+    color: '#00d4ff'
+  },
 
-  // ===== WAVELET THEORY =====
+  // ===== WAVELET THEORY & BASIS =====
   {
     id: 'theory-title',
     section: 'wavelet-theory',
     type: 'title',
     icon: '🎓',
-    title: 'Teorie Wavelets',
-    subtitle: 'Fundamente matematice',
+    title: 'Teorie & Baze Wavelet',
+    subtitle: 'Fundamente matematice și familii wavelet',
     color: '#ffd93d'
   },
   {
@@ -279,26 +289,16 @@ const SLIDES = [
     type: 'embed',
     embedType: 'wavelet-theory',
     icon: '🎓',
-    title: 'Demo: Teorie Wavelets',
+    title: 'Wavelets Fundamentale',
     color: '#ffd93d'
-  },
-
-  // ===== WAVELET BASIS =====
-  {
-    id: 'basis-title',
-    section: 'wavelet-basis',
-    type: 'title',
-    icon: '🌊',
-    title: 'Baze Wavelet',
-    subtitle: 'Haar, Daubechies, Biortogonal',
-    color: '#ff6b6b'
   },
   {
     id: 'basis-theory',
-    section: 'wavelet-basis',
+    section: 'wavelet-theory',
     type: 'theory',
     icon: '🌊',
     title: 'Familii Wavelet',
+    subtitle: 'Haar, Daubechies, Biortogonal',
     content: 'Fiecare familie are caracteristici diferite.',
     math: String.raw`\int_{-\infty}^{\infty} \psi(t) \, dt = 0`,
     mathLabel: 'Condiția de admisibilitate',
@@ -307,16 +307,7 @@ const SLIDES = [
       'Daubechies: suport compact, neted',
       'Biortogonal: folosit în JPEG2000'
     ],
-    color: '#ff6b6b'
-  },
-  {
-    id: 'basis-demo',
-    section: 'wavelet-basis',
-    type: 'embed',
-    embedType: 'wavelet-basis',
-    icon: '🌊',
-    title: 'Demo: Baze Wavelet',
-    color: '#ff6b6b'
+    color: '#ffd93d'
   },
 
   // ===== DECOMPOSITION =====
@@ -436,11 +427,10 @@ const SLIDES = [
     id: 'final',
     section: 'final',
     type: 'final',
-    icon: '🎉',
-    title: 'Felicitări!',
-    subtitle: 'Ai parcurs întreaga prezentare',
-    message: 'Acum știi cum funcționează wavelets și de ce sunt superioare în multe aplicații.',
-    color: '#2ecc71'
+    icon: '🙏',
+    title: 'Mulțumesc!',
+    subtitle: 'Întrebări?',
+    color: '#00d4ff'
   }
 ]
 
@@ -487,6 +477,8 @@ function EmbeddedView({ embedType, api, imageId, sampleImages, onImageChange }) 
       return <KernelsEducationalView api={api} compact={true} />
     case 'playground':
       return <WaveletPlayground compact={true} />
+    case 'wavelet-scan':
+      return <WaveletScanDemo compact={true} />
     case 'wavelet-theory':
       return <WaveletEducationView api={api} compact={true} />
     case 'wavelet-basis':
@@ -873,9 +865,8 @@ export default function GuidedTour({ onClose, onNavigate, selectedImage = 'peppe
             <div className="slide-icon large">{slide.icon}</div>
             <h1>{slide.title}</h1>
             <h2>{slide.subtitle}</h2>
-            <p className="final-message">{slide.message}</p>
             <button className="btn-explore" onClick={onClose}>
-              Explorează Liber →
+              ← Înapoi la pagina principală
             </button>
           </div>
         )}
@@ -893,7 +884,6 @@ export default function GuidedTour({ onClose, onNavigate, selectedImage = 'peppe
         
         <div className="nav-center">
           <span className="slide-counter">{currentIdx + 1} / {SLIDES.length}</span>
-          <span className="nav-hint">← → sau Space pentru navigare</span>
         </div>
         
         <button 

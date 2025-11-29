@@ -1,0 +1,402 @@
+/* ========================================
+   Wavelet Scan Demo - Presentation Style
+   Shows wavelet scanning with positive/negative areas
+======================================== */
+
+.wavelet-scan-demo {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Main area with stacked plots */
+.wavelet-scan-demo .scan-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.wavelet-scan-demo .scan-plot-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.wavelet-scan-demo .scan-plot-section.result {
+  flex: 0.7;
+}
+
+.wavelet-scan-demo .plot-label {
+  text-align: center;
+  padding: 0.3rem 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px 6px 0 0;
+  font-size: 0.9rem;
+}
+
+/* Clean plot labels */
+.wavelet-scan-demo .plot-label.clean {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.wavelet-scan-demo .plot-label .label-signal {
+  color: #8888aa;
+  position: relative;
+  padding-left: 14px;
+}
+
+.wavelet-scan-demo .plot-label .label-signal::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 2px;
+  background: #8888aa;
+  border-radius: 1px;
+}
+
+.wavelet-scan-demo .plot-label .label-wavelet {
+  position: relative;
+  padding-left: 14px;
+}
+
+.wavelet-scan-demo .plot-label .label-wavelet::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.wavelet-scan-demo .plot-label .label-result {
+  color: #bd93f9;
+  font-weight: 600;
+}
+
+.wavelet-scan-demo .scan-canvas-container {
+  flex: 1;
+  background: #050510;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.wavelet-scan-demo .scan-canvas-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Right sidebar */
+.wavelet-scan-demo .scan-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+/* Sections */
+.wavelet-scan-demo .scan-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.wavelet-scan-demo .scan-section.explanation {
+  background: rgba(255,255,255,0.03);
+  margin-top: auto;
+}
+
+.wavelet-scan-demo .scan-section-header {
+  padding: 0.4rem 0.6rem;
+  background: rgba(255,255,255,0.05);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.wavelet-scan-demo .scan-section-content {
+  padding: 0.5rem 0.6rem;
+}
+
+/* Buttons */
+.wavelet-scan-demo .scan-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.wavelet-scan-demo .scan-btn {
+  padding: 0.35rem 0.4rem;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  color: #aaa;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wavelet-scan-demo .scan-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.wavelet-scan-demo .scan-btn.active {
+  background: rgba(255,255,255,0.15);
+  border-color: #00d9ff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.wavelet-scan-demo .scan-desc {
+  font-size: 0.65rem;
+  color: #888;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Controls */
+.wavelet-scan-demo .scan-control {
+  margin-bottom: 0.5rem;
+}
+
+.wavelet-scan-demo .scan-control:last-child {
+  margin-bottom: 0;
+}
+
+.wavelet-scan-demo .scan-control label {
+  display: block;
+  font-size: 0.7rem;
+  color: #ccc;
+  margin-bottom: 0.15rem;
+}
+
+.wavelet-scan-demo .scan-control input[type="range"] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  outline: none;
+}
+
+.wavelet-scan-demo .scan-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #00d9ff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.wavelet-scan-demo .scan-control input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #00d9ff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Checkbox */
+.wavelet-scan-demo .scan-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0.2rem 0;
+}
+
+.wavelet-scan-demo .scan-checkbox input[type="checkbox"] {
+  accent-color: #00d9ff;
+  width: 14px;
+  height: 14px;
+}
+
+/* Animation buttons */
+.wavelet-scan-demo .scan-anim-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.wavelet-scan-demo .scan-anim-btn {
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wavelet-scan-demo .scan-anim-btn.play {
+  flex: 1;
+  background: #00d9ff;
+  color: #000;
+}
+
+.wavelet-scan-demo .scan-anim-btn.play:hover {
+  background: #00c4e8;
+}
+
+.wavelet-scan-demo .scan-anim-btn.stop {
+  flex: 1;
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.wavelet-scan-demo .scan-anim-btn.stop:hover {
+  background: #ff5252;
+}
+
+.wavelet-scan-demo .scan-anim-btn.reset {
+  background: rgba(255,255,255,0.1);
+  color: #aaa;
+}
+
+.wavelet-scan-demo .scan-anim-btn.reset:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* Speed slider row */
+.wavelet-scan-demo .scan-speed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wavelet-scan-demo .scan-speed-row label {
+  font-size: 0.7rem;
+  color: #aaa;
+  min-width: 45px;
+}
+
+.wavelet-scan-demo .scan-speed-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+  accent-color: #00d9ff;
+}
+
+.wavelet-scan-demo .scan-speed-row span {
+  font-size: 0.65rem;
+  color: #888;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Step controls */
+.wavelet-scan-demo .scan-step-row {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.wavelet-scan-demo .step-btn {
+  padding: 0.3rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: #aaa;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wavelet-scan-demo .step-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.wavelet-scan-demo .step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Pause button */
+.wavelet-scan-demo .scan-anim-btn.pause {
+  flex: 1;
+  background: #ffb74d;
+  color: #000;
+}
+
+.wavelet-scan-demo .scan-anim-btn.pause:hover {
+  background: #ffa726;
+}
+
+/* Coefficient formula display */
+.wavelet-scan-demo .coeff-formula {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(0,217,255,0.08);
+  border-radius: 6px;
+  border-left: 3px solid #00d9ff;
+}
+
+.wavelet-scan-demo .coeff-formula .coeff-label {
+  font-size: 0.65rem;
+  color: #888;
+  margin-bottom: 0.3rem;
+}
+
+.wavelet-scan-demo .coeff-formula .coeff-value {
+  font-size: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #00d9ff;
+  font-weight: 600;
+}
+
+.wavelet-scan-demo .coeff-formula .coeff-value.positive {
+  color: #4CAF50;
+}
+
+.wavelet-scan-demo .coeff-formula .coeff-value.negative {
+  color: #ff6b6b;
+}
+
+/* Coefficient display section */
+.wavelet-scan-demo .scan-section.coefficient-display {
+  background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(189,147,249,0.08));
+  border: 1px solid rgba(0,217,255,0.2);
+}
+
+.wavelet-scan-demo .scan-section.coefficient-display .scan-section-content {
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.wavelet-scan-demo .scan-section.coefficient-display .coef-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* Explanation */
+.wavelet-scan-demo .scan-section.explanation p {
+  font-size: 0.7rem;
+  color: #888;
+  margin: 0.2rem 0;
+  line-height: 1.4;
+}

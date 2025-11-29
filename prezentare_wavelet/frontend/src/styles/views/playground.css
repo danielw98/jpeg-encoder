@@ -98,7 +98,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 /* Sidebar sections */
@@ -106,14 +106,13 @@
   background: rgba(255,255,255,0.05);
   border-radius: 8px;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .wavelet-playground-v2 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.7rem;
   background: rgba(255,255,255,0.05);
   font-weight: 600;
   font-size: 0.85rem;
@@ -134,7 +133,7 @@
 }
 
 .wavelet-playground-v2 .section-content {
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.7rem;
   background: transparent;
 }
 
@@ -192,7 +191,7 @@
 }
 
 .wavelet-playground-v2 .wavelet-equation {
-  font-size: 1rem;
+  font-size: 0.95rem;
   background: rgba(0,0,0,0.3);
   padding: 0.5rem;
   border-radius: 4px;
@@ -212,7 +211,7 @@
   display: block;
   font-size: 0.75rem;
   color: #ccc;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .wavelet-playground-v2 .control-row input[type="range"] {
@@ -329,16 +328,16 @@
 
 /* Theory content */
 .wavelet-playground-v2 .theory-content {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .wavelet-playground-v2 .theory-item {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .wavelet-playground-v2 .theory-item h5 {
-  font-size: 0.85rem;
-  margin: 0 0 0.25rem 0;
+  font-size: 0.8rem;
+  margin: 0 0 0.2rem 0;
 }
 
 .wavelet-playground-v2 .theory-item p {
@@ -349,10 +348,10 @@
 
 .wavelet-playground-v2 .theory-formula {
   background: rgba(0,0,0,0.3);
-  padding: 0.6rem;
+  padding: 0.5rem;
   border-radius: 4px;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 /* Explanation section - no header, always visible */
@@ -361,7 +360,7 @@
 }
 
 .wavelet-playground-v2 .explanation-section .section-content {
-  padding: 0.75rem;
+  padding: 0.6rem;
 }
 
 /* Reset button */
