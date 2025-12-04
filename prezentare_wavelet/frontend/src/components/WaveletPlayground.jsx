@@ -274,188 +274,179 @@ export default function WaveletPlayground({ compact = false }) {
 
   return (
     <div className="wavelet-playground-v2">
-      {/* Main content area */}
-      <div className="playground-main">
-        {/* Formula bar at top */}
-        <div className="formula-bar">
-          <LaTeX math={`\\psi_{${scale.toFixed(1)},${shift.toFixed(1)}}(t) = \\frac{1}{\\sqrt{${scale.toFixed(1)}}} \\cdot \\psi\\left(\\frac{t - ${shift.toFixed(1)}}{${scale.toFixed(1)}}\\right)`} />
+      {/* Top row: Graph + Right panel */}
+      <div className="playground-top-row">
+        {/* Main content area - graph */}
+        <div className="playground-main">
+          {/* Formula bar at top */}
+          <div className="formula-bar">
+            <LaTeX math={`\\psi_{${scale.toFixed(1)},${shift.toFixed(1)}}(t) = \\frac{1}{\\sqrt{${scale.toFixed(1)}}} \\cdot \\psi\\left(\\frac{t - ${shift.toFixed(1)}}{${scale.toFixed(1)}}\\right)`} />
+          </div>
+          
+          {/* Parameter badges */}
+          <div className="param-badges">
+            <span className="param-badge scale">
+              <LaTeX math={`a = ${scale.toFixed(2)}`} /> 
+              <small>(scalare)</small>
+            </span>
+            <span className="param-badge shift">
+              <LaTeX math={`b = ${shift.toFixed(2)}`} />
+              <small>(translație)</small>
+            </span>
+          </div>
+          
+          {/* Canvas container - fills available space */}
+          <div className="plot-container" ref={containerRef}>
+            <canvas ref={canvasRef} />
+            <div className="plot-title-overlay" style={{ color: wavelet.color }}>
+              {wavelet.name} Wavelet
+            </div>
+          </div>
         </div>
         
-        {/* Parameter badges */}
-        <div className="param-badges">
-          <span className="param-badge scale">
-            <LaTeX math={`a = ${scale.toFixed(2)}`} /> 
-            <small>(scalare)</small>
-          </span>
-          <span className="param-badge shift">
-            <LaTeX math={`b = ${shift.toFixed(2)}`} />
-            <small>(translație)</small>
-          </span>
-        </div>
-        
-        {/* Canvas container - fills available space */}
-        <div className="plot-container" ref={containerRef}>
-          <canvas ref={canvasRef} />
-          <div className="plot-title-overlay" style={{ color: wavelet.color }}>
-            {wavelet.name} Wavelet
+        {/* Right sidebar - wavelet info + theory only */}
+        <div className="playground-sidebar">
+          {/* Wavelet Type Section */}
+          <div className="sidebar-section">
+            <div 
+              className="section-header clickable"
+              onClick={() => setShowWaveletInfo(!showWaveletInfo)}
+            >
+              <span>🌊 Tip Wavelet</span>
+              <span className="toggle-icon">{showWaveletInfo ? '▼' : '▶'}</span>
+            </div>
+            {showWaveletInfo && (
+              <div className="section-content">
+                <div className="wavelet-buttons">
+                  {Object.entries(WAVELET_TYPES).map(([key, w]) => (
+                    <button
+                      key={key}
+                      className={`wavelet-btn ${waveletType === key ? 'active' : ''}`}
+                      style={{ 
+                        borderColor: waveletType === key ? w.color : 'transparent',
+                        color: waveletType === key ? w.color : undefined
+                      }}
+                      onClick={() => setWaveletType(key)}
+                    >
+                      {w.name}
+                    </button>
+                  ))}
+                </div>
+                <p className="wavelet-desc">{wavelet.description}</p>
+                <div className="wavelet-equation">
+                  <LaTeXBlock math={wavelet.equation} />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Parameter Explanation */}
+          <div className="sidebar-section explanation-section">
+            <div className="section-content theory-content">
+              <div className="theory-item">
+                <h5 style={{ color: '#00d9ff' }}>Scalare (a)</h5>
+                <p><strong>a mic</strong> → frecvențe înalte (detalii)</p>
+                <p><strong>a mare</strong> → frecvențe joase (structuri)</p>
+              </div>
+              <div className="theory-item">
+                <h5 style={{ color: '#ffaa00' }}>Translație (b)</h5>
+                <p>Localizează <em>unde</em> apar frecvențele în semnal.</p>
+              </div>
+              <div className="theory-formula">
+                <LaTeXBlock math={String.raw`W(a,b) = \int f(t) \cdot \psi_{a,b}(t) \, dt`} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Right sidebar with controls */}
-      <div className="playground-sidebar">
-        {/* Wavelet Type Section */}
-        <div className="sidebar-section">
-          <div 
-            className="section-header clickable"
-            onClick={() => setShowWaveletInfo(!showWaveletInfo)}
-          >
-            <span>🌊 Tip Wavelet</span>
-            <span className="toggle-icon">{showWaveletInfo ? '▼' : '▶'}</span>
-          </div>
-          {showWaveletInfo && (
-            <div className="section-content">
-              <div className="wavelet-buttons">
-                {Object.entries(WAVELET_TYPES).map(([key, w]) => (
-                  <button
-                    key={key}
-                    className={`wavelet-btn ${waveletType === key ? 'active' : ''}`}
-                    style={{ 
-                      borderColor: waveletType === key ? w.color : 'transparent',
-                      color: waveletType === key ? w.color : undefined
-                    }}
-                    onClick={() => setWaveletType(key)}
-                  >
-                    {w.name}
-                  </button>
-                ))}
-              </div>
-              <p className="wavelet-desc">{wavelet.description}</p>
-              <div className="wavelet-equation">
-                <LaTeXBlock math={wavelet.equation} />
-              </div>
-            </div>
-          )}
+      {/* Bottom controls bar */}
+      <div className="playground-controls-bar">
+        {/* Scale Slider */}
+        <div className="control-group">
+          <label>
+            <strong style={{ color: '#00d9ff' }}>a</strong> (Scalare): {scale.toFixed(2)}
+          </label>
+          <input
+            type="range"
+            min="0.2"
+            max="3"
+            step="0.05"
+            value={scale}
+            onChange={e => setScale(parseFloat(e.target.value))}
+            disabled={animating && animParam === 'scale'}
+          />
+          <span className="slider-hint">
+            {scale < 1 ? 'comprimat' : scale > 1 ? 'dilatat' : 'original'}
+          </span>
         </div>
         
-        {/* Controls Section */}
-        <div className="sidebar-section">
-          <div className="section-header">
-            <span>⚙️ Parametri</span>
-          </div>
-          <div className="section-content">
-            {/* Scale Slider */}
-            <div className="control-row">
-              <label>
-                <strong style={{ color: '#00d9ff' }}>a</strong> (Scalare): {scale.toFixed(2)}
-              </label>
-              <input
-                type="range"
-                min="0.2"
-                max="3"
-                step="0.05"
-                value={scale}
-                onChange={e => setScale(parseFloat(e.target.value))}
-                disabled={animating && animParam === 'scale'}
-              />
-              <div className="slider-hint">
-                {scale < 1 ? 'comprimat (frecvențe înalte)' : scale > 1 ? 'dilatat (frecvențe joase)' : 'original'}
-              </div>
-            </div>
-            
-            {/* Shift Slider */}
-            <div className="control-row">
-              <label>
-                <strong style={{ color: '#ffaa00' }}>b</strong> (Translație): {shift.toFixed(2)}
-              </label>
-              <input
-                type="range"
-                min="-3"
-                max="3"
-                step="0.1"
-                value={shift}
-                onChange={e => setShift(parseFloat(e.target.value))}
-                disabled={animating && animParam === 'shift'}
-              />
-            </div>
-            
-            {/* Morlet omega parameter */}
-            {waveletType === 'morlet' && (
-              <div className="control-row">
-                <label>
-                  <strong style={{ color: '#ff6b9d' }}><LaTeX math="\omega_0" /></strong>: {omega}
-                </label>
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  step="1"
-                  value={omega}
-                  onChange={e => setOmega(parseInt(e.target.value))}
-                />
-              </div>
-            )}
-            
-            {/* Show original checkbox */}
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={showOriginal}
-                onChange={e => setShowOriginal(e.target.checked)}
-              />
-              Arată originalul (a=1, b=0)
+        {/* Shift Slider */}
+        <div className="control-group">
+          <label>
+            <strong style={{ color: '#ffaa00' }}>b</strong> (Translație): {shift.toFixed(2)}
+          </label>
+          <input
+            type="range"
+            min="-3"
+            max="3"
+            step="0.1"
+            value={shift}
+            onChange={e => setShift(parseFloat(e.target.value))}
+            disabled={animating && animParam === 'shift'}
+          />
+        </div>
+        
+        {/* Morlet omega parameter */}
+        {waveletType === 'morlet' && (
+          <div className="control-group">
+            <label>
+              <strong style={{ color: '#ff6b9d' }}><LaTeX math="\omega_0" /></strong>: {omega}
             </label>
+            <input
+              type="range"
+              min="2"
+              max="10"
+              step="1"
+              value={omega}
+              onChange={e => setOmega(parseInt(e.target.value))}
+            />
           </div>
-        </div>
+        )}
         
-        {/* Animation Section */}
-        <div className="sidebar-section">
-          <div className="section-header">
-            <span>▶️ Animație</span>
-          </div>
-          <div className="section-content">
-            <div className="animation-row">
-              <select 
-                value={animParam} 
-                onChange={e => setAnimParam(e.target.value)}
-                disabled={animating}
-              >
-                <option value="shift">Translație (b)</option>
-                <option value="scale">Scalare (a)</option>
-              </select>
-              <button 
-                className={`anim-btn ${animating ? 'stop' : 'play'}`}
-                onClick={() => setAnimating(!animating)}
-              >
-                {animating ? '⏹ Stop' : '▶ Play'}
-              </button>
-              <button 
-                className="anim-btn reset"
-                onClick={handleReset}
-                title="Reset la valori implicite"
-              >
-                🔄
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Show original checkbox */}
+        <label className="checkbox-control">
+          <input
+            type="checkbox"
+            checked={showOriginal}
+            onChange={e => setShowOriginal(e.target.checked)}
+          />
+          Arată original
+        </label>
         
-        {/* Parameter Explanation - Always visible */}
-        <div className="sidebar-section explanation-section">
-          <div className="section-content theory-content">
-            <div className="theory-item">
-              <h5 style={{ color: '#00d9ff' }}>Scalare (a)</h5>
-              <p><strong>a mic</strong> → frecvențe înalte (detalii)</p>
-              <p><strong>a mare</strong> → frecvențe joase (structuri)</p>
-            </div>
-            <div className="theory-item">
-              <h5 style={{ color: '#ffaa00' }}>Translație (b)</h5>
-              <p>Localizează <em>unde</em> apar frecvențele în semnal.</p>
-            </div>
-            <div className="theory-formula">
-              <LaTeXBlock math={String.raw`W(a,b) = \int f(t) \cdot \psi_{a,b}(t) \, dt`} />
-            </div>
-          </div>
+        {/* Animation controls */}
+        <div className="animation-controls">
+          <select 
+            value={animParam} 
+            onChange={e => setAnimParam(e.target.value)}
+            disabled={animating}
+          >
+            <option value="shift">Translație (b)</option>
+            <option value="scale">Scalare (a)</option>
+          </select>
+          <button 
+            className={`anim-btn ${animating ? 'stop' : 'play'}`}
+            onClick={() => setAnimating(!animating)}
+          >
+            {animating ? '⏹' : '▶'}
+          </button>
+          <button 
+            className="anim-btn reset"
+            onClick={handleReset}
+            title="Reset"
+          >
+            🔄
+          </button>
         </div>
       </div>
     </div>

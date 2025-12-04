@@ -528,6 +528,30 @@ async def get_sample_image_raw(image_id: str):
     return FileResponse(img_path, media_type="image/png")
 
 
+@app.get("/api/sample-images/{image_id}/grayscale")
+async def get_sample_image_grayscale(image_id: str, size: int = 64):
+    """
+    Get grayscale pixel data resized to specified size.
+    Used for wavelet decomposition demos.
+    """
+    img_path = TEST_IMAGES_DIR / f"{image_id}.png"
+    if not img_path.exists():
+        raise HTTPException(status_code=404, detail=f"Image {image_id} not found")
+    
+    # Clamp size
+    size = max(8, min(256, size))
+    
+    img = Image.open(img_path).convert('L')
+    img = img.resize((size, size), Image.Resampling.LANCZOS)
+    pixels = np.array(img, dtype=np.float64).tolist()
+    
+    return {
+        "id": image_id,
+        "size": size,
+        "pixels": pixels  # 2D array of grayscale values
+    }
+
+
 # ============================================================================
 # Sprite Images API (Educational - small pixel art for kernel demos)
 # ============================================================================
@@ -619,6 +643,30 @@ async def get_sprite_pixels(image_id: str):
         "id": image_id,
         "size": img.size[0],
         "pixels": pixels.tolist()  # 3D array: [row][col][rgb]
+    }
+
+
+@app.get("/api/sprite-images/{image_id}/grayscale")
+async def get_sprite_grayscale(image_id: str, size: int = 8):
+    """
+    Get grayscale pixel data for a sprite, resized to specified size.
+    Used for educational wavelet demos on small patches.
+    """
+    img_path = SPRITE_IMAGES_DIR / f"{image_id}.png"
+    if not img_path.exists():
+        raise HTTPException(status_code=404, detail=f"Sprite {image_id} not found")
+    
+    # Clamp size for educational use
+    size = max(4, min(64, size))
+    
+    img = Image.open(img_path).convert('L')
+    img = img.resize((size, size), Image.Resampling.NEAREST)  # NEAREST for pixel art
+    pixels = np.array(img, dtype=np.float64).tolist()
+    
+    return {
+        "id": image_id,
+        "size": size,
+        "pixels": pixels
     }
 
 

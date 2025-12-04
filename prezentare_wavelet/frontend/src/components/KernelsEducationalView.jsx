@@ -134,6 +134,9 @@ export default function KernelsEducationalView({ api, compact = false }) {
   const [hoveredPixel, setHoveredPixel] = useState(null)
   const animationRef = useRef(null)
   
+  // Track history for going back
+  const [history, setHistory] = useState([])
+  
   // Generate current kernel based on size
   const kernel = {
     ...BASE_KERNELS[selectedKernel],
@@ -183,7 +186,7 @@ export default function KernelsEducationalView({ api, compact = false }) {
   }, [selectedSprite, api])
   
   // Apply kernel at current position (for step-by-step)
-  const applyKernelAtPosition = useCallback((pixels, row, col, kernelMatrix, scale) => {
+  const applyKernelAtPosition = useCallback((pixels, row, col, kernelMatrix, scale, kernelId) => {
     if (!pixels) return [0, 0, 0]
     
     const imgSize = pixels.length
@@ -196,14 +199,13 @@ export default function KernelsEducationalView({ api, compact = false }) {
         const pi = row + ki - half
         const pj = col + kj - half
         
-        // Edge replication: clamp coordinates to valid range
-        const clampedI = Math.max(0, Math.min(imgSize - 1, pi))
-        const clampedJ = Math.max(0, Math.min(imgSize - 1, pj))
-        
-        const weight = kernelMatrix[ki][kj]
-        r += pixels[clampedI][clampedJ][0] * weight
-        g += pixels[clampedI][clampedJ][1] * weight
-        b += pixels[clampedI][clampedJ][2] * weight
+        // Handle boundaries (zero padding)
+        if (pi >= 0 && pi < imgSize && pj >= 0 && pj < imgSize) {
+          const weight = kernelMatrix[ki][kj]
+          r += pixels[pi][pj][0] * weight
+          g += pixels[pi][pj][1] * weight
+          b += pixels[pi][pj][2] * weight
+        }
       }
     }
     
@@ -215,7 +217,7 @@ export default function KernelsEducationalView({ api, compact = false }) {
     }
     
     // For edge detection kernels that can go negative
-    if (scale === 1 && (selectedKernel.includes('sobel') || selectedKernel.includes('laplacian'))) {
+    if (scale === 1 && (kernelId.includes('sobel') || kernelId.includes('laplacian'))) {
       // Map to 0-255 range
       r = Math.abs(r)
       g = Math.abs(g)
@@ -227,18 +229,27 @@ export default function KernelsEducationalView({ api, compact = false }) {
       Math.max(0, Math.min(255, Math.round(g))),
       Math.max(0, Math.min(255, Math.round(b)))
     ]
-  }, [selectedKernel])
+  }, [])
   
   // Step animation forward
   const stepAnimation = useCallback(() => {
-    if (!pixelData) return
+    if (!pixelData || !outputPixels) return false
     
     const size = pixelData.size
     const { row, col } = animationPos
     
+    // Check if already at the end
+    if (row >= size) {
+      setIsAnimating(false)
+      return false
+    }
+    
+    // Save current state to history before modifying
+    setHistory(prev => [...prev, { pos: { row, col }, output: outputPixels.map(r => r.map(c => c ? [...c] : null)) }])
+    
     // Apply kernel at current position
-    const newOutput = outputPixels.map(r => [...r.map(c => [...c])])
-    const result = applyKernelAtPosition(pixelData.pixels, row, col, kernel.matrix, kernel.scale)
+    const newOutput = outputPixels.map(r => r.map(c => c ? [...c] : null))
+    const result = applyKernelAtPosition(pixelData.pixels, row, col, kernel.matrix, kernel.scale, selectedKernel)
     newOutput[row][col] = result
     setOutputPixels(newOutput)
     
@@ -249,15 +260,28 @@ export default function KernelsEducationalView({ api, compact = false }) {
       nextCol = 0
       nextRow = row + 1
     }
+    
     if (nextRow >= size) {
       // Animation complete
+      setAnimationPos({ row: size, col: 0 })
       setIsAnimating(false)
       return false
     }
     
     setAnimationPos({ row: nextRow, col: nextCol })
     return true
-  }, [pixelData, animationPos, outputPixels, kernel, applyKernelAtPosition])
+  }, [pixelData, animationPos, outputPixels, kernel.matrix, kernel.scale, selectedKernel, applyKernelAtPosition])
+  
+  // Step animation backward
+  const stepBack = useCallback(() => {
+    if (history.length === 0) return
+    
+    const lastState = history[history.length - 1]
+    setHistory(prev => prev.slice(0, -1))
+    setAnimationPos(lastState.pos)
+    setOutputPixels(lastState.output)
+    setIsAnimating(false)
+  }, [history])
   
   // Auto animation loop
   useEffect(() => {
@@ -284,20 +308,39 @@ export default function KernelsEducationalView({ api, compact = false }) {
     }
   }, [isAnimating, animationSpeed, stepAnimation])
   
-  // Reset animation
-  const resetAnimation = () => {
+  // Reset animation - clears output to empty state
+  const resetAnimation = useCallback(() => {
     setIsAnimating(false)
     setAnimationPos({ row: 0, col: 0 })
+    setHistory([])
     if (pixelData) {
       const size = pixelData.size
+      // Set to null to show empty pattern instead of black
       setOutputPixels(Array(size).fill(null).map(() => 
-        Array(size).fill(null).map(() => [0, 0, 0])
+        Array(size).fill(null)
       ))
     }
-  }
+  }, [pixelData])
   
+  // Start/pause animation
+  const toggleAnimation = useCallback(() => {
+    if (isAnimating) {
+      // If running, just pause
+      setIsAnimating(false)
+    } else {
+      // If at end, reset first
+      if (pixelData && animationPos.row >= pixelData.size) {
+        resetAnimation()
+        // Small delay to let reset take effect
+        setTimeout(() => setIsAnimating(true), 50)
+      } else {
+        setIsAnimating(true)
+      }
+    }
+  }, [isAnimating, pixelData, animationPos.row, resetAnimation])
+
   // Apply kernel to entire image instantly
-  const applyFullKernel = () => {
+  const applyFullKernel = useCallback(() => {
     if (!pixelData) return
     
     const size = pixelData.size
@@ -306,15 +349,16 @@ export default function KernelsEducationalView({ api, compact = false }) {
     for (let i = 0; i < size; i++) {
       const row = []
       for (let j = 0; j < size; j++) {
-        row.push(applyKernelAtPosition(pixelData.pixels, i, j, kernel.matrix, kernel.scale))
+        row.push(applyKernelAtPosition(pixelData.pixels, i, j, kernel.matrix, kernel.scale, selectedKernel))
       }
       newOutput.push(row)
     }
     
     setOutputPixels(newOutput)
-    setAnimationPos({ row: size - 1, col: size - 1 })
+    setAnimationPos({ row: size, col: 0 })
     setIsAnimating(false)
-  }
+    setHistory([])
+  }, [pixelData, kernel.matrix, kernel.scale, selectedKernel, applyKernelAtPosition])
   
   // Render pixel grid - responsive to fill wrapper
   const renderPixelGrid = (pixels, isInput = true, highlightPos = null) => {
@@ -340,16 +384,22 @@ export default function KernelsEducationalView({ api, compact = false }) {
               i >= highlightPos.row - halfKernel && i <= highlightPos.row + halfKernel &&
               j >= highlightPos.col - halfKernel && j <= highlightPos.col + halfKernel
             const isCenter = highlightPos && i === highlightPos.row && j === highlightPos.col
-            const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`
+            
+            // Handle null pixels (empty state)
+            const isEmpty = pixel === null
+            const rgb = isEmpty ? 'transparent' : `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`
+            const title = isEmpty 
+              ? `[${i},${j}] (empty)` 
+              : `[${i},${j}] RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`
             
             return (
               <div
                 key={`${i}-${j}`}
-                className={`pixel-cell ${isHighlighted ? 'highlighted' : ''} ${isCenter ? 'center' : ''}`}
+                className={`pixel-cell ${isHighlighted ? 'highlighted' : ''} ${isCenter ? 'center' : ''} ${isEmpty ? 'empty' : ''}`}
                 style={{ backgroundColor: rgb }}
-                onMouseEnter={() => setHoveredPixel({ row: i, col: j, rgb: pixel })}
+                onMouseEnter={() => !isEmpty && setHoveredPixel({ row: i, col: j, rgb: pixel })}
                 onMouseLeave={() => setHoveredPixel(null)}
-                title={`[${i},${j}] RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`}
+                title={title}
               />
             )
           })
@@ -471,17 +521,18 @@ export default function KernelsEducationalView({ api, compact = false }) {
     const kSize = kernelSize
     const half = Math.floor(kSize / 2)
     
-    // Get region pixels with edge replication
+    // Get region pixels
     const region = []
     for (let ki = 0; ki < kSize; ki++) {
       const rowData = []
       for (let kj = 0; kj < kSize; kj++) {
         const pi = row + ki - half
         const pj = col + kj - half
-        // Edge replication: clamp coordinates to valid range
-        const clampedI = Math.max(0, Math.min(imgSize - 1, pi))
-        const clampedJ = Math.max(0, Math.min(imgSize - 1, pj))
-        rowData.push(pixelData.pixels[clampedI][clampedJ])
+        if (pi >= 0 && pi < imgSize && pj >= 0 && pj < imgSize) {
+          rowData.push(pixelData.pixels[pi][pj])
+        } else {
+          rowData.push([0, 0, 0])
+        }
       }
       region.push(rowData)
     }
@@ -490,81 +541,98 @@ export default function KernelsEducationalView({ api, compact = false }) {
     const rgb = `rgb(${result[0]}, ${result[1]}, ${result[2]})`
     const gray = Math.round((result[0] + result[1] + result[2]) / 3)
     
+    const sizeClass = kSize >= 6 ? 'size-6' : kSize >= 5 ? 'size-5' : ''
+    
     return (
-      <div className="calc-info">
+      <div className={`calc-info ${sizeClass}`}>
         <h4>Poziția [{row}, {col}]</h4>
-        <div className="matrix-section">
-          <div className="calc-label">Pixeli</div>
-          <div className="mini-matrix">
-            {region.map((r, i) => (
-              <div key={i} className="mini-row">
-                {r.map((px, j) => {
-                  const g = Math.round((px[0] + px[1] + px[2]) / 3)
-                  return (
-                    <div 
-                      key={j} 
-                      className="mini-cell pixel" 
-                      style={{ backgroundColor: `rgb(${px[0]},${px[1]},${px[2]})` }}
-                    >
-                      <span style={{ color: g > 128 ? '#000' : '#fff' }}>{g}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            ))}
+        <div className="calc-row">
+          <div className="region-mini">
+            <div className="calc-label">Pixeli</div>
+            <div className="mini-matrix">
+              {region.map((r, i) => (
+                <div key={i} className="mini-row">
+                  {r.map((px, j) => {
+                    const g = Math.round((px[0] + px[1] + px[2]) / 3)
+                    return (
+                      <div 
+                        key={j} 
+                        className="mini-cell" 
+                        style={{ backgroundColor: `rgb(${px[0]},${px[1]},${px[2]})` }}
+                      >
+                        <span style={{ color: g > 128 ? '#000' : '#fff' }}>{g}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="matrix-section">
-          <div className="calc-label">Kernel {kernel.scale > 1 && `(÷${kernel.scale})`}</div>
-          <div className="mini-matrix kernel">
-            {kernel.matrix.map((r, i) => (
-              <div key={i} className="mini-row">
-                {r.map((val, j) => (
-                  <div 
-                    key={j} 
-                    className={`mini-cell weight ${val > 0 ? 'positive' : val < 0 ? 'negative' : 'zero'}`}
-                  >
-                    {val}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="calc-result">
-          <span className="calc-equals">=</span>
+          <div className="calc-equals">=</div>
           <div className="result-pixel" style={{ backgroundColor: rgb }}>
-            <span style={{ color: gray > 128 ? '#000' : '#fff' }}>{gray}</span>
+            {gray}
           </div>
         </div>
+        {kernel.scale > 1 && (
+          <div className="result-label">÷ {kernel.scale}</div>
+        )}
       </div>
     )
   }
   
+  const kernelSizeClass = kernelSize >= 6 ? 'size-6' : kernelSize >= 5 ? 'size-5' : ''
+  
   return (
     <div className="kernels-educational">
-      {/* Images area - takes most space */}
-      <div className="edu-images-area">
-        <div className="grid-container">
-          <h3>Input (Original)</h3>
-          <div className="pixel-grid-wrapper">
-            {renderPixelGrid(pixelData?.pixels, true, isAnimating || animationPos.row > 0 || animationPos.col > 0 ? animationPos : null)}
+      {/* Main area: images + right panel */}
+      <div className="edu-main-area">
+        {/* Left: Images stacked or side by side */}
+        <div className="edu-images-area">
+          <div className="grid-container">
+            <h3>Input (Original)</h3>
+            <div className="pixel-grid-wrapper">
+              {renderPixelGrid(pixelData?.pixels, true, isAnimating || animationPos.row > 0 || animationPos.col > 0 ? animationPos : null)}
+            </div>
+          </div>
+          
+          <div className="grid-container">
+            <h3>Output (Rezultat)</h3>
+            <div className="pixel-grid-wrapper">
+              {renderPixelGrid(outputPixels, false)}
+            </div>
           </div>
         </div>
         
-        <div className="grid-container">
-          <h3>Output (Rezultat)</h3>
-          <div className="pixel-grid-wrapper">
-            {renderPixelGrid(outputPixels, false)}
+        {/* Right: Matrices display */}
+        <div className="edu-matrices-panel">
+          <div className="kernel-display">
+            <h3>{kernel?.name}</h3>
+            <p className="kernel-desc">{kernel?.description}</p>
+            <div className={`kernel-matrix-edu ${kernelSizeClass}`}>
+              {kernel?.matrix.map((row, i) => (
+                <div key={i} className="kernel-row">
+                  {row.map((val, j) => (
+                    <div 
+                      key={j} 
+                      className={`kernel-cell ${val > 0 ? 'positive' : val < 0 ? 'negative' : 'zero'}`}
+                    >
+                      {val}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {kernel?.scale > 1 && (
+              <p className="scale-note">÷ {kernel.scale}</p>
+            )}
           </div>
+          
+          {pixelData && renderCalcInfo()}
         </div>
       </div>
       
-      {/* Right side panel with controls + kernel */}
-      <div className="edu-side-panel">
-        <h2>🎓 Convoluție</h2>
-        <p className="subtitle">Kernel alunecă peste imagine</p>
-        
+      {/* Bottom: Controls bar */}
+      <div className="edu-controls-bar">
         <div className="control-group">
           <label>🖼️ Sprite</label>
           <select 
@@ -593,11 +661,11 @@ export default function KernelsEducationalView({ api, compact = false }) {
         </div>
         
         <div className="control-group">
-          <label>📐 Mărime: {kernelSize}×{kernelSize}</label>
+          <label>📐 {kernelSize}×{kernelSize}</label>
           <input
             type="range"
             min="3"
-            max="5"
+            max="6"
             step="1"
             value={kernelSize}
             onChange={e => {
@@ -608,7 +676,7 @@ export default function KernelsEducationalView({ api, compact = false }) {
         </div>
         
         <div className="control-group">
-          <label>🐢 Viteză 🐇</label>
+          <label>⏱️ {animationSpeed}ms</label>
           <input
             type="range"
             min="50"
@@ -617,35 +685,43 @@ export default function KernelsEducationalView({ api, compact = false }) {
             value={550 - animationSpeed}
             onChange={e => setAnimationSpeed(550 - parseInt(e.target.value))}
           />
-          <span className="speed-value">{animationSpeed}ms</span>
         </div>
         
         <div className="edu-animation-controls">
           <button 
-            onClick={() => setIsAnimating(!isAnimating)}
+            onClick={toggleAnimation}
             className={isAnimating ? 'stop' : 'play'}
+            title={isAnimating ? 'Pauză' : 'Play'}
           >
-            {isAnimating ? '⏸️ Stop' : '▶️ Start'}
+            {isAnimating ? '⏸️' : '▶️'}
           </button>
-          <button onClick={stepAnimation} disabled={isAnimating}>
-            ⏭️ Pas
+          <button 
+            onClick={stepBack} 
+            disabled={isAnimating || history.length === 0}
+            title="Pas înapoi"
+          >
+            ⏮️
           </button>
-          <button onClick={applyFullKernel}>
-            ⏩ Tot
+          <button 
+            onClick={stepAnimation} 
+            disabled={isAnimating || (pixelData && animationPos.row >= pixelData.size)}
+            title="Pas înainte"
+          >
+            ⏭️
           </button>
-          <button onClick={resetAnimation}>
-            🔄 Reset
+          <button 
+            onClick={applyFullKernel}
+            title="Aplică complet"
+          >
+            ⏩
+          </button>
+          <button 
+            onClick={resetAnimation}
+            title="Reset"
+          >
+            🔄
           </button>
         </div>
-        
-        {/* Kernel name and description */}
-        <div className="kernel-info">
-          <h3>{kernel?.name}</h3>
-          <p className="kernel-desc">{kernel?.description}</p>
-        </div>
-        
-        {/* Current calculation with both matrices */}
-        {pixelData && renderCalcInfo()}
       </div>
       
       {hoveredPixel && (

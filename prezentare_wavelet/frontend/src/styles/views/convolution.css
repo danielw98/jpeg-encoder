@@ -3,8 +3,62 @@
    Uses: .view-container, .plot-with-labels, .plot-legend
 ======================================== */
 
+/* Full mode - fit in viewport */
+.convolution-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-bottom: var(--space-md);
+}
+
+.convolution-view .panel {
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+}
+
+.convolution-view .panel h2 {
+  font-size: 1.3rem;
+  margin-bottom: var(--space-sm);
+}
+
+.convolution-view .panel h3 {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-sm);
+}
+
+.convolution-view .info-box {
+  margin: var(--space-sm) 0;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9rem;
+}
+
+.convolution-view .math-block {
+  padding: var(--space-sm);
+  font-size: 0.95rem;
+}
+
+.convolution-view .controls {
+  gap: var(--space-sm);
+}
+
+.convolution-view .control-group {
+  margin-bottom: var(--space-xs);
+}
+
 .convolution-view .kernel-display canvas {
   border: 1px solid var(--border);
+}
+
+.convolution-view .plot-container {
+  padding: var(--space-sm);
+  margin: var(--space-sm) 0;
+}
+
+.convolution-view .plot-container canvas {
+  max-height: 200px;
+  width: 100%;
 }
 
 .convolution-view pre {

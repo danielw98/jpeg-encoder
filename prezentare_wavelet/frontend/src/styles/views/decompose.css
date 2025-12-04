@@ -1,9 +1,329 @@
 /* ========================================
-   Decompose View Styles
-   Uses: .view-container--lg, .toggle-btn-group
+   DecomposeView - Multi-level wavelet decomposition
 ======================================== */
 
-/* Level selector - legacy, prefer .toggle-btn-group from components.css */
+.decompose-view-v2 {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+  min-height: 550px;
+  padding: 1rem;
+}
+
+.decompose-view-v2.compact {
+  min-height: 450px;
+  padding: 0.5rem;
+  gap: 1.5rem;
+}
+
+/* Main visualization area */
+.decompose-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.decompose-header h3 {
+  color: var(--primary, #00d4ff);
+  margin: 0;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.decompose-visuals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.visual-panel {
+  text-align: center;
+}
+
+.visual-panel h4 {
+  margin: 0 0 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.visual-panel canvas {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: #0a0a1a;
+}
+
+.visual-panel.main canvas {
+  border-color: var(--primary, #00d4ff);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.visual-arrow {
+  font-size: 2rem;
+  color: var(--primary, #00d4ff);
+  opacity: 0.7;
+}
+
+.decompose-formula {
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+/* Energy distribution bar */
+.energy-bars {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.energy-bars h4 {
+  margin: 0 0 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.energy-bar-container {
+  display: flex;
+  height: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.energy-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: width 0.3s ease;
+}
+
+.energy-segment.ll {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+}
+
+.energy-segment.lh {
+  background: linear-gradient(135deg, #ff9f43, #cc7a30);
+}
+
+.energy-segment.hl {
+  background: linear-gradient(135deg, #c9b1ff, #9a7acc);
+}
+
+.energy-segment.hh {
+  background: linear-gradient(135deg, #ff6b9d, #cc5580);
+}
+
+.energy-note {
+  margin: 0.5rem 0 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Sidebar */
+.decompose-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.decompose-sidebar .sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.decompose-sidebar .sidebar-section label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.decompose-sidebar .sidebar-section select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.decompose-sidebar .sidebar-section input[type="range"] {
+  width: 100%;
+  accent-color: var(--primary, #00d4ff);
+}
+
+.band-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.band-btn {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.band-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.band-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.band-btn[data-band="ll"] {
+  border-color: #00d4ff;
+}
+
+.band-btn[data-band="ll"].active {
+  background: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.band-btn[data-band="lh"] {
+  border-color: #ff9f43;
+}
+
+.band-btn[data-band="lh"].active {
+  background: rgba(255, 159, 67, 0.3);
+  box-shadow: 0 0 10px rgba(255, 159, 67, 0.5);
+}
+
+.band-btn[data-band="hl"] {
+  border-color: #c9b1ff;
+}
+
+.band-btn[data-band="hl"].active {
+  background: rgba(201, 177, 255, 0.3);
+  box-shadow: 0 0 10px rgba(201, 177, 255, 0.5);
+}
+
+.band-btn[data-band="hh"] {
+  border-color: #ff6b9d;
+}
+
+.band-btn[data-band="hh"].active {
+  background: rgba(255, 107, 157, 0.3);
+  box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+}
+
+/* Legend */
+.sidebar-legend {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-legend h4 {
+  margin: 0 0 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.color-dot.ll {
+  background: #00d4ff;
+}
+
+.color-dot.lh {
+  background: #ff9f43;
+}
+
+.color-dot.hl {
+  background: #c9b1ff;
+}
+
+.color-dot.hh {
+  background: #ff6b9d;
+}
+
+/* Info section */
+.sidebar-info {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary, #00d4ff);
+  font-size: 0.85rem;
+}
+
+.sidebar-info p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Compact mode adjustments */
+.decompose-view-v2.compact .decompose-sidebar {
+  width: 220px;
+}
+
+.decompose-view-v2.compact .visual-panel canvas {
+  max-width: 150px;
+  max-height: 150px;
+}
+
+.decompose-view-v2.compact .visual-panel.main canvas {
+  max-width: 250px;
+  max-height: 250px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .decompose-view-v2 {
+    flex-direction: column;
+  }
+  
+  .decompose-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* Legacy styles for old decompose-view */
 .decompose-view .level-selector {
   display: flex;
   gap: var(--space-sm);
@@ -26,3 +346,4 @@
   color: var(--bg-dark);
   border-color: var(--primary);
 }
+

@@ -54,76 +54,50 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
   }, [imageId])
 
   return (
-    <div>
-      <div className="panel">
-        <h2>🔇 Wavelet Denoising</h2>
-        
-        <div className="info-box">
-          <p>
-            <strong>Denoising prin thresholding:</strong> Zgomotul produce coeficienți 
-            wavelet mici, în timp ce semnalul util produce coeficienți mari. 
-            Prin eliminarea/atenuarea coeficienților sub un prag, păstrăm semnalul.
-          </p>
+    <div className="denoise-practical-view">
+      {/* Controls row */}
+      <div className="denoise-controls-row">
+        <div className="control-group">
+          <label>Wavelet</label>
+          <select value={wavelet} onChange={e => setWavelet(e.target.value)}>
+            {wavelets.map(w => (
+              <option key={w.id} value={w.id}>{w.name}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="math-block">
-          <strong>Soft thresholding:</strong>
-          <LaTeXBlock math={String.raw`\eta_s(x, \lambda) = \text{sign}(x) \cdot \max(|x| - \lambda, 0)`} />
-          <strong>Hard thresholding:</strong>
-          <LaTeXBlock math={String.raw`\eta_h(x, \lambda) = x \cdot \mathbb{1}(|x| > \lambda)`} />
+        <div className="control-group">
+          <label>Nivele: {levels}</label>
+          <input
+            type="range"
+            min="1"
+            max="6"
+            value={levels}
+            onChange={e => setLevels(parseInt(e.target.value))}
+          />
         </div>
-      </div>
 
-      <div className="panel">
-        <h3>⚙️ Parametri</h3>
-        
-        <div className="controls">
-          <div className="control-group">
-            <label>Wavelet</label>
-            <select value={wavelet} onChange={e => setWavelet(e.target.value)}>
-              {wavelets.map(w => (
-                <option key={w.id} value={w.id}>{w.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="control-group">
-            <label>Nivele: {levels}</label>
-            <input
-              type="range"
-              min="1"
-              max="6"
-              value={levels}
-              onChange={e => setLevels(parseInt(e.target.value))}
-            />
-          </div>
-
-          <div className="control-group">
-            <label>Mod threshold</label>
-            <select value={mode} onChange={e => setMode(e.target.value)}>
-              <option value="soft">Soft (shrinkage continuu)</option>
-              <option value="hard">Hard (eliminare bruscă)</option>
-            </select>
-          </div>
-
-          <div className="control-group">
-            <label>Zgomot σ: {noiseSigma}</label>
-            <input
-              type="range"
-              min="5"
-              max="50"
-              value={noiseSigma}
-              onChange={e => setNoiseSigma(parseInt(e.target.value))}
-            />
-          </div>
-
-          <button onClick={handleDenoise} disabled={loading}>
-            {loading ? '⏳ Processing...' : '🔇 Aplică Denoising'}
-          </button>
+        <div className="control-group">
+          <label>Threshold</label>
+          <select value={mode} onChange={e => setMode(e.target.value)}>
+            <option value="soft">Soft</option>
+            <option value="hard">Hard</option>
+          </select>
         </div>
-        
-        <div className="image-selector-inline">
-          <label>🖼️ Imagine:</label>
+
+        <div className="control-group">
+          <label>Zgomot σ: {noiseSigma}</label>
+          <input
+            type="range"
+            min="5"
+            max="50"
+            value={noiseSigma}
+            onChange={e => setNoiseSigma(parseInt(e.target.value))}
+          />
+        </div>
+
+        <div className="control-group">
+          <label>Imagine</label>
           <select 
             value={imageId} 
             onChange={e => onImageChange?.(e.target.value)}
@@ -133,6 +107,10 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
             ))}
           </select>
         </div>
+
+        <button className="denoise-btn" onClick={handleDenoise} disabled={loading}>
+          {loading ? '⏳...' : '🔇 Aplică'}
+        </button>
       </div>
 
       {error && <div className="error">❌ {error}</div>}
@@ -140,103 +118,59 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
       {loading && (
         <div className="loading">
           <div className="spinner"></div>
-          Procesare denoising...
+          Procesare...
         </div>
       )}
 
       {result && (
-        <>
-          <div className="panel">
-            <h3>Rezultate</h3>
+        <div className="denoise-results">
+          {/* Images row */}
+          <div className="denoise-images">
+            <div className="denoise-image-card">
+              <h4>Original</h4>
+              <img 
+                src={`data:image/png;base64,${result.original}`} 
+                alt="Original"
+              />
+            </div>
             
-            <div className="image-grid">
-              <div className="image-card">
-                <h4>Original</h4>
+            {result.noisy && (
+              <div className="denoise-image-card">
+                <h4>Cu zgomot (σ={noiseSigma})</h4>
                 <img 
-                  src={`data:image/png;base64,${result.original}`} 
-                  alt="Original"
+                  src={`data:image/png;base64,${result.noisy}`} 
+                  alt="Noisy"
                 />
+                <div className="img-metric">SNR: {result.snr_before?.toFixed(1)} dB</div>
               </div>
-              
-              {result.noisy && (
-                <div className="image-card">
-                  <h4>Cu zgomot (σ = {noiseSigma})</h4>
-                  <img 
-                    src={`data:image/png;base64,${result.noisy}`} 
-                    alt="Noisy"
-                  />
-                  {result.snr_before && (
-                    <div className="metrics">
-                      <div className="metric">SNR: <span>{result.snr_before.toFixed(2)} dB</span></div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <div className="image-card">
-                <h4>Denoised ({mode})</h4>
-                <img 
-                  src={`data:image/png;base64,${result.denoised}`} 
-                  alt="Denoised"
-                />
-                {result.snr_after && (
-                  <div className="metrics">
-                    <div className="metric">SNR: <span>{result.snr_after.toFixed(2)} dB</span></div>
-                    <div className="metric" style={{ background: 'rgba(0,255,136,0.2)' }}>
-                      +{result.snr_improvement.toFixed(2)} dB
-                    </div>
-                  </div>
-                )}
-              </div>
+            )}
+            
+            <div className="denoise-image-card">
+              <h4>Denoised ({mode})</h4>
+              <img 
+                src={`data:image/png;base64,${result.denoised}`} 
+                alt="Denoised"
+              />
+              <div className="img-metric success">SNR: {result.snr_after?.toFixed(1)} dB (+{result.snr_improvement?.toFixed(1)})</div>
             </div>
           </div>
 
-          <div className="panel">
-            <h3>📊 Statistici</h3>
-            
-            <div className="image-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-              <div className="metric" style={{ padding: '1rem', textAlign: 'center' }}>
-                <div style={{ color: 'var(--text-muted)' }}>σ estimat</div>
-                <div style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  {result.estimated_sigma.toFixed(2)}
-                </div>
-              </div>
-              <div className="metric" style={{ padding: '1rem', textAlign: 'center' }}>
-                <div style={{ color: 'var(--text-muted)' }}>Prag folosit</div>
-                <div style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  {result.threshold_used.toFixed(2)}
-                </div>
-              </div>
-              <div className="metric" style={{ padding: '1rem', textAlign: 'center' }}>
-                <div style={{ color: 'var(--text-muted)' }}>Îmbunătățire SNR</div>
-                <div style={{ color: 'var(--success)', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  +{result.snr_improvement?.toFixed(2) || 0} dB
-                </div>
-              </div>
+          {/* Stats row */}
+          <div className="denoise-stats">
+            <div className="stat-item">
+              <span className="stat-label">σ estimat</span>
+              <span className="stat-value">{result.estimated_sigma.toFixed(2)}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Prag</span>
+              <span className="stat-value">{result.threshold_used.toFixed(2)}</span>
+            </div>
+            <div className="stat-item success">
+              <span className="stat-label">Îmbunătățire</span>
+              <span className="stat-value">+{result.snr_improvement?.toFixed(2) || 0} dB</span>
             </div>
           </div>
-
-          <div className="panel">
-            <h2>📚 Soft vs Hard Thresholding</h2>
-            
-            <div className="image-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-              <div className="info-box success">
-                <h4>Soft Thresholding</h4>
-                <p>
-                  Reduce continuu coeficienții spre zero. Produce rezultate mai netede,
-                  evită artefacte de discontinuitate. <strong>Preferat în practică.</strong>
-                </p>
-              </div>
-              <div className="info-box warning">
-                <h4>Hard Thresholding</h4>
-                <p>
-                  Elimină complet coeficienții sub prag, păstrează exact pe cei mari.
-                  Poate produce artefacte "ringing", dar păstrează mai bine muchiile.
-                </p>
-              </div>
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </div>
   )

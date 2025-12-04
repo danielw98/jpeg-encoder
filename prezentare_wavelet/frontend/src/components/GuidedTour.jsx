@@ -11,9 +11,11 @@ import WaveletPlayground from './WaveletPlayground'
 import WaveletScanDemo from './WaveletScanDemo'
 import WaveletEducationView from './WaveletEducationView'
 import WaveletBasisView from './WaveletBasisView'
-import DecomposeView from './DecomposeView'
 import DenoiseView from './DenoiseView'
+import DenoiseTheoryView from './DenoiseTheoryView'
 import CompareView from './CompareView'
+import Mallat1DEduView from './Mallat1DEduView'
+import MallatUnifiedView from './MallatUnifiedView'
 
 import '../styles/tour.css'
 
@@ -46,9 +48,9 @@ const SLIDES = [
       { icon: '🔧', title: 'Filtre Digitale', desc: 'Separarea frecvențelor', sectionId: 'filters' },
       { icon: '🔄', title: 'Convoluția', desc: 'Operația fundamentală', sectionId: 'convolution' },
       { icon: '🔲', title: 'Kernel-uri 2D', desc: 'Blur, Sharpen, Edge Detection', sectionId: 'kernels' },
-      { icon: '🌊', title: 'Transformata Wavelet', desc: 'Localizare timp-frecvență', sectionId: 'wavelets' },
-      { icon: '🎓', title: 'Teorie & Baze Wavelet', desc: 'Fundamente matematice', sectionId: 'wavelet-theory' },
-      { icon: '🔬', title: 'Descompunere 2D', desc: 'Algoritmul Mallat', sectionId: 'decompose' },
+      { icon: '🌊', title: 'Transformata Wavelet', desc: 'Teorie, familii și demo-uri', sectionId: 'wavelets' },
+      { icon: '⭐', title: 'Algoritmul Mallat', desc: '1D → 2D → Multi-nivel (pas cu pas)', sectionId: 'decompose' },
+      { icon: '🏥', title: 'Aplicații Wavelets', desc: 'ECG, EEG și altele', sectionId: 'applications' },
       { icon: '🔇', title: 'Denoising', desc: 'Eliminarea zgomotului', sectionId: 'denoise' },
       { icon: '⚖️', title: 'DCT vs Wavelet', desc: 'JPEG vs JPEG2000', sectionId: 'compare' }
     ],
@@ -255,11 +257,21 @@ const SLIDES = [
     color: '#00d4ff'
   },
   {
+    id: 'wavelet-families',
+    section: 'wavelets',
+    type: 'embed',
+    embedType: 'wavelet-theory',
+    icon: '📚',
+    title: 'Familii Wavelet Complete',
+    subtitle: 'CWT + DWT + Teorie',
+    color: '#00d4ff'
+  },
+  {
     id: 'wavelet-demo',
     section: 'wavelets',
     type: 'embed',
     embedType: 'playground',
-    icon: '🌊',
+    icon: '🎮',
     title: 'Demo: Wavelet Playground',
     color: '#00d4ff'
   },
@@ -273,52 +285,31 @@ const SLIDES = [
     color: '#00d4ff'
   },
 
-  // ===== WAVELET THEORY & BASIS =====
-  {
-    id: 'theory-title',
-    section: 'wavelet-theory',
-    type: 'title',
-    icon: '🎓',
-    title: 'Teorie & Baze Wavelet',
-    subtitle: 'Fundamente matematice și familii wavelet',
-    color: '#ffd93d'
-  },
-  {
-    id: 'theory-demo',
-    section: 'wavelet-theory',
-    type: 'embed',
-    embedType: 'wavelet-theory',
-    icon: '🎓',
-    title: 'Wavelets Fundamentale',
-    color: '#ffd93d'
-  },
-  {
-    id: 'basis-theory',
-    section: 'wavelet-theory',
-    type: 'theory',
-    icon: '🌊',
-    title: 'Familii Wavelet',
-    subtitle: 'Haar, Daubechies, Biortogonal',
-    content: 'Fiecare familie are caracteristici diferite.',
-    math: String.raw`\int_{-\infty}^{\infty} \psi(t) \, dt = 0`,
-    mathLabel: 'Condiția de admisibilitate',
-    points: [
-      'Haar: simplu, rapid, discontinuu',
-      'Daubechies: suport compact, neted',
-      'Biortogonal: folosit în JPEG2000'
-    ],
-    color: '#ffd93d'
-  },
-
-  // ===== DECOMPOSITION =====
+  // ===== DECOMPOSITION - ALGORITMUL MALLAT =====
   {
     id: 'decomp-title',
     section: 'decompose',
     type: 'title',
-    icon: '🔬',
-    title: 'Descompunere 2D',
-    subtitle: 'Algoritmul Mallat pentru imagini',
-    color: '#c9b1ff'
+    icon: '⭐',
+    title: 'Algoritmul Mallat',
+    subtitle: 'Descompunere multi-rezoluție rapidă',
+    color: '#ffd700'
+  },
+  {
+    id: 'decomp-intro',
+    section: 'decompose',
+    type: 'theory',
+    icon: '🎯',
+    title: 'Coeficienții și Funcțiile de Bază',
+    content: 'Semnalul se proiectează pe funcțiile de scalare φ și wavelet ψ.',
+    math: String.raw`\begin{aligned} c_{j_0,k} &= \int x(t) \, \phi_{j_0,k}(t) \, dt \quad &\text{(coef. aproximare)} \\[1em] d_{j,k} &= \int x(t) \, \psi_{j,k}(t) \, dt \quad &\text{(coef. detaliu)} \\[1.5em] \phi_{j,k}(t) &= 2^{j/2} \, \phi(2^j t - k) \quad &\text{(funcția de scalare)} \\[1em] \psi_{j,k}(t) &= 2^{j/2} \, \psi(2^j t - k) \quad &\text{(wavelet)} \end{aligned}`,
+    mathLabel: 'j = nivel (scală), k = translație',
+    points: [
+      'φ captează frecvențe joase (structura globală)',
+      'ψ captează frecvențe înalte (detaliile)',
+      'Factor 2^(j/2) asigură normalizarea energiei'
+    ],
+    color: '#ffd700'
   },
   {
     id: 'decomp-theory',
@@ -334,16 +325,83 @@ const SLIDES = [
       'LH/HL: muchii orizontale/verticale',
       'HH: detalii diagonale, textură'
     ],
-    color: '#c9b1ff'
+    color: '#ffd700'
+  },
+  {
+    id: 'mallat-1d-edu',
+    section: 'decompose',
+    type: 'embed',
+    embedType: 'mallat-1d',
+    icon: '📊',
+    title: 'Demo: Mallat 1D (linie)',
+    color: '#ffd700'
   },
   {
     id: 'decomp-demo',
     section: 'decompose',
     type: 'embed',
-    embedType: 'decompose',
-    icon: '🔬',
-    title: 'Demo: Descompunere',
-    color: '#c9b1ff'
+    embedType: 'mallat-unified',
+    icon: '🖼️',
+    title: 'Demo: Descompunere Mallat 2D',
+    color: '#ffd700'
+  },
+
+  // ===== WAVELET APPLICATIONS =====
+  {
+    id: 'applications-title',
+    section: 'applications',
+    type: 'title',
+    icon: '🏥',
+    title: 'Aplicații Wavelets',
+    subtitle: 'Semnale biomedicale și nu numai',
+    color: '#ff6b9d'
+  },
+  {
+    id: 'applications-ecg',
+    section: 'applications',
+    type: 'theory',
+    icon: '❤️',
+    title: 'ECG - Electrocardiograme',
+    content: 'Wavelets sunt ideale pentru analiza ritmului cardiac.',
+    points: [
+      '✅ Detectare: complexul QRS, aritmii, fibrilații',
+      '✅ Eliminare: zgomot muscular, interferență electrică',
+      '🔬 Wavelet Morlet/Daubechies pentru QRS'
+    ],
+    color: '#ff6b9d'
+  },
+  {
+    id: 'applications-eeg',
+    section: 'applications',
+    type: 'theory',
+    icon: '🧠',
+    title: 'EEG - Activitate Cerebrală',
+    content: 'Separarea benzilor de frecvență ale creierului.',
+    math: String.raw`\delta < \theta < \alpha < \beta < \gamma`,
+    mathLabel: 'Benzile EEG (0.5-100 Hz)',
+    points: [
+      '🔹 Delta (0.5-4Hz): somn profund',
+      '🔹 Alpha (8-13Hz): relaxare, ochii închiși',
+      '🔹 Beta (13-30Hz): concentrare activă',
+      '🧪 Aplicații: epilepsie, BCI, monitoring somn'
+    ],
+    color: '#ff6b9d'
+  },
+  {
+    id: 'applications-other',
+    section: 'applications',
+    type: 'theory',
+    icon: '🌍',
+    title: 'Alte Aplicații',
+    content: 'Wavelets sunt omniprezente în procesarea semnalelor.',
+    points: [
+      '🎵 Audio: compresie, noise reduction, fingerprinting',
+      '📸 Imagini: JPEG2000, restaurare, super-rezoluție', 
+      '📊 Finanțe: analiza volatilității, detectare trenduri',
+      '🌊 Seismologie: detectare cutremure, analiza undelor',
+      '🔬 Astronomie: analiza semnalelor cosmice'
+    ],
+    color: '#ff6b9d'
   },
 
   // ===== DENOISING =====
@@ -359,17 +417,10 @@ const SLIDES = [
   {
     id: 'denoise-theory',
     section: 'denoise',
-    type: 'theory',
-    icon: '🔇',
-    title: 'Thresholding',
-    content: 'Zgomotul = coeficienți mici, semnalul = coeficienți mari.',
-    math: String.raw`\eta_S(x, \lambda) = \text{sign}(x) \cdot \max(|x| - \lambda, 0)`,
-    mathLabel: 'Soft thresholding',
-    points: [
-      'Hard: elimină brutal sub prag',
-      'Soft: reduce continuu valorile',
-      'Păstrează marginile ascuțite!'
-    ],
+    type: 'embed',
+    embedType: 'denoise-theory',
+    icon: '📚',
+    title: 'Teorie: Thresholding',
     color: '#00d4ff'
   },
   {
@@ -378,7 +429,7 @@ const SLIDES = [
     type: 'embed',
     embedType: 'denoise',
     icon: '🔇',
-    title: 'Demo: Denoising',
+    title: 'Demo: Denoising Practic',
     color: '#00d4ff'
   },
 
@@ -483,8 +534,12 @@ function EmbeddedView({ embedType, api, imageId, sampleImages, onImageChange }) 
       return <WaveletEducationView api={api} compact={true} />
     case 'wavelet-basis':
       return <WaveletBasisView api={api} compact={true} />
-    case 'decompose':
-      return <DecomposeView {...viewProps} compact={true} />
+    case 'mallat-1d':
+      return <Mallat1DEduView compact={true} />
+    case 'mallat-unified':
+      return <MallatUnifiedView compact={true} />
+    case 'denoise-theory':
+      return <DenoiseTheoryView compact={true} />
     case 'denoise':
       return <DenoiseView {...viewProps} compact={true} />
     case 'compare':

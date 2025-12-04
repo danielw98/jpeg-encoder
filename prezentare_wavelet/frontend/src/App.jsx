@@ -11,7 +11,7 @@ import KernelsEducationalView from './components/KernelsEducationalView'
 import WaveletPlayground from './components/WaveletPlayground'
 import WaveletBasisView from './components/WaveletBasisView'
 import WaveletEducationView from './components/WaveletEducationView'
-import DecomposeView from './components/DecomposeView'
+import MallatUnifiedView from './components/MallatUnifiedView'
 import DenoiseView from './components/DenoiseView'
 import CompareView from './components/CompareView'
 import GuidedTour from './components/GuidedTour'
@@ -139,7 +139,7 @@ export default function App() {
           {activeSection === 'playground' && <WaveletPlayground />}
           {activeSection === 'wavelet-theory' && <WaveletEducationView api={API_BASE} />}
           {activeSection === 'wavelet-basis' && <WaveletBasisView api={API_BASE} />}
-          {activeSection === 'decompose' && <DecomposeView api={API_BASE} imageId={selectedImage} sampleImages={sampleImages} onImageChange={setSelectedImage} />}
+          {activeSection === 'decompose' && <MallatUnifiedView />}
           {activeSection === 'denoise' && <DenoiseView api={API_BASE} imageId={selectedImage} sampleImages={sampleImages} onImageChange={setSelectedImage} />}
           {activeSection === 'compare' && <CompareView api={API_BASE} imageId={selectedImage} sampleImages={sampleImages} onImageChange={setSelectedImage} />}
         </div>

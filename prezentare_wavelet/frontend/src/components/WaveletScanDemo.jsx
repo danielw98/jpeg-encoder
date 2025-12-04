@@ -388,177 +388,177 @@ export default function WaveletScanDemo({ compact = false }) {
 
   return (
     <div className="wavelet-scan-demo">
-      {/* Main area with two stacked plots */}
-      <div className="scan-main">
-        {/* Top: Signal + Wavelet */}
-        <div className="scan-plot-section">
-          <div className="plot-label clean">
-            <span className="label-signal">f(t)</span>
-            <span className="label-wavelet" style={{ color: WAVELETS[waveletType].color }}>ψ(t)</span>
+      {/* Top row: plots + sidebar */}
+      <div className="scan-top-row">
+        {/* Main area with two stacked plots */}
+        <div className="scan-main">
+          {/* Top: Signal + Wavelet */}
+          <div className="scan-plot-section">
+            <div className="plot-label clean">
+              <span className="label-signal">f(t)</span>
+              <span className="label-wavelet" style={{ color: WAVELETS[waveletType].color }}>ψ(t)</span>
+            </div>
+            <div className="scan-canvas-container" ref={containerRef}>
+              <canvas ref={canvasRef} />
+            </div>
           </div>
-          <div className="scan-canvas-container" ref={containerRef}>
-            <canvas ref={canvasRef} />
+
+          {/* Bottom: Result coefficient */}
+          <div className="scan-plot-section result">
+            <div className="plot-label clean">
+              <span className="label-result">W(b)</span>
+            </div>
+            <div className="scan-canvas-container" ref={resultContainerRef}>
+              <canvas ref={resultCanvasRef} />
+            </div>
           </div>
         </div>
 
-        {/* Bottom: Result coefficient */}
-        <div className="scan-plot-section result">
-          <div className="plot-label clean">
-            <span className="label-result">W(b)</span>
+        {/* Right sidebar - Signal, Wavelet, Coefficient, Explanation */}
+        <div className="scan-sidebar">
+          {/* Signal selection */}
+          <div className="scan-section">
+            <div className="scan-section-header">📈 Semnal</div>
+            <div className="scan-section-content">
+              <div className="scan-buttons">
+                {Object.entries(SIGNALS).map(([key, s]) => (
+                  <button
+                    key={key}
+                    className={`scan-btn ${signalType === key ? 'active' : ''}`}
+                    onClick={() => setSignalType(key)}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+              <p className="scan-desc">{SIGNALS[signalType].desc}</p>
+            </div>
           </div>
-          <div className="scan-canvas-container" ref={resultContainerRef}>
-            <canvas ref={resultCanvasRef} />
+
+          {/* Wavelet selection */}
+          <div className="scan-section">
+            <div className="scan-section-header">🌊 Wavelet</div>
+            <div className="scan-section-content">
+              <div className="scan-buttons">
+                {Object.entries(WAVELETS).map(([key, w]) => (
+                  <button
+                    key={key}
+                    className={`scan-btn ${waveletType === key ? 'active' : ''}`}
+                    style={{ 
+                      borderColor: waveletType === key ? w.color : 'transparent',
+                      color: waveletType === key ? w.color : undefined 
+                    }}
+                    onClick={() => setWaveletType(key)}
+                  >
+                    {w.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Current coefficient display */}
+          <div className="scan-section coefficient-display">
+            <div className="scan-section-content">
+              <div className="coef-value" style={{ color: calculateCoefficient(position, scale) >= 0 ? '#50fa7b' : '#ff6b6b' }}>
+                <LaTeX math={`W(${position.toFixed(1)}) = ${calculateCoefficient(position, scale).toFixed(3)}`} />
+              </div>
+            </div>
+          </div>
+
+          {/* Explanation */}
+          <div className="scan-section explanation">
+            <div className="scan-section-content">
+              <p><strong style={{ color: '#50fa7b' }}>+</strong> corelație pozitivă</p>
+              <p><strong style={{ color: '#ff6b6b' }}>−</strong> corelație negativă</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Right sidebar */}
-      <div className="scan-sidebar">
-        {/* Signal selection */}
-        <div className="scan-section">
-          <div className="scan-section-header">📈 Semnal</div>
-          <div className="scan-section-content">
-            <div className="scan-buttons">
-              {Object.entries(SIGNALS).map(([key, s]) => (
-                <button
-                  key={key}
-                  className={`scan-btn ${signalType === key ? 'active' : ''}`}
-                  onClick={() => setSignalType(key)}
-                >
-                  {s.name}
-                </button>
-              ))}
-            </div>
-            <p className="scan-desc">{SIGNALS[signalType].desc}</p>
-          </div>
+      {/* Bottom controls bar */}
+      <div className="scan-controls-bar">
+        {/* Position slider */}
+        <div className="scan-control-group">
+          <label>
+            <strong style={{ color: '#ffaa00' }}>b</strong> (poziție): {position.toFixed(1)}
+          </label>
+          <input
+            type="range"
+            min="-4"
+            max="4"
+            step="0.1"
+            value={position}
+            onChange={e => setPosition(parseFloat(e.target.value))}
+            disabled={animating}
+          />
         </div>
 
-        {/* Wavelet selection */}
-        <div className="scan-section">
-          <div className="scan-section-header">🌊 Wavelet</div>
-          <div className="scan-section-content">
-            <div className="scan-buttons">
-              {Object.entries(WAVELETS).map(([key, w]) => (
-                <button
-                  key={key}
-                  className={`scan-btn ${waveletType === key ? 'active' : ''}`}
-                  style={{ 
-                    borderColor: waveletType === key ? w.color : 'transparent',
-                    color: waveletType === key ? w.color : undefined 
-                  }}
-                  onClick={() => setWaveletType(key)}
-                >
-                  {w.name}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Scale slider */}
+        <div className="scan-control-group">
+          <label>
+            <strong style={{ color: '#00d9ff' }}>a</strong> (scalare): {scale.toFixed(1)}
+          </label>
+          <input
+            type="range"
+            min="0.3"
+            max="2"
+            step="0.1"
+            value={scale}
+            onChange={e => setScale(parseFloat(e.target.value))}
+          />
         </div>
 
-        {/* Controls */}
-        <div className="scan-section">
-          <div className="scan-section-header">⚙️ Parametri</div>
-          <div className="scan-section-content">
-            <div className="scan-control">
-              <label>
-                <strong style={{ color: '#ffaa00' }}>b</strong> (poziție): {position.toFixed(1)}
-              </label>
-              <input
-                type="range"
-                min="-4"
-                max="4"
-                step="0.1"
-                value={position}
-                onChange={e => setPosition(parseFloat(e.target.value))}
-                disabled={animating}
-              />
-            </div>
-            <div className="scan-control">
-              <label>
-                <strong style={{ color: '#00d9ff' }}>a</strong> (scalare): {scale.toFixed(1)}
-              </label>
-              <input
-                type="range"
-                min="0.3"
-                max="2"
-                step="0.1"
-                value={scale}
-                onChange={e => setScale(parseFloat(e.target.value))}
-              />
-            </div>
-            <label className="scan-checkbox">
-              <input
-                type="checkbox"
-                checked={showAreas}
-                onChange={e => setShowAreas(e.target.checked)}
-              />
-              Arată arii (+/−)
-            </label>
-          </div>
+        {/* Show areas checkbox */}
+        <label className="scan-checkbox-control">
+          <input
+            type="checkbox"
+            checked={showAreas}
+            onChange={e => setShowAreas(e.target.checked)}
+          />
+          Arată arii (+/−)
+        </label>
+
+        {/* Speed slider */}
+        <div className="scan-control-group">
+          <label>Viteză: {(animSpeed * 100).toFixed(0)}%</label>
+          <input
+            type="range"
+            min="0.01"
+            max="0.15"
+            step="0.01"
+            value={animSpeed}
+            onChange={e => setAnimSpeed(parseFloat(e.target.value))}
+          />
         </div>
 
-        {/* Animation */}
-        <div className="scan-section">
-          <div className="scan-section-header">▶️ Scanare</div>
-          <div className="scan-section-content">
-            <div className="scan-anim-row">
-              <button 
-                className={`scan-anim-btn ${animating ? (paused ? 'play' : 'stop') : 'play'}`}
-                onClick={() => {
-                  if (!animating) {
-                    setAnimating(true)
-                    setPaused(false)
-                  } else if (paused) {
-                    setPaused(false)
-                  } else {
-                    setPaused(true)
-                  }
-                }}
-              >
-                {animating && !paused ? '⏸' : '▶'}
-              </button>
-              <button 
-                className="scan-anim-btn step" 
-                onClick={handleStep}
-                title="Pas cu pas"
-              >
-                ⏭
-              </button>
-              <button className="scan-anim-btn reset" onClick={handleReset}>
-                🔄
-              </button>
-            </div>
-            <div className="scan-control" style={{ marginTop: '0.5rem' }}>
-              <label>
-                Viteză: {(animSpeed * 100).toFixed(0)}%
-              </label>
-              <input
-                type="range"
-                min="0.01"
-                max="0.15"
-                step="0.01"
-                value={animSpeed}
-                onChange={e => setAnimSpeed(parseFloat(e.target.value))}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Current coefficient display */}
-        <div className="scan-section coefficient-display">
-          <div className="scan-section-content">
-            <div className="coef-value" style={{ color: calculateCoefficient(position, scale) >= 0 ? '#50fa7b' : '#ff6b6b' }}>
-              <LaTeX math={`W(${position.toFixed(1)}) = ${calculateCoefficient(position, scale).toFixed(3)}`} />
-            </div>
-          </div>
-        </div>
-
-        {/* Explanation */}
-        <div className="scan-section explanation">
-          <div className="scan-section-content">
-            <p><strong style={{ color: '#50fa7b' }}>+</strong> corelație pozitivă</p>
-            <p><strong style={{ color: '#ff6b6b' }}>−</strong> corelație negativă</p>
-          </div>
+        {/* Animation buttons */}
+        <div className="scan-anim-controls">
+          <button 
+            className={`scan-anim-btn ${animating ? (paused ? 'play' : 'stop') : 'play'}`}
+            onClick={() => {
+              if (!animating) {
+                setAnimating(true)
+                setPaused(false)
+              } else if (paused) {
+                setPaused(false)
+              } else {
+                setPaused(true)
+              }
+            }}
+          >
+            {animating && !paused ? '⏸' : '▶'}
+          </button>
+          <button 
+            className="scan-anim-btn step" 
+            onClick={handleStep}
+            title="Pas cu pas"
+          >
+            ⏭
+          </button>
+          <button className="scan-anim-btn reset" onClick={handleReset}>
+            🔄
+          </button>
         </div>
       </div>
     </div>

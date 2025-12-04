@@ -1,16 +1,25 @@
 /* ========================================
    Wavelet Playground V2 - Presentation Style
-   Layout: Main area (graph) + Right sidebar (controls)
+   Layout: Top row (graph + info) + Bottom controls bar
 ======================================== */
 
 /* Main container - fills slide area */
 .wavelet-playground-v2 {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  gap: 1rem;
-  padding: 0.5rem;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Top row: graph + sidebar */
+.wavelet-playground-v2 .playground-top-row {
+  flex: 1;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  min-height: 0;
 }
 
 /* Left main area - graph and formula */
@@ -19,7 +28,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 /* Formula bar at top */
@@ -91,14 +100,14 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Right sidebar */
+/* Right sidebar - wavelet info only */
 .wavelet-playground-v2 .playground-sidebar {
-  width: 340px;
+  width: 280px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  overflow: hidden;
+  gap: 0.75rem;
+  overflow-y: auto;
 }
 
 /* Sidebar sections */
@@ -106,16 +115,19 @@
   background: rgba(255,255,255,0.05);
   border-radius: 8px;
   overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .wavelet-playground-v2 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.7rem;
+  padding: 0.6rem 0.8rem;
   background: rgba(255,255,255,0.05);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: #fff;
 }
 
@@ -128,30 +140,33 @@
 }
 
 .wavelet-playground-v2 .toggle-icon {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: #888;
 }
 
 .wavelet-playground-v2 .section-content {
-  padding: 0.5rem 0.7rem;
+  padding: 0.75rem 0.8rem;
   background: transparent;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Wavelet type buttons */
 .wavelet-playground-v2 .wavelet-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .wavelet-playground-v2 .wavelet-btn {
-  padding: 0.4rem 0.5rem;
+  padding: 0.5rem 0.6rem;
   border: 2px solid transparent;
   border-radius: 6px;
   background: rgba(255,255,255,0.08);
   color: #aaa;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -184,18 +199,20 @@
 }
 
 .wavelet-playground-v2 .wavelet-desc {
-  font-size: 0.7rem;
-  color: #888;
-  margin: 0.4rem 0;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0.5rem 0;
+  line-height: 1.5;
 }
 
 .wavelet-playground-v2 .wavelet-equation {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   background: rgba(0,0,0,0.3);
-  padding: 0.5rem;
-  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
   text-align: center;
+  margin-top: auto;
+  overflow-x: auto;
 }
 
 /* Control rows */
@@ -328,39 +345,169 @@
 
 /* Theory content */
 .wavelet-playground-v2 .theory-content {
-  font-size: 0.75rem;
+  font-size: 0.95rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .wavelet-playground-v2 .theory-item {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .wavelet-playground-v2 .theory-item h5 {
-  font-size: 0.8rem;
-  margin: 0 0 0.2rem 0;
+  font-size: 1rem;
+  margin: 0 0 0.3rem 0;
 }
 
 .wavelet-playground-v2 .theory-item p {
-  margin: 0.1rem 0;
-  color: #aaa;
-  line-height: 1.4;
+  margin: 0.2rem 0;
+  color: #bbb;
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
 .wavelet-playground-v2 .theory-formula {
   background: rgba(0,0,0,0.3);
-  padding: 0.5rem;
-  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
   text-align: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  margin-top: auto;
+  overflow-x: auto;
 }
 
 /* Explanation section - no header, always visible */
 .wavelet-playground-v2 .explanation-section {
   background: rgba(255,255,255,0.03);
+  flex: 1;
 }
 
 .wavelet-playground-v2 .explanation-section .section-content {
-  padding: 0.6rem;
+  padding: 0.75rem;
+  flex: 1;
+}
+
+/* ========================================
+   Bottom Controls Bar
+======================================== */
+.wavelet-playground-v2 .playground-controls-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border-top: 1px solid #333;
+  flex-wrap: wrap;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .control-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .control-group label {
+  font-size: 0.85rem;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .control-group input[type="range"] {
+  width: 100px;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+  outline: none;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #00d9ff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .slider-hint {
+  font-size: 0.7rem;
+  color: #888;
+  min-width: 60px;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .checkbox-control {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .checkbox-control input[type="checkbox"] {
+  accent-color: #00d9ff;
+  width: 14px;
+  height: 14px;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .animation-controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .animation-controls select {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn {
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.reset {
+  background: rgba(255,255,255,0.1);
+  color: #aaa;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.reset:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.play {
+  background: #00d9ff;
+  color: #000;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.play:hover {
+  background: #00c4e8;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.stop {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.wavelet-playground-v2 .playground-controls-bar .anim-btn.stop:hover {
+  background: #ff5252;
 }
 
 /* Reset button */

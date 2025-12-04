@@ -674,15 +674,17 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--space-md);
-  gap: var(--space-md);
+  padding: var(--space-sm);
+  gap: var(--space-sm);
+  overflow: hidden;
 }
 
 .explanation-cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
+  gap: var(--space-sm);
   flex: 1;
+  min-height: 0;
 }
 
 .explanation-cards-grid.three-cols {
@@ -699,24 +701,25 @@
   flex-direction: column;
   align-items: center;
   background: var(--bg-darker);
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
   border-left: 3px solid var(--primary);
   overflow: hidden;
+  min-height: 0;
 }
 
 .explanation-cards-grid .explanation-card h4 {
   color: var(--text-light);
-  margin: 0 0 var(--space-xs) 0;
-  font-size: 1.1rem;
+  margin: 0 0 0.2rem 0;
+  font-size: 0.95rem;
   align-self: flex-start;
   width: 100%;
 }
 
 .explanation-cards-grid .explanation-card p {
   color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  line-height: 1.35;
   margin-bottom: 0;
   align-self: flex-start;
   width: 100%;
@@ -728,25 +731,26 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
-  margin-top: var(--space-md);
+  margin-top: var(--space-sm);
+  min-height: 0;
 }
 
 /* Multiple kernels in a row */
 .kernels-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   justify-content: center;
   align-items: center;
-  margin-top: var(--space-md);
+  margin-top: var(--space-sm);
 }
 
 /* Stack scale label on top for narrow containers or multiple kernels */
 .kernels-row .kernel-example {
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 0 0 auto;
   margin-top: 0;
 }
@@ -760,7 +764,7 @@
 @media (max-width: 1200px) {
   .kernel-example {
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
   
   .explanation-cards-grid.six-cards {
@@ -775,73 +779,68 @@
 }
 
 /* Kernel example with scale label */
-.kernel-example {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
 .kernel-example .scale-label {
   color: var(--primary);
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
 /* Base mini kernel - 3x3 */
 .kernel-table {
   border-collapse: collapse;
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
 
 .kernel-table td {
-  width: 44px;
-  height: 38px;
+  width: 36px;
+  height: 30px;
   text-align: center;
   vertical-align: middle;
   background: var(--bg-card);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
 }
 
 /* 4x4 kernel table */
 .kernel-table.four td {
-  width: 40px;
-  height: 36px;
-  font-size: 0.95rem;
+  width: 32px;
+  height: 26px;
+  font-size: 0.85rem;
 }
 
 /* 5x5 kernel table */
 .kernel-table.five td {
-  width: 38px;
-  height: 34px;
-  font-size: 0.9rem;
+  width: 28px;
+  height: 24px;
+  font-size: 0.75rem;
 }
 
-.wavelet-connection-box {
+.kernels-view.explanation-only .wavelet-connection-box {
   background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 136, 0.1));
   border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  flex-shrink: 0;
 }
 
-.wavelet-connection-box h4 {
+.kernels-view.explanation-only .wavelet-connection-box h4 {
   color: var(--primary);
-  margin: 0 0 var(--space-sm) 0;
+  margin: 0 0 0.3rem 0;
+  font-size: 0.95rem;
 }
 
-.wavelet-connection-box p {
+.kernels-view.explanation-only .wavelet-connection-box p {
   color: var(--text-muted);
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.4;
+  margin: 0;
 }
 
-.wavelet-connection-box strong {
+.kernels-view.explanation-only .wavelet-connection-box strong {
   color: var(--text-light);
 }
 

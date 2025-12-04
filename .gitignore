@@ -43,6 +43,8 @@ ui/web/
 # Files
 build_and_run_tests*
 TODO.md
+TO_IMPLEMENT.md
+PRESENTATION_STRUCTURE.md
 
 # Python
 __pycache__/

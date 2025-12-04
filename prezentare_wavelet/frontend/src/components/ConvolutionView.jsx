@@ -457,23 +457,19 @@ export default function ConvolutionView({ compact = false }) {
         <div className="info-box">
           <p>
             <strong>Convoluția</strong> este operația fundamentală în procesarea semnalelor.
-            Un <em>kernel</em> (nucleu) glisează peste semnal, calculând o sumă ponderată
-            la fiecare poziție. Este baza pentru filtrare, blur, edge detection, și multe altele.
+            Un <em>kernel</em> glisează peste semnal, calculând o sumă ponderată la fiecare poziție.
           </p>
         </div>
 
         <div className="math-block">
           <LaTeXBlock math={String.raw`(f * g)[n] = \sum_{k=-\infty}^{\infty} f[k] \cdot g[n-k]`} />
-          <div style={{ fontSize: '0.9em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Convoluția discretă: suma produselor dintre semnal și kernel "oglindit"
-          </div>
         </div>
       </div>
 
       <div className="panel">
         <h3>⚙️ Parametri</h3>
         
-        <div className="controls" style={{ flexWrap: 'wrap' }}>
+        <div className="controls" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
           <div className="control-group">
             <label>Tip Kernel</label>
             <select value={kernelType} onChange={e => setKernelType(e.target.value)}>
@@ -485,7 +481,7 @@ export default function ConvolutionView({ compact = false }) {
           
           {KERNEL_TYPES[kernelType]?.scalable && (
             <div className="control-group">
-              <label>Dimensiune Kernel: {kernelSize}</label>
+              <label>Dimensiune: {kernelSize}</label>
               <input
                 type="range"
                 min="3"
@@ -498,7 +494,7 @@ export default function ConvolutionView({ compact = false }) {
           )}
           
           <div className="control-group">
-            <label>Nivel zgomot: {noiseLevel.toFixed(2)}</label>
+            <label>Zgomot: {noiseLevel.toFixed(2)}</label>
             <input
               type="range"
               min="0"
@@ -509,96 +505,60 @@ export default function ConvolutionView({ compact = false }) {
             />
           </div>
           
-          <button onClick={regenerateSignal}>
-            🎲 Regenerează Semnal
-          </button>
+          <button onClick={regenerateSignal}>🎲 Regenerează</button>
           
           <button onClick={startAnimation} disabled={isAnimating} className="primary">
-            {isAnimating ? '⏳ Animație...' : '▶️ Animație Convoluție'}
+            {isAnimating ? '⏳ Animație...' : '▶️ Animație'}
           </button>
         </div>
       </div>
 
-      <div className="panel">
-        <h3>🔢 Kernel: {KERNEL_TYPES[kernelType]?.name} ({kernelSize} puncte)</h3>
+      <div className="panel" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        <div style={{ flex: '0 0 200px' }}>
+          <h3>🔢 {KERNEL_TYPES[kernelType]?.name} ({kernelSize})</h3>
+          <canvas ref={canvasKernelRef} width={200} height={90} style={{ background: '#0a0a1a', borderRadius: '8px', width: '100%' }} />
+        </div>
         
-        <div className="kernel-display" style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '300px' }}>
-            <canvas ref={canvasKernelRef} width={300} height={120} style={{ background: '#0a0a1a', borderRadius: '8px' }} />
-          </div>
-          
-          <div style={{ flex: '1', minWidth: '300px' }}>
-            <div className="math-block" style={{ padding: '1rem' }}>
-              {kernelType === 'moving-avg' && (
-                <>
-                  <strong>Moving Average:</strong>
-                  <LaTeXBlock math={String.raw`h[k] = \frac{1}{N}, \quad k = 0, 1, ..., N-1`} />
-                  <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Toate greutățile egale = media aritmetică a vecinilor
-                  </p>
-                </>
-              )}
-              {kernelType === 'gaussian' && (
-                <>
-                  <strong>Gaussian:</strong>
-                  <LaTeXBlock math={String.raw`h[k] = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{k^2}{2\sigma^2}}`} />
-                  <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Greutăți mai mari pentru punctele apropiate de centru
-                  </p>
-                </>
-              )}
-              {kernelType === 'derivative' && (
-                <>
-                  <strong>Derivată (diferență finită):</strong>
-                  <LaTeXBlock math={String.raw`h = [-1, 0, 1] \quad \Rightarrow \quad y[n] \approx \frac{df}{dt}`} />
-                  <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Detectează schimbări rapide = muchii
-                  </p>
-                </>
-              )}
-              {kernelType === 'laplacian' && (
-                <>
-                  <strong>Laplacian (a doua derivată):</strong>
-                  <LaTeXBlock math={String.raw`h = [1, -2, 1] \quad \Rightarrow \quad y[n] \approx \frac{d^2f}{dt^2}`} />
-                  <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Detectează puncte de inflexiune
-                  </p>
-                </>
-              )}
-              {kernelType === 'sharpen' && (
-                <>
-                  <strong>Sharpening:</strong>
-                  <LaTeXBlock math={String.raw`h = [-\alpha, 1+2\alpha, -\alpha]`} />
-                  <p style={{ fontSize: '0.85em', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Amplifică diferențele locale = mai clar
-                  </p>
-                </>
-              )}
-            </div>
+        <div style={{ flex: '1', minWidth: '250px' }}>
+          <div className="math-block" style={{ padding: '0.5rem' }}>
+            {kernelType === 'moving-avg' && (
+              <><strong>Moving Average:</strong> <LaTeX math={String.raw`h[k] = \frac{1}{N}`} /> - media vecinilor</>
+            )}
+            {kernelType === 'gaussian' && (
+              <><strong>Gaussian:</strong> <LaTeX math={String.raw`h[k] \propto e^{-k^2/2\sigma^2}`} /> - greutăți centrate</>
+            )}
+            {kernelType === 'derivative' && (
+              <><strong>Derivată:</strong> <LaTeX math={String.raw`h = [-1, 0, 1]`} /> - detectează schimbări</>
+            )}
+            {kernelType === 'laplacian' && (
+              <><strong>Laplacian:</strong> <LaTeX math={String.raw`h = [1, -2, 1]`} /> - a doua derivată</>
+            )}
+            {kernelType === 'sharpen' && (
+              <><strong>Sharpening:</strong> <LaTeX math={String.raw`h = [-\alpha, 1+2\alpha, -\alpha]`} /> - amplifică detalii</>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="panel">
+      <div className="panel" style={{ flex: '1', minHeight: '180px' }}>
         <h3>📊 Rezultat</h3>
-        <div className="plot-container">
-          <canvas ref={canvasSignalRef} width={800} height={300} />
+        <div className="plot-container" style={{ height: '180px' }}>
+          <canvas ref={canvasSignalRef} style={{ width: '100%', height: '100%' }} />
         </div>
         
-        {(kernelType === 'moving-avg' || kernelType === 'gaussian') ? (
-          <div className="info-box success">
-            <strong>Observație:</strong> Semnalul filtrat (verde) este mult mai neted decât originalul cu zgomot.
-            Kernel-uri mai mari = mai multă netezire, dar pot pierde detalii fine.
+        {(kernelType === 'moving-avg' || kernelType === 'gaussian') && (
+          <div className="info-box success" style={{ margin: '0.5rem 0 0 0' }}>
+            <strong>Observație:</strong> Semnalul filtrat (verde) este mai neted. Kernel-uri mai mari = mai multă netezire.
           </div>
-        ) : (kernelType === 'derivative' || kernelType === 'laplacian') ? (
-          <div className="info-box warning">
-            <strong>Observație:</strong> Derivata/Laplacian evidențiază schimbările rapide, 
-            dar amplifică și zgomotul. De aceea se combină adesea cu smoothing.
+        )}
+        {(kernelType === 'derivative' || kernelType === 'laplacian') && (
+          <div className="info-box warning" style={{ margin: '0.5rem 0 0 0' }}>
+            <strong>Observație:</strong> Derivata evidențiază schimbările rapide, dar amplifică și zgomotul.
           </div>
-        ) : (
-          <div className="info-box">
-            <strong>Observație:</strong> Sharpening amplifică detaliile, 
-            dar poate introduce artefacte dacă semnalul are zgomot.
+        )}
+        {kernelType === 'sharpen' && (
+          <div className="info-box" style={{ margin: '0.5rem 0 0 0' }}>
+            <strong>Observație:</strong> Sharpening amplifică detaliile, dar poate introduce artefacte.
           </div>
         )}
       </div>

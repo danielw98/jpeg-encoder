@@ -131,6 +131,7 @@
 
 /* Scrollable views that may have lots of content */
 .wavelet-playground,
+.wavelet-playground-v2,
 .fourier-view,
 .convolution-view,
 .filters-view,
@@ -140,6 +141,12 @@
 .wavelet-basis-view,
 .wavelet-education-view {
   padding-bottom: var(--space-lg);
+}
+
+/* Full-height views that need explicit sizing */
+.content-area .wavelet-playground-v2 {
+  min-height: 600px;
+  height: calc(100vh - 160px);
 }
 
 /* ========================================
