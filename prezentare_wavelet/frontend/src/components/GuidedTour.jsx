@@ -75,12 +75,10 @@ const SLIDES = [
   {
     id: 'fourier-theory',
     section: 'fourier',
-    type: 'theory',
+    type: 'fourier-theory-enhanced',
     icon: '📊',
     title: 'Descompunere în Frecvențe',
     content: 'Fourier ne spune CE frecvențe există, dar nu CÂND apar.',
-    math: String.raw`F(\omega) = \int_{-\infty}^{\infty} f(t) \cdot e^{-i\omega t} \, dt`,
-    mathLabel: 'Transformata Fourier',
     points: [
       'Orice semnal = sumă de sinusoide',
       'Perfect pentru semnale staționare',
@@ -208,15 +206,6 @@ const SLIDES = [
     color: '#ff9f43'
   },
   {
-    id: 'kernels-explanation',
-    section: 'kernels',
-    type: 'embed',
-    embedType: 'kernels-explanation',
-    icon: '🔲',
-    title: 'Explicații Kernel-uri',
-    color: '#ff9f43'
-  },
-  {
     id: 'kernels-edu',
     section: 'kernels',
     type: 'embed',
@@ -267,7 +256,7 @@ const SLIDES = [
     type: 'embed',
     embedType: 'wavelet-theory',
     icon: '📚',
-    title: 'Familii Wavelet Complete',
+    title: 'Familii Wavelet',
     subtitle: 'CWT + DWT + Teorie',
     color: '#00d4ff'
   },
@@ -572,8 +561,6 @@ function EmbeddedView({ embedType, api, imageId, sampleImages, onImageChange }) 
       return <ConvolutionView compact={true} />
     case 'kernels':
       return <KernelsView {...viewProps} compact={true} />
-    case 'kernels-explanation':
-      return <KernelsView {...viewProps} compact={true} explanationOnly={true} />
     case 'kernels-edu':
       return <KernelsEducationalView api={api} compact={true} />
     case 'playground':
@@ -785,6 +772,58 @@ export default function GuidedTour({ onClose, onNavigate, selectedImage = 'peppe
           </div>
         )}
 
+        {/* FOURIER THEORY ENHANCED SLIDE - Multiple formulas */}
+        {slide.type === 'fourier-theory-enhanced' && (
+          <div className="slide-fourier-theory-enhanced">
+            <div className="slide-header">
+              <span className="slide-icon-sm">{slide.icon}</span>
+              <h1>{slide.title}</h1>
+            </div>
+            {slide.content && <p className="slide-content">{slide.content}</p>}
+            
+            {/* Main Fourier formulas grid */}
+            <div className="fourier-formulas-grid">
+              <div className="formula-card">
+                <h4>Transformata Fourier</h4>
+                <div className="math-formula">
+                  <LaTeXBlock math={String.raw`F(\omega) = \int_{-\infty}^{\infty} f(t) \cdot e^{-i\omega t} \, dt`} />
+                </div>
+                <p className="formula-desc">Descompune semnalul în componente de frecvență</p>
+              </div>
+              
+              <div className="formula-card">
+                <h4>Transformata Inversă</h4>
+                <div className="math-formula">
+                  <LaTeXBlock math={String.raw`f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \cdot e^{i\omega t} \, d\omega`} />
+                </div>
+                <p className="formula-desc">Reconstituie semnalul din spectrul său</p>
+              </div>
+              
+              <div className="formula-card euler">
+                <h4>Formula lui Euler</h4>
+                <div className="math-formula">
+                  <LaTeXBlock math={String.raw`e^{i\theta} = \cos\theta + i\sin\theta`} />
+                </div>
+                <p className="formula-desc">Conectează exponențiala complexă cu sinusoide</p>
+              </div>
+              
+              <div className="formula-card parseval">
+                <h4>Teorema lui Parseval</h4>
+                <div className="math-formula">
+                  <LaTeXBlock math={String.raw`\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega`} />
+                </div>
+                <p className="formula-desc">Energia se conservă între domenii</p>
+              </div>
+            </div>
+            
+            {slide.points && (
+              <ul className="slide-points compact">
+                {slide.points.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+            )}
+          </div>
+        )}
+
         {/* THEORY-VISUAL SLIDE (e.g. 2D convolution with kernel matrices) */}
         {slide.type === 'theory-visual' && (
           <div className="slide-theory-visual">
@@ -889,7 +928,8 @@ export default function GuidedTour({ onClose, onNavigate, selectedImage = 'peppe
             </div>
             <p className="slide-content">
               Filtrele digitale separă componentele de frecvență din semnal.
-              <strong> Low-pass</strong> păstrează frecvențele joase, <strong>High-pass</strong> păstrează frecvențele înalte.
+              <strong> Low-pass</strong> păstrează frecvențele joase, <strong>High-pass</strong> păstrează frecvențele înalte,
+              <strong> Band-pass</strong> păstrează doar un interval de frecvențe.
             </p>
             <div className="filters-formulas-grid">
               <div className="formula-card">
@@ -897,21 +937,23 @@ export default function GuidedTour({ onClose, onNavigate, selectedImage = 'peppe
                 <div className="math-formula">
                   <LaTeXBlock math={String.raw`H_{LP}(f) = \begin{cases} 1 & |f| \leq f_c \\ 0 & |f| > f_c \end{cases}`} />
                 </div>
-                <p className="formula-desc">Tăietură bruscă la frecvența de cutoff f<sub>c</sub>. Teoretic perfect, dar imposibil de realizat fizic (răspuns infinit în timp).</p>
+                <p className="formula-desc">Tăietură bruscă la f<sub>c</sub>. Teoretic perfect, dar imposibil de realizat.</p>
               </div>
-              <div className="formula-card">
+              <div className="formula-card butterworth">
                 <h3>🔔 Filtrul Butterworth</h3>
                 <div className="math-formula">
                   <LaTeXBlock math={String.raw`|H(f)|^2 = \frac{1}{1 + \left(\frac{f}{f_c}\right)^{2n}}`} />
                 </div>
-                <p className="formula-desc">Răspuns maxim plat în banda de trecere. Ordinul n controlează abruptitatea tranziției.</p>
+                <p className="formula-desc">
+                  Ordinul <strong>n</strong> controlează abruptitatea: n=1 lent, n=8 aproape ideal.
+                </p>
               </div>
               <div className="formula-card">
                 <h3>📊 Filtrul Gaussian</h3>
                 <div className="math-formula">
                   <LaTeXBlock math={String.raw`H(f) = e^{-\frac{f^2}{2\sigma^2}}`} />
                 </div>
-                <p className="formula-desc">Tranziție netedă, fără oscilații. σ determină lățimea benzii. Folosit în procesarea imaginilor.</p>
+                <p className="formula-desc">Tranziție netedă, fără oscilații. σ ≈ lățimea benzii.</p>
               </div>
             </div>
           </div>

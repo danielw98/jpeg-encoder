@@ -6,9 +6,9 @@ const PRESET_FUNCTIONS = [
   { label: 'Sinusoidă simplă', expr: 'sin(2*pi*5*t)' },
   { label: 'Două frecvențe', expr: 'sin(2*pi*5*t) + sin(2*pi*12*t)' },
   { label: 'Trei frecvențe', expr: 'sin(2*pi*3*t) + 0.5*sin(2*pi*10*t) + 0.3*sin(2*pi*25*t)' },
-  { label: 'Chirp (frecvență variabilă)', expr: 'sin(2*pi*(5 + 20*t)*t)' },
+  { label: 'Chirp', expr: 'sin(2*pi*(5 + 20*t)*t)' },
   { label: 'Puls Gaussian', expr: 'exp(-50*(t-0.5)**2) * sin(2*pi*20*t)' },
-  { label: 'Undă pătrată aprox.', expr: 'sin(2*pi*5*t) + sin(2*pi*15*t)/3 + sin(2*pi*25*t)/5' }
+  { label: 'Undă pătrată', expr: 'sin(2*pi*5*t) + sin(2*pi*15*t)/3 + sin(2*pi*25*t)/5' }
 ]
 
 export default function FourierView({ api, compact = false }) {
@@ -18,10 +18,13 @@ export default function FourierView({ api, compact = false }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [showPhase, setShowPhase] = useState(false)  // Toggle between magnitude and phase
   const canvasTimeRef = useRef()
   const canvasFreqRef = useRef()
+  const canvasPhaseRef = useRef()
   const timeContainerRef = useRef()
   const freqContainerRef = useRef()
+  const phaseContainerRef = useRef()
 
   // Current expression being displayed
   const currentExpression = isCustomMode ? customExpression : PRESET_FUNCTIONS[activePresetIndex].expr
@@ -50,8 +53,9 @@ export default function FourierView({ api, compact = false }) {
     if (data) {
       drawTimeDomain()
       drawFrequencyDomain()
+      if (showPhase) drawPhaseDomain()
     }
-  }, [data])
+  }, [data, showPhase])
 
   // Handle resize
   useEffect(() => {
@@ -59,15 +63,17 @@ export default function FourierView({ api, compact = false }) {
       if (data) {
         drawTimeDomain()
         drawFrequencyDomain()
+        if (showPhase) drawPhaseDomain()
       }
     }
 
     const resizeObserver = new ResizeObserver(handleResize)
     if (timeContainerRef.current) resizeObserver.observe(timeContainerRef.current)
     if (freqContainerRef.current) resizeObserver.observe(freqContainerRef.current)
+    if (phaseContainerRef.current) resizeObserver.observe(phaseContainerRef.current)
 
     return () => resizeObserver.disconnect()
-  }, [data])
+  }, [data, showPhase])
 
   const drawTimeDomain = () => {
     const canvas = canvasTimeRef.current
@@ -277,6 +283,99 @@ export default function FourierView({ api, compact = false }) {
     }
   }
 
+  const drawPhaseDomain = () => {
+    const canvas = canvasPhaseRef.current
+    if (!canvas || !data) return
+    
+    // HiDPI support
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    
+    if (width === 0 || height === 0) return
+    
+    canvas.width = width * dpr
+    canvas.height = height * dpr
+    
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+    
+    const { f, phase, magnitude } = data.frequency
+    const margin = compact ? 35 : 50
+    
+    // Clear
+    ctx.fillStyle = '#050510'
+    ctx.fillRect(0, 0, width, height)
+    
+    // Only show up to 50 Hz
+    const maxFreq = 50
+    const filteredIndices = f.map((freq, i) => ({ freq, phase: phase[i], mag: magnitude[i], i }))
+      .filter(x => x.freq <= maxFreq && x.freq > 0)
+    
+    const rawMaxMag = Math.max(...filteredIndices.map(x => x.mag))
+    const absoluteThreshold = rawMaxMag * 0.03
+    
+    // Only show phase for significant peaks
+    const significantPoints = filteredIndices.filter(x => x.mag > absoluteThreshold)
+    
+    // Grid - horizontal lines at -π, -π/2, 0, π/2, π
+    ctx.strokeStyle = '#1a1a3a'
+    ctx.lineWidth = 1
+    const phaseTicks = [-Math.PI, -Math.PI/2, 0, Math.PI/2, Math.PI]
+    for (const tick of phaseTicks) {
+      const y = margin + ((Math.PI - tick) / (2 * Math.PI)) * (height - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(margin, y)
+      ctx.lineTo(width - 15, y)
+      ctx.stroke()
+    }
+    
+    // Grid - vertical lines
+    const freqTicks = [0, 10, 20, 30, 40, 50]
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreq) * (width - margin - 15)
+      ctx.beginPath()
+      ctx.moveTo(x, margin)
+      ctx.lineTo(x, height - margin)
+      ctx.stroke()
+    }
+    
+    // X-axis tick labels
+    ctx.fillStyle = '#aaaacc'
+    ctx.font = `bold ${compact ? 11 : 12}px Inter, sans-serif`
+    ctx.textAlign = 'center'
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreq) * (width - margin - 15)
+      ctx.fillText(`${tick}`, x, height - margin + 14)
+    }
+    
+    // Y-axis labels (phase: -π to π)
+    ctx.textAlign = 'right'
+    ctx.textBaseline = 'middle'
+    const phaseLabels = [
+      { val: Math.PI, label: 'π' },
+      { val: Math.PI/2, label: 'π/2' },
+      { val: 0, label: '0' },
+      { val: -Math.PI/2, label: '-π/2' },
+      { val: -Math.PI, label: '-π' }
+    ]
+    for (const { val, label } of phaseLabels) {
+      const y = margin + ((Math.PI - val) / (2 * Math.PI)) * (height - 2 * margin)
+      ctx.fillText(label, margin - 6, y)
+    }
+    
+    // Draw phase points as circles
+    ctx.fillStyle = '#9d4edd'
+    for (const { freq, phase: ph } of significantPoints) {
+      const x = margin + (freq / maxFreq) * (width - margin - 15)
+      const y = margin + ((Math.PI - ph) / (2 * Math.PI)) * (height - 2 * margin)
+      ctx.beginPath()
+      ctx.arc(x, y, 5, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+  }
+
   return (
     <div className={`fourier-view ${compact ? 'fourier-compact' : ''}`}>
       {/* Header - hidden in compact mode */}
@@ -317,12 +416,21 @@ export default function FourierView({ api, compact = false }) {
                   <div className="plot-axis-label x-label">t (s)</div>
                 </div>
                 
-                <div className="plot-container-with-overlay" ref={freqContainerRef}>
-                  <canvas ref={canvasFreqRef} />
-                  <div className="plot-title-overlay pink">Spectru Frecvență</div>
-                  <div className="plot-axis-label y-label">|F(f)|</div>
-                  <div className="plot-axis-label x-label">f (Hz)</div>
-                </div>
+                {showPhase ? (
+                  <div className="plot-container-with-overlay" ref={phaseContainerRef}>
+                    <canvas ref={canvasPhaseRef} />
+                    <div className="plot-title-overlay purple">Spectru Fază</div>
+                    <div className="plot-axis-label y-label">∠F(f)</div>
+                    <div className="plot-axis-label x-label">f (Hz)</div>
+                  </div>
+                ) : (
+                  <div className="plot-container-with-overlay" ref={freqContainerRef}>
+                    <canvas ref={canvasFreqRef} />
+                    <div className="plot-title-overlay pink">Spectru Magnitudine</div>
+                    <div className="plot-axis-label y-label">|F(f)|</div>
+                    <div className="plot-axis-label x-label">f (Hz)</div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -357,6 +465,24 @@ export default function FourierView({ api, compact = false }) {
 
           {/* Side controls - RIGHT */}
           <div className="fourier-side-controls">
+            {/* Spectrum toggle */}
+            <div className="spectrum-toggle">
+              <button 
+                className={!showPhase ? 'active' : ''} 
+                onClick={() => setShowPhase(false)}
+                title="Spectru Magnitudine"
+              >
+                |F|
+              </button>
+              <button 
+                className={showPhase ? 'active' : ''} 
+                onClick={() => setShowPhase(true)}
+                title="Spectru Fază"
+              >
+                ∠F
+              </button>
+            </div>
+            
             <h4>Funcții Preset</h4>
             <div className="preset-buttons-vertical">
               {PRESET_FUNCTIONS.map((p, idx) => (

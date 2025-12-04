@@ -762,12 +762,14 @@ async def fourier_image_sample(image_id: str = "lena_512"):
 async def lowpass_filter_demo(
     cutoff_hz: float = 30.0,
     filter_type: str = "ideal",
+    order: int = 4,
     samples: int = 256,
     max_freq_hz: float = 100.0
 ):
     """
     Demonstrate low-pass filter in frequency domain.
     cutoff_hz: Cutoff frequency in Hz
+    order: Filter order for Butterworth (1, 2, 4, 8)
     max_freq_hz: Maximum frequency to display (Hz)
     Types: ideal, butterworth, gaussian
     """
@@ -777,7 +779,6 @@ async def lowpass_filter_demo(
     if filter_type == "ideal":
         response = np.where(freqs_hz <= cutoff_hz, 1.0, 0.0)
     elif filter_type == "butterworth":
-        order = 4
         epsilon = 1e-10
         response = 1 / np.sqrt(1 + (freqs_hz / (cutoff_hz + epsilon)) ** (2 * order))
     elif filter_type == "gaussian":
@@ -810,12 +811,14 @@ async def lowpass_filter_demo(
 async def highpass_filter_demo(
     cutoff_hz: float = 30.0,
     filter_type: str = "ideal",
+    order: int = 4,
     samples: int = 256,
     max_freq_hz: float = 100.0
 ):
     """
     Demonstrate high-pass filter in frequency domain.
     cutoff_hz: Cutoff frequency in Hz
+    order: Filter order for Butterworth (1, 2, 4, 8)
     """
     # Work in Hz directly
     freqs_hz = np.linspace(0, max_freq_hz, samples)
@@ -823,7 +826,6 @@ async def highpass_filter_demo(
     if filter_type == "ideal":
         response = np.where(freqs_hz >= cutoff_hz, 1.0, 0.0)
     elif filter_type == "butterworth":
-        order = 4
         epsilon = 1e-10
         response = 1 / np.sqrt(1 + (cutoff_hz / (freqs_hz + epsilon)) ** (2 * order))
     elif filter_type == "gaussian":
@@ -854,31 +856,38 @@ async def highpass_filter_demo(
 
 @app.get("/api/filters/bandpass")
 async def bandpass_filter_demo(
-    low_cutoff: float = 0.2,
-    high_cutoff: float = 0.5,
+    low_cutoff_hz: float = 20.0,
+    high_cutoff_hz: float = 60.0,
     filter_type: str = "ideal",
-    samples: int = 256
+    order: int = 4,
+    samples: int = 256,
+    max_freq_hz: float = 100.0
 ):
-    """Demonstrate band-pass filter"""
-    freqs = np.linspace(0, 1, samples)
+    """Demonstrate band-pass filter in Hz"""
+    freqs_hz = np.linspace(0, max_freq_hz, samples)
     
     if filter_type == "ideal":
-        response = np.where((freqs >= low_cutoff) & (freqs <= high_cutoff), 1.0, 0.0)
+        response = np.where((freqs_hz >= low_cutoff_hz) & (freqs_hz <= high_cutoff_hz), 1.0, 0.0)
     elif filter_type == "butterworth":
-        order = 4
-        center = (low_cutoff + high_cutoff) / 2
-        bandwidth = high_cutoff - low_cutoff
         epsilon = 1e-10
-        response = 1 / np.sqrt(1 + ((freqs - center) / (bandwidth / 2 + epsilon)) ** (2 * order))
+        # Combine low-pass at high_cutoff and high-pass at low_cutoff
+        lp = 1 / np.sqrt(1 + (freqs_hz / (high_cutoff_hz + epsilon)) ** (2 * order))
+        hp = 1 / np.sqrt(1 + (low_cutoff_hz / (freqs_hz + epsilon)) ** (2 * order))
+        response = lp * hp
+    elif filter_type == "gaussian":
+        center = (low_cutoff_hz + high_cutoff_hz) / 2
+        sigma = (high_cutoff_hz - low_cutoff_hz) / 4
+        response = np.exp(-((freqs_hz - center) ** 2) / (2 * sigma ** 2 + 1e-10))
     else:
-        response = np.where((freqs >= low_cutoff) & (freqs <= high_cutoff), 1.0, 0.0)
+        response = np.where((freqs_hz >= low_cutoff_hz) & (freqs_hz <= high_cutoff_hz), 1.0, 0.0)
     
     return {
         "type": filter_type,
-        "low_cutoff": low_cutoff,
-        "high_cutoff": high_cutoff,
+        "low_cutoff_hz": low_cutoff_hz,
+        "high_cutoff_hz": high_cutoff_hz,
+        "order": order,
         "frequency": {
-            "f": freqs.tolist(),
+            "f": freqs_hz.tolist(),
             "response": response.tolist()
         }
     }
@@ -889,14 +898,15 @@ async def apply_filter_to_signal(
     expression: str = "sin(2*pi*5*t) + sin(2*pi*20*t) + sin(2*pi*50*t)",
     filter_type: str = "lowpass",
     cutoff_hz: float = 30.0,
+    low_cutoff_hz: float = 20.0,
+    high_cutoff_hz: float = 60.0,
     samples: int = 512
 ):
     """
     Apply a filter to a signal and show before/after.
-    cutoff_hz: Cutoff frequency in Hz (samples over 1 second, so sample_rate = samples)
-    """
-    from numpy import sin, cos, exp, pi
-    
+    cutoff_hz: Cutoff frequency in Hz for lowpass/highpass
+    low_cutoff_hz, high_cutoff_hz: Cutoff frequencies for bandpass
+    """    
     try:
         # samples over 1 second means sample_rate = samples
         sample_rate = samples
@@ -915,6 +925,8 @@ async def apply_filter_to_signal(
             filt = np.abs(freqs_hz) <= cutoff_hz
         elif filter_type == "highpass":
             filt = np.abs(freqs_hz) >= cutoff_hz
+        elif filter_type == "bandpass":
+            filt = (np.abs(freqs_hz) >= low_cutoff_hz) & (np.abs(freqs_hz) <= high_cutoff_hz)
         else:
             filt = np.ones_like(freqs_hz, dtype=bool)
         

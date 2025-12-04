@@ -8,7 +8,7 @@ const KERNEL_TYPES = {
     category: 'smoothing',
     scalable: true,
     generate: (size) => Array(size).fill(1 / size),
-    sizes: [3, 5, 7, 9, 11, 13, 15]
+    sizes: [3, 5, 7, 9, 11]
   },
   'gaussian': {
     name: 'Gaussian',
@@ -27,7 +27,7 @@ const KERNEL_TYPES = {
       }
       return kernel.map(v => v / sum)
     },
-    sizes: [3, 5, 7, 9, 11, 13, 15]
+    sizes: [3, 5, 7, 9, 11]
   },
   'derivative': {
     name: 'Derivată',
@@ -260,8 +260,9 @@ export default function ConvolutionView({ compact = false }) {
     if (!canvas || !signalData || animStep < 0) return
     
     const dpr = window.devicePixelRatio || 1
-    // Smaller size for overlay
-    const width = 340
+    // Dynamic width based on kernel size (min 340, scale with kernel length)
+    const baseWidth = 340
+    const width = Math.max(baseWidth, 120 + kernel.length * 45)
     const height = 150
     
     canvas.width = width * dpr
@@ -394,6 +395,7 @@ export default function ConvolutionView({ compact = false }) {
     
     // Use CSS dimensions for drawing (not scaled canvas dimensions)
     const margin = compact ? 30 : 50
+    const marginBottom = margin  // Same as top margin now that overlay is in controls area
     
     ctx.fillStyle = '#050510'
     ctx.fillRect(0, 0, width, height)
@@ -410,7 +412,7 @@ export default function ConvolutionView({ compact = false }) {
     ctx.strokeStyle = '#1a1a3a'
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
-      const y = margin + (i * (height - 2 * margin)) / 4
+      const y = margin + (i * (height - margin - marginBottom)) / 4
       ctx.beginPath()
       ctx.moveTo(margin, y)
       ctx.lineTo(width - margin, y)
@@ -419,7 +421,7 @@ export default function ConvolutionView({ compact = false }) {
     
     // Helper to get x position for a sample index
     const getX = (idx) => margin + (t[idx] / t[t.length - 1]) * (width - 2 * margin)
-    const getY = (val) => height - margin - ((val - min) / range) * (height - 2 * margin)
+    const getY = (val) => height - marginBottom - ((val - min) / range) * (height - margin - marginBottom)
     
     // Helper to draw a signal
     const drawLine = (data, color, lineWidth, endIdx = data.length) => {
@@ -457,7 +459,7 @@ export default function ConvolutionView({ compact = false }) {
       const x1 = getX(windowStart)
       const x2 = getX(windowEnd)
       ctx.fillStyle = 'rgba(255, 170, 0, 0.15)'
-      ctx.fillRect(x1, margin, x2 - x1, height - 2 * margin)
+      ctx.fillRect(x1, margin, x2 - x1, height - margin - marginBottom)
       
       // Draw vertical lines at window boundaries
       ctx.strokeStyle = 'rgba(255, 170, 0, 0.6)'
@@ -465,9 +467,9 @@ export default function ConvolutionView({ compact = false }) {
       ctx.setLineDash([3, 3])
       ctx.beginPath()
       ctx.moveTo(x1, margin)
-      ctx.lineTo(x1, height - margin)
+      ctx.lineTo(x1, height - marginBottom)
       ctx.moveTo(x2, margin)
-      ctx.lineTo(x2, height - margin)
+      ctx.lineTo(x2, height - marginBottom)
       ctx.stroke()
       ctx.setLineDash([])
       
@@ -630,12 +632,6 @@ export default function ConvolutionView({ compact = false }) {
             <div className="plot-container-with-overlay">
               <canvas ref={canvasSignalRef} className="compact-result-canvas" />
               
-              {/* Dot Product Visualization - Overlaid on graph */}
-              {animStep >= 0 && (
-                <div className="dot-product-overlay">
-                  <canvas ref={canvasDotProductRef} />
-                </div>
-              )}
               {/* HTML overlay for title */}
               <div className="plot-title-overlay">
                 {kernelName} {animStep >= 0 ? `- Pas ${animStep}/${signalData?.noisy.length || 0}` : '- Denoising'}
@@ -663,98 +659,101 @@ export default function ConvolutionView({ compact = false }) {
               </div>
             </div>
             
-            {/* Frame-by-frame controls */}
-            <div className="frame-controls">
-              <div className="frame-controls-row">
-                <button 
-                  onClick={resetAnimation} 
-                  className="frame-btn reset"
-                  title="Reset"
-                >
-                  ⏹
-                </button>
-                <button 
-                  onClick={jumpBackward} 
-                  className="frame-btn"
-                  disabled={animStep <= 0}
-                  title="Înapoi 10"
-                >
-                  ⏪
-                </button>
-                <button 
-                  onClick={stepBackward} 
-                  className="frame-btn"
-                  disabled={animStep <= 0}
-                  title="Înapoi 1"
-                >
-                  ◀
-                </button>
-                <button 
-                  onClick={() => {
-                    if (animStep < 0) {
-                      setAnimStep(0)
-                    } else if (frameByFrame) {
-                      setFrameByFrame(false)
-                      setIsAnimating(true)
-                    } else {
-                      setIsAnimating(!isAnimating)
-                    }
-                  }} 
-                  className={`frame-btn play ${isAnimating ? 'active' : ''}`}
-                  title={isAnimating ? 'Pauză' : 'Play'}
-                >
-                  {isAnimating ? '⏸' : '▶'}
-                </button>
-                <button 
-                  onClick={stepForward} 
-                  className="frame-btn"
-                  disabled={!signalData || animStep >= signalData.noisy.length - 1}
-                  title="Înainte 1"
-                >
-                  ▶
-                </button>
-                <button 
-                  onClick={jumpForward} 
-                  className="frame-btn"
-                  disabled={!signalData || animStep >= signalData.noisy.length - 1}
-                  title="Înainte 10"
-                >
-                  ⏩
-                </button>
-              </div>
-              
-              {/* Position slider */}
-              {signalData && (
-                <div className="position-slider">
-                  <input
-                    type="range"
-                    min="0"
-                    max={signalData.noisy.length - 1}
-                    value={Math.max(0, animStep)}
-                    onChange={(e) => {
-                      setIsAnimating(false)
-                      setAnimStep(parseInt(e.target.value))
-                    }}
-                    style={{width: '100%'}}
-                  />
+            {/* Frame-by-frame controls with integrated dot product */}
+            <div className="frame-controls-integrated">
+              {/* Left side: playback controls */}
+              <div className="frame-controls-left">
+                <div className="frame-controls-row">
+                  <button 
+                    onClick={resetAnimation} 
+                    className="frame-btn reset"
+                    title="Reset"
+                  >
+                    ⏹
+                  </button>
+                  <button 
+                    onClick={jumpBackward} 
+                    className="frame-btn"
+                    disabled={animStep <= 0}
+                    title="Înapoi 10"
+                  >
+                    ⏪
+                  </button>
+                  <button 
+                    onClick={stepBackward} 
+                    className="frame-btn"
+                    disabled={animStep <= 0}
+                    title="Înapoi 1"
+                  >
+                    ◀
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (animStep < 0) {
+                        setAnimStep(0)
+                        setIsAnimating(true)
+                      } else if (frameByFrame) {
+                        setFrameByFrame(false)
+                        setIsAnimating(true)
+                      } else {
+                        setIsAnimating(!isAnimating)
+                      }
+                    }} 
+                    className={`frame-btn play ${isAnimating ? 'active' : ''}`}
+                    title={isAnimating ? 'Pauză' : 'Play'}
+                  >
+                    {isAnimating ? '⏸' : '▶'}
+                  </button>
+                  <button 
+                    onClick={stepForward} 
+                    className="frame-btn"
+                    disabled={!signalData || animStep >= signalData.noisy.length - 1}
+                    title="Înainte 1"
+                  >
+                    ▶
+                  </button>
+                  <button 
+                    onClick={jumpForward} 
+                    className="frame-btn"
+                    disabled={!signalData || animStep >= signalData.noisy.length - 1}
+                    title="Înainte 10"
+                  >
+                    ⏩
+                  </button>
                 </div>
-              )}
-              
-              <div className="frame-options">
-                <label className="frame-option">
-                  <input 
-                    type="checkbox" 
-                    checked={frameByFrame}
-                    onChange={(e) => {
-                      setFrameByFrame(e.target.checked)
-                      if (e.target.checked) setIsAnimating(false)
-                    }}
-                  />
-                  <span>Pas cu pas</span>
-                </label>
-                <div className="speed-control">
-                  <span>Viteză:</span>
-                  <input
+                
+                {/* Position slider */}
+                {signalData && (
+                  <div className="position-slider">
+                    <input
+                      type="range"
+                      min="0"
+                      max={signalData.noisy.length - 1}
+                      value={Math.max(0, animStep)}
+                      onChange={(e) => {
+                        setIsAnimating(false)
+                        setAnimStep(parseInt(e.target.value))
+                      }}
+                      style={{width: '100%'}}
+                    />
+                  </div>
+                )}
+                
+                <div className="frame-options">
+                  <label className="frame-option">
+                    <input 
+                      type="checkbox" 
+                      checked={frameByFrame}
+                      onChange={(e) => {
+                        setFrameByFrame(e.target.checked)
+                        if (e.target.checked) setIsAnimating(false)
+                      }}
+                    />
+                    <span>Pas cu pas</span>
+                  </label>
+                  <div className="speed-control">
+                    <span>Viteză:</span>
+                    <input
                     type="range"
                     min="20"
                     max="200"
@@ -763,8 +762,16 @@ export default function ConvolutionView({ compact = false }) {
                     style={{width: '60px'}}
                     disabled={frameByFrame}
                   />
+                  </div>
                 </div>
               </div>
+              
+              {/* Right side: Dot Product Visualization */}
+              {animStep >= 0 && (
+                <div className="dot-product-inline">
+                  <canvas ref={canvasDotProductRef} />
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@
 
 ## Presentation Overview
 
-**36 slides** across **12 sections**, teaching wavelet transforms from Fourier fundamentals to JPEG2000 applications.
+**35 slides** across **11 sections**, teaching wavelet transforms from Fourier fundamentals to JPEG2000 applications.
 
 ---
 
@@ -127,7 +127,7 @@
 
 ---
 
-## Section 5: KERNELS (5 slides)
+## Section 5: KERNELS (4 slides)
 
 ### Slide 13: Section Title
 - **Title:** Kernel-uri 2D
@@ -141,10 +141,7 @@
   - Sharpen: amplifică diferențele
   - Edge: detectează contururile
 
-### Slide 15: Kernel Explanations
-- **Interactive view showing kernel types and their effects**
-
-### Slide 16: Educational Demo — Pixel-by-Pixel
+### Slide 15: Educational Demo — Pixel-by-Pixel
 - **Title:** Demo Educațional: Kernel pas cu pas
 - **Features:**
   - **Sprite selection:** Small test images (Mario, Link, mushroom, etc.)
@@ -158,7 +155,7 @@
     - Side panel: region matrix, kernel weights (green=positive, red=negative), result
   - **Edge handling:** Edge replication (not zero padding)
 
-### Slide 17: Demo — Kernels on Real Images
+### Slide 16: Demo — Kernels on Real Images
 - **Features:**
   - Full image processing
   - Multiple kernel presets
@@ -169,11 +166,11 @@
 
 ## Section 6: WAVELETS (5 slides)
 
-### Slide 18: Section Title
+### Slide 17: Section Title
 - **Title:** Transformata Wavelet
 - **Subtitle:** Localizare timp-frecvență
 
-### Slide 19: Theory — Why Wavelets?
+### Slide 18: Theory — Why Wavelets?
 - **Title:** De ce Wavelets?
 - **Content:** "Wavelets oferă ceea ce Fourier nu poate: localizare simultană."
 - **Formula:** $\psi_{a,b}(t) = \frac{1}{\sqrt{|a|}} \psi\left(\frac{t-b}{a}\right)$
@@ -182,7 +179,7 @@
   - Ideale pentru semnale nestaționare
   - Analiza multi-rezoluție
 
-### Slide 20: Wavelet Families Complete (MERGED)
+### Slide 19: Wavelet Families Complete (MERGED)
 - **Title:** Familii Wavelet Complete
 - **Subtitle:** CWT + DWT + Teorie
 - **Three tabs:**
@@ -199,7 +196,7 @@
   - Key points as tags
   - "Best for" use case
 
-### Slide 21: Demo — Wavelet Playground
+### Slide 20: Demo — Wavelet Playground
 - **Features:**
   - Wavelet types: Sinusoidă, Haar, Mexican Hat, Morlet
   - **Scale (a):** Controls frequency/width
@@ -207,18 +204,18 @@
   - Mathematical equation display
   - Real-time visualization
 
-### Slide 22: Demo — Signal Scanning
+### Slide 21: Demo — Signal Scanning
 - **Visualization of wavelet scanning across signal**
 
 ---
 
 ## Section 7: MALLAT DECOMPOSITION (5 slides)
 
-### Slide 23: Section Title
+### Slide 22: Section Title
 - **Title:** Algoritmul Mallat
 - **Subtitle:** Descompunere multi-rezoluție rapidă
 
-### Slide 24: Theory — Coefficients & Basis Functions
+### Slide 23: Theory — Coefficients & Basis Functions
 - **Title:** Coeficienții și Funcțiile de Bază
 - **Content:** "Semnalul se proiectează pe funcțiile de scalare φ și wavelet ψ."
 - **Formulas:**
@@ -231,7 +228,7 @@
   - ψ captează frecvențe înalte (detaliile)
   - Factor 2^(j/2) asigură normalizarea energiei
 
-### Slide 25: Theory — The 4 Subbands
+### Slide 24: Theory — The 4 Subbands
 - **Title:** Cele 4 Sub-benzi
 - **Visual:** $\begin{bmatrix} LL & HL \\ LH & HH \end{bmatrix}$
 - **Key Points:**
@@ -239,10 +236,10 @@
   - LH/HL: muchii orizontale/verticale
   - HH: detalii diagonale, textură
 
-### Slide 26: Demo — Mallat 1D (line)
+### Slide 25: Demo — Mallat 1D (line)
 - **Step-by-step 1D decomposition visualization**
 
-### Slide 27: Demo — Mallat 2D Decomposition
+### Slide 26: Demo — Mallat 2D Decomposition
 - **Features:**
   - Image selector
   - Wavelet family: Haar, db4, db8, bior2.2, bior4.4, sym4, coif2
@@ -254,11 +251,11 @@
 
 ## Section 8: APPLICATIONS (4 slides)
 
-### Slide 28: Section Title
+### Slide 27: Section Title
 - **Title:** Aplicații Wavelets
 - **Subtitle:** Semnale biomedicale și nu numai
 
-### Slide 29: ECG Applications
+### Slide 28: ECG Applications
 - **Title:** ECG - Electrocardiograme
 - **Content:** "Wavelets sunt ideale pentru analiza ritmului cardiac."
 - **Key Points:**
@@ -266,7 +263,7 @@
   - Eliminare: zgomot muscular, interferență electrică
   - Wavelet Morlet/Daubechies pentru QRS
 
-### Slide 30: EEG Applications
+### Slide 29: EEG Applications
 - **Title:** EEG - Activitate Cerebrală
 - **Content:** "Separarea benzilor de frecvență ale creierului."
 - **Formula:** δ < θ < α < β < γ (Benzile EEG 0.5-100 Hz)
@@ -276,7 +273,7 @@
   - Beta (13-30Hz): concentrare activă
   - Aplicații: epilepsie, BCI, monitoring somn
 
-### Slide 31: Other Applications
+### Slide 30: Other Applications
 - **Title:** Alte Aplicații
 - **Content:** "Wavelets sunt omniprezente în procesarea semnalelor."
 - **Applications:**
@@ -290,17 +287,17 @@
 
 ## Section 9: DENOISING (3 slides)
 
-### Slide 32: Section Title
+### Slide 31: Section Title
 - **Title:** Denoising Wavelet
 - **Subtitle:** Eliminarea zgomotului inteligent
 
-### Slide 33: Theory — Thresholding
+### Slide 32: Theory — Thresholding
 - **Content:** Hard vs Soft thresholding
 - **Features explained:**
   - Hard: set to zero if below threshold
   - Soft: shrink towards zero
 
-### Slide 34: Demo — Denoising
+### Slide 33: Demo — Denoising
 - **Features:**
   - Add synthetic noise (Gaussian, sigma controllable)
   - Wavelet selection
@@ -313,11 +310,11 @@
 
 ## Section 10: COMPARISON (3 slides)
 
-### Slide 35: Section Title
+### Slide 34: Section Title
 - **Title:** DCT vs Wavelet
 - **Subtitle:** JPEG vs JPEG2000
 
-### Slide 36: Theory — Direct Comparison
+### Slide 35: Theory — Direct Comparison
 - **Title:** Comparație Directă
 - **DCT (JPEG):**
   - Blocuri 8×8 fixe
@@ -330,7 +327,7 @@
   - Scalabilitate: rezoluții multiple
   - Calitate superioară la compresie mare
 
-### Slide 37: Demo — Comparison
+### Slide 36: Demo — Comparison
 - **Features:**
   - Quality slider: 1-100
   - Wavelet selection for JPEG2000 simulation
@@ -342,7 +339,7 @@
 
 ## Section 11: FINAL (1 slide)
 
-### Slide 38: Thank You
+### Slide 37: Thank You
 - **Title:** Mulțumesc!
 - **Subtitle:** Întrebări?
 - **Button:** ← Înapoi la pagina principală
@@ -358,7 +355,7 @@
 
 ### Navigation Footer
 - ← Anterior / Următor →
-- Slide counter: "X / 38"
+- Slide counter: "X / 37"
 
 ### Keyboard Shortcuts
 | Key | Action |

@@ -13,30 +13,47 @@ const SIGNAL_PRESETS = [
 // Max frequency to display on graphs
 const MAX_FREQ_DISPLAY = 100  // Hz
 
+// Default values for reset
+const DEFAULTS = {
+  filterType: 'lowpass',
+  cutoffHz: 30,
+  lowCutoffHz: 20,
+  highCutoffHz: 60,
+  shape: 'butterworth',
+  order: 4,
+  selectedPreset: '5+50'
+}
+
 // Filter equations
 const FILTER_EQUATIONS = {
   ideal: {
     lowpass: String.raw`H(f) = \begin{cases} 1, & |f| \leq f_c \\ 0, & |f| > f_c \end{cases}`,
-    highpass: String.raw`H(f) = \begin{cases} 0, & |f| \leq f_c \\ 1, & |f| > f_c \end{cases}`
+    highpass: String.raw`H(f) = \begin{cases} 0, & |f| \leq f_c \\ 1, & |f| > f_c \end{cases}`,
+    bandpass: String.raw`H(f) = \begin{cases} 1, & f_L \leq |f| \leq f_H \\ 0, & \text{otherwise} \end{cases}`
   },
   butterworth: {
     lowpass: String.raw`H(f) = \frac{1}{\sqrt{1 + \left(\frac{f}{f_c}\right)^{2n}}}`,
-    highpass: String.raw`H(f) = \frac{1}{\sqrt{1 + \left(\frac{f_c}{f}\right)^{2n}}}`
+    highpass: String.raw`H(f) = \frac{1}{\sqrt{1 + \left(\frac{f_c}{f}\right)^{2n}}}`,
+    bandpass: String.raw`H(f) = H_{LP}(f_H) \cdot H_{HP}(f_L)`
   },
   gaussian: {
     lowpass: String.raw`H(f) = e^{-\frac{f^2}{2f_c^2}}`,
-    highpass: String.raw`H(f) = 1 - e^{-\frac{f^2}{2f_c^2}}`
+    highpass: String.raw`H(f) = 1 - e^{-\frac{f^2}{2f_c^2}}`,
+    bandpass: String.raw`H(f) = e^{-\frac{(f - f_0)^2}{2\sigma^2}}`
   }
 }
 
 export default function FiltersView({ api, compact = false }) {
   // Filter parameters - now in Hz!
-  const [filterType, setFilterType] = useState('lowpass')
-  const [cutoffHz, setCutoffHz] = useState(30)  // Real frequency in Hz
-  const [shape, setShape] = useState('ideal')
+  const [filterType, setFilterType] = useState(DEFAULTS.filterType)
+  const [cutoffHz, setCutoffHz] = useState(DEFAULTS.cutoffHz)  // For low/high pass
+  const [lowCutoffHz, setLowCutoffHz] = useState(DEFAULTS.lowCutoffHz)  // For bandpass
+  const [highCutoffHz, setHighCutoffHz] = useState(DEFAULTS.highCutoffHz)  // For bandpass
+  const [shape, setShape] = useState(DEFAULTS.shape)
+  const [order, setOrder] = useState(DEFAULTS.order)  // Butterworth order
   
   // Signal parameters
-  const [selectedPreset, setSelectedPreset] = useState('5+50')
+  const [selectedPreset, setSelectedPreset] = useState(DEFAULTS.selectedPreset)
   const [expression, setExpression] = useState(SIGNAL_PRESETS[0].expr)
   
   // Data
@@ -54,44 +71,77 @@ export default function FiltersView({ api, compact = false }) {
   const signalContainerRef = useRef()
   const spectrumContainerRef = useRef()
 
+  // Reset to defaults
+  const resetToDefaults = () => {
+    setFilterType(DEFAULTS.filterType)
+    setCutoffHz(DEFAULTS.cutoffHz)
+    setLowCutoffHz(DEFAULTS.lowCutoffHz)
+    setHighCutoffHz(DEFAULTS.highCutoffHz)
+    setShape(DEFAULTS.shape)
+    setOrder(DEFAULTS.order)
+    setSelectedPreset(DEFAULTS.selectedPreset)
+    setExpression(SIGNAL_PRESETS[0].expr)
+  }
+
   // Fetch filter response - send Hz directly
   const fetchFilter = useCallback(async () => {
     try {
-      const endpoint = filterType === 'lowpass' ? 'lowpass' : 'highpass'
-      const res = await axios.get(`${api}/filters/${endpoint}`, {
-        params: { cutoff_hz: cutoffHz, filter_type: shape, max_freq_hz: 100 }
-      })
-      setFilterData(res.data)
+      if (filterType === 'bandpass') {
+        const res = await axios.get(`${api}/filters/bandpass`, {
+          params: { 
+            low_cutoff_hz: lowCutoffHz, 
+            high_cutoff_hz: highCutoffHz, 
+            filter_type: shape, 
+            order: order,
+            max_freq_hz: 100 
+          }
+        })
+        setFilterData(res.data)
+      } else {
+        const endpoint = filterType === 'lowpass' ? 'lowpass' : 'highpass'
+        const res = await axios.get(`${api}/filters/${endpoint}`, {
+          params: { cutoff_hz: cutoffHz, filter_type: shape, order: order, max_freq_hz: 100 }
+        })
+        setFilterData(res.data)
+      }
     } catch (err) {
       console.error('Filter fetch error:', err)
     }
-  }, [api, filterType, cutoffHz, shape])
+  }, [api, filterType, cutoffHz, lowCutoffHz, highCutoffHz, shape, order])
 
   // Apply filter to signal - send Hz directly
   const applyFilter = useCallback(async (expr) => {
     setLoading(true)
     try {
-      const res = await axios.get(`${api}/filters/apply-signal`, {
-        params: { expression: expr, filter_type: filterType, cutoff_hz: cutoffHz }
-      })
+      const params = { 
+        expression: expr, 
+        filter_type: filterType, 
+        cutoff_hz: cutoffHz 
+      }
+      // Add bandpass-specific parameters
+      if (filterType === 'bandpass') {
+        params.low_cutoff_hz = lowCutoffHz
+        params.high_cutoff_hz = highCutoffHz
+      }
+      const res = await axios.get(`${api}/filters/apply-signal`, { params })
       setSignalData(res.data)
     } catch (err) {
       console.error('Filter apply error:', err)
     } finally {
       setLoading(false)
     }
-  }, [api, filterType, cutoffHz])
+  }, [api, filterType, cutoffHz, lowCutoffHz, highCutoffHz])
 
   // Auto-update when any parameter changes
   useEffect(() => {
     fetchFilter()
     applyFilter(expression)
-  }, [filterType, cutoffHz, shape, expression])
+  }, [filterType, cutoffHz, lowCutoffHz, highCutoffHz, shape, order, expression])
 
   // Draw filter response
   useEffect(() => {
     if (filterData) drawFilter()
-  }, [filterData, cutoffHz])
+  }, [filterData, cutoffHz, lowCutoffHz, highCutoffHz, filterType])
 
   // Draw signals
   useEffect(() => {
@@ -99,7 +149,7 @@ export default function FiltersView({ api, compact = false }) {
       drawSignalComparison()
       drawSpectrum()
     }
-  }, [signalData, filterType, cutoffHz])
+  }, [signalData, filterType, cutoffHz, lowCutoffHz, highCutoffHz])
 
   // Handle resize for responsive canvases
   useEffect(() => {
@@ -153,7 +203,7 @@ export default function FiltersView({ api, compact = false }) {
     ctx.fillStyle = '#050510'
     ctx.fillRect(0, 0, width, height)
     
-    // Grid
+    // Grid - horizontal lines
     ctx.strokeStyle = '#1a1a3a'
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
@@ -164,19 +214,56 @@ export default function FiltersView({ api, compact = false }) {
       ctx.stroke()
     }
     
-    // Cutoff line (in Hz)
-    const cutoffX = margin + (cutoffHz / maxFreqDisplay) * (width - 2 * margin)
+    // Grid - vertical lines with frequency ticks
+    const freqTicks = [0, 25, 50, 75, 100]
+    ctx.strokeStyle = '#1a1a3a'
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(x, margin)
+      ctx.lineTo(x, height - margin)
+      ctx.stroke()
+    }
+    
+    // Draw frequency tick labels
+    ctx.fillStyle = '#aaaacc'
+    ctx.font = `bold ${compact ? 10 : 11}px Inter, sans-serif`
+    ctx.textAlign = 'center'
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreqDisplay) * (width - 2 * margin)
+      ctx.fillText(`${tick}`, x, height - margin + 12)
+    }
+    
+    // Cutoff line(s) (in Hz)
     ctx.strokeStyle = '#ffaa00'
     ctx.lineWidth = 2
     ctx.setLineDash([5, 5])
-    ctx.beginPath()
-    ctx.moveTo(cutoffX, margin)
-    ctx.lineTo(cutoffX, height - margin)
-    ctx.stroke()
+    
+    if (filterType === 'bandpass') {
+      // Two cutoff lines for bandpass
+      const lowX = margin + (lowCutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      const highX = margin + (highCutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(lowX, margin)
+      ctx.lineTo(lowX, height - margin)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(highX, margin)
+      ctx.lineTo(highX, height - margin)
+      ctx.stroke()
+    } else {
+      const cutoffX = margin + (cutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(cutoffX, margin)
+      ctx.lineTo(cutoffX, height - margin)
+      ctx.stroke()
+    }
     ctx.setLineDash([])
     
     // Filter response - backend returns frequencies in Hz directly
-    ctx.strokeStyle = filterType === 'lowpass' ? '#00ff88' : '#ff6b9d'
+    const filterColor = filterType === 'lowpass' ? '#00ff88' : 
+                        filterType === 'highpass' ? '#ff6b9d' : '#9d4edd'
+    ctx.strokeStyle = filterColor
     ctx.lineWidth = 3
     ctx.beginPath()
     
@@ -256,8 +343,9 @@ export default function FiltersView({ api, compact = false }) {
     }
     ctx.stroke()
     
-    // Filtered signal - green for lowpass, pink for highpass (on top, solid)
-    const filteredColor = filterType === 'lowpass' ? '#00ff88' : '#ff6b9d'
+    // Filtered signal - color based on filter type
+    const filteredColor = filterType === 'lowpass' ? '#00ff88' : 
+                          filterType === 'highpass' ? '#ff6b9d' : '#9d4edd'
     ctx.strokeStyle = filteredColor
     ctx.lineWidth = 2.5
     ctx.beginPath()
@@ -307,7 +395,7 @@ export default function FiltersView({ api, compact = false }) {
     const maxFilt = Math.max(...filtered_magnitude)
     const maxVal = Math.max(maxOrig, maxFilt, 0.1)
     
-    // Grid
+    // Grid - horizontal
     ctx.strokeStyle = '#1a1a3a'
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
@@ -318,15 +406,48 @@ export default function FiltersView({ api, compact = false }) {
       ctx.stroke()
     }
     
-    // Cutoff line in spectrum (in Hz)
-    const cutoffX = margin + (cutoffHz / maxFreqDisplay) * (width - 2 * margin)
+    // Grid - vertical with frequency ticks
+    const freqTicks = [0, 25, 50, 75, 100]
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(x, margin)
+      ctx.lineTo(x, height - margin)
+      ctx.stroke()
+    }
+    
+    // Draw frequency tick labels
+    ctx.fillStyle = '#aaaacc'
+    ctx.font = `bold ${compact ? 10 : 11}px Inter, sans-serif`
+    ctx.textAlign = 'center'
+    for (const tick of freqTicks) {
+      const x = margin + (tick / maxFreqDisplay) * (width - 2 * margin)
+      ctx.fillText(`${tick}`, x, height - margin + 12)
+    }
+    
+    // Cutoff line(s) in spectrum (in Hz)
     ctx.strokeStyle = '#ffaa00'
     ctx.lineWidth = 2
     ctx.setLineDash([5, 5])
-    ctx.beginPath()
-    ctx.moveTo(cutoffX, margin)
-    ctx.lineTo(cutoffX, height - margin)
-    ctx.stroke()
+    
+    if (filterType === 'bandpass') {
+      const lowX = margin + (lowCutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      const highX = margin + (highCutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(lowX, margin)
+      ctx.lineTo(lowX, height - margin)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(highX, margin)
+      ctx.lineTo(highX, height - margin)
+      ctx.stroke()
+    } else {
+      const cutoffX = margin + (cutoffHz / maxFreqDisplay) * (width - 2 * margin)
+      ctx.beginPath()
+      ctx.moveTo(cutoffX, margin)
+      ctx.lineTo(cutoffX, height - margin)
+      ctx.stroke()
+    }
     ctx.setLineDash([])
     
     // Draw original spectrum as bars (in Hz)
@@ -341,8 +462,10 @@ export default function FiltersView({ api, compact = false }) {
     }
     
     // Draw filtered spectrum as filled area on top
-    const filteredColor = filterType === 'lowpass' ? '#00ff88' : '#ff6b9d'
-    ctx.fillStyle = filterType === 'lowpass' ? 'rgba(0, 255, 136, 0.5)' : 'rgba(255, 107, 157, 0.5)'
+    const filteredColor = filterType === 'lowpass' ? '#00ff88' : 
+                          filterType === 'highpass' ? '#ff6b9d' : '#9d4edd'
+    ctx.fillStyle = filterType === 'lowpass' ? 'rgba(0, 255, 136, 0.5)' : 
+                    filterType === 'highpass' ? 'rgba(255, 107, 157, 0.5)' : 'rgba(157, 78, 221, 0.5)'
     ctx.beginPath()
     ctx.moveTo(margin, height - margin)
     for (let i = 0; i < freqsHz.length; i++) {
@@ -487,8 +610,13 @@ export default function FiltersView({ api, compact = false }) {
           <div className="filters-top-row">
             <div className="plot-container-with-overlay" ref={filterContainerRef}>
               <canvas ref={canvasFilterRef} />
-              <div className="plot-title-overlay" style={{ color: filterType === 'lowpass' ? '#00ff88' : '#ff6b9d' }}>
-                {filterType === 'lowpass' ? 'Low-Pass' : 'High-Pass'} Filter ({shape})
+              <div className="plot-title-overlay" style={{ 
+                color: filterType === 'lowpass' ? '#00ff88' : 
+                       filterType === 'highpass' ? '#ff6b9d' : '#9d4edd' 
+              }}>
+                {filterType === 'lowpass' ? 'Low-Pass' : 
+                 filterType === 'highpass' ? 'High-Pass' : 'Band-Pass'} 
+                {shape === 'butterworth' ? ` (n=${order})` : ` (${shape})`}
               </div>
               <div className="plot-axis-label y-label">H(f)</div>
               <div className="plot-axis-label x-label">f (Hz)</div>
@@ -499,7 +627,10 @@ export default function FiltersView({ api, compact = false }) {
               <div className="plot-title-overlay yellow">Spectru Frecvență</div>
               <div className="plot-legend-overlay">
                 <span style={{ color: 'rgba(0, 217, 255, 0.7)' }}>■ Original</span>
-                <span style={{ color: filterType === 'lowpass' ? '#00ff88' : '#ff6b9d' }}>■ Filtrat</span>
+                <span style={{ 
+                  color: filterType === 'lowpass' ? '#00ff88' : 
+                         filterType === 'highpass' ? '#ff6b9d' : '#9d4edd' 
+                }}>■ Filtrat</span>
               </div>
               <div className="plot-axis-label y-label">|F|</div>
               <div className="plot-axis-label x-label">f (Hz)</div>
@@ -514,7 +645,8 @@ export default function FiltersView({ api, compact = false }) {
               <div className="plot-legend-overlay">
                 <span style={{ color: 'rgba(0, 217, 255, 0.9)' }}>— Original</span>
                 <span style={{ color: filterType === 'lowpass' ? '#00ff88' : '#ff6b9d' }}>
-                  — Filtrat ({filterType === 'lowpass' ? 'LP' : 'HP'} {cutoffHz}Hz)
+                  — Filtrat ({filterType === 'lowpass' ? 'LP' : filterType === 'highpass' ? 'HP' : 'BP'} 
+                    {filterType === 'bandpass' ? `${lowCutoffHz}-${highCutoffHz}` : cutoffHz}Hz)
                 </span>
               </div>
               <div className="plot-axis-label y-label">Amp</div>
@@ -523,7 +655,10 @@ export default function FiltersView({ api, compact = false }) {
             
             {/* Inline Controls Panel */}
             <div className="filters-inline-controls">
-              <h4>⚙️ Parametri</h4>
+              <div className="controls-header">
+                <h4>⚙️ Parametri</h4>
+                <button className="reset-btn" onClick={resetToDefaults} title="Reset la valori implicite">↺</button>
+              </div>
               
               <div className="control-row">
                 <label>Tip filtru:</label>
@@ -531,14 +666,23 @@ export default function FiltersView({ api, compact = false }) {
                   <button 
                     className={filterType === 'lowpass' ? 'active success' : ''}
                     onClick={() => setFilterType('lowpass')}
+                    title="Low-Pass"
                   >
-                    Low-Pass
+                    LP
                   </button>
                   <button 
                     className={filterType === 'highpass' ? 'active danger' : ''}
                     onClick={() => setFilterType('highpass')}
+                    title="High-Pass"
                   >
-                    High-Pass
+                    HP
+                  </button>
+                  <button 
+                    className={filterType === 'bandpass' ? 'active bandpass' : ''}
+                    onClick={() => setFilterType('bandpass')}
+                    title="Band-Pass"
+                  >
+                    BP
                   </button>
                 </div>
               </div>
@@ -552,17 +696,63 @@ export default function FiltersView({ api, compact = false }) {
                 </select>
               </div>
               
-              <div className="control-row">
-                <label>Cutoff: <strong>{cutoffHz} Hz</strong></label>
-                <input
-                  type="range"
-                  min="5"
-                  max="95"
-                  step="5"
-                  value={cutoffHz}
-                  onChange={e => setCutoffHz(parseInt(e.target.value))}
-                />
-              </div>
+              {/* Butterworth order selector */}
+              {shape === 'butterworth' && (
+                <div className="control-row">
+                  <label>Ordin n: <strong>{order}</strong></label>
+                  <div className="order-buttons">
+                    {[1, 2, 4, 8].map(n => (
+                      <button 
+                        key={n}
+                        className={order === n ? 'active' : ''}
+                        onClick={() => setOrder(n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Cutoff controls - different for bandpass */}
+              {filterType === 'bandpass' ? (
+                <>
+                  <div className="control-row">
+                    <label>f<sub>L</sub>: <strong>{lowCutoffHz} Hz</strong></label>
+                    <input
+                      type="range"
+                      min="5"
+                      max={highCutoffHz - 5}
+                      step="5"
+                      value={lowCutoffHz}
+                      onChange={e => setLowCutoffHz(parseInt(e.target.value))}
+                    />
+                  </div>
+                  <div className="control-row">
+                    <label>f<sub>H</sub>: <strong>{highCutoffHz} Hz</strong></label>
+                    <input
+                      type="range"
+                      min={lowCutoffHz + 5}
+                      max="95"
+                      step="5"
+                      value={highCutoffHz}
+                      onChange={e => setHighCutoffHz(parseInt(e.target.value))}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="control-row">
+                  <label>Cutoff: <strong>{cutoffHz} Hz</strong></label>
+                  <input
+                    type="range"
+                    min="5"
+                    max="95"
+                    step="5"
+                    value={cutoffHz}
+                    onChange={e => setCutoffHz(parseInt(e.target.value))}
+                  />
+                </div>
+              )}
               
               <div className="control-row">
                 <label>Semnal:</label>

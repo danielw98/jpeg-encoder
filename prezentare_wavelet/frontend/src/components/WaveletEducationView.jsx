@@ -163,7 +163,7 @@ const WAVELET_THEORY = {
 }
 
 export default function WaveletEducationView({ api, compact = false }) {
-  const [activeTab, setActiveTab] = useState('discrete') // 'continuous' | 'discrete' | 'theory'
+  const [activeTab, setActiveTab] = useState('theory') // 'continuous' | 'discrete' | 'theory'
   const [selectedContinuous, setSelectedContinuous] = useState('morlet')
   const [selectedDiscrete, setSelectedDiscrete] = useState('haar')
 
@@ -404,7 +404,7 @@ export default function WaveletEducationView({ api, compact = false }) {
     }}>
       {/* Title */}
       <div style={{ textAlign: 'center', flexShrink: 0 }}>
-        <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#fff' }}>🎓 Familii Wavelet Complete</h2>
+        <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#fff' }}>🎓 Familii Wavelet</h2>
         <p style={{ margin: '0.3rem 0 0', fontSize: '1rem', color: '#888' }}>
           CWT pentru analiză timp-frecvență • DWT pentru Mallat/JPEG2000
         </p>
