@@ -266,10 +266,21 @@
   font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
 .denoise-btn:hover {
   background: rgba(0, 212, 255, 0.3);
+}
+
+.denoise-btn.loading {
+  opacity: 0.7;
+  animation: pulse-btn 1s ease-in-out infinite;
+}
+
+@keyframes pulse-btn {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
 }
 
 /* Results section */
@@ -279,6 +290,12 @@
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
+  transition: opacity 0.2s ease;
+}
+
+.denoise-results.loading {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 /* Images row */
@@ -286,7 +303,7 @@
   flex: 1;
   display: flex;
   gap: 1rem;
-  min-height: 0;
+  min-height: 300px;
 }
 
 .denoise-image-card {
@@ -305,15 +322,22 @@
   font-size: 0.9rem;
   color: #ccc;
   text-align: center;
+  flex-shrink: 0;
+}
+
+.denoise-image-card .img-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
 
 .denoise-image-card img {
-  flex: 1;
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   border-radius: 6px;
-  min-height: 0;
-  max-height: 100%;
 }
 
 .denoise-image-card .img-metric {

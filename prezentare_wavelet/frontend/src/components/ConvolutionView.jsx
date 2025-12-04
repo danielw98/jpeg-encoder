@@ -125,10 +125,13 @@ export default function ConvolutionView({ compact = false }) {
   const [animStep, setAnimStep] = useState(-1)
   const [isAnimating, setIsAnimating] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ width: 700, height: 280 })
+  const [frameByFrame, setFrameByFrame] = useState(true) // New: frame-by-frame mode
+  const [animSpeed, setAnimSpeed] = useState(100) // Animation speed in ms
   
   const canvasSignalRef = useRef()
   const canvasConvRef = useRef()
   const canvasKernelRef = useRef()
+  const canvasDotProductRef = useRef() // New: for dot product visualization
   const containerRef = useRef()
 
   // Get current kernel
@@ -186,6 +189,9 @@ export default function ConvolutionView({ compact = false }) {
     if (signalData && filteredSignal) {
       drawSignals()
       drawKernel()
+      if (animStep >= 0) {
+        drawDotProduct()
+      }
     }
   }, [signalData, filteredSignal, animStep, canvasSize])
 
@@ -196,22 +202,176 @@ export default function ConvolutionView({ compact = false }) {
   }
 
   const startAnimation = () => {
-    setIsAnimating(true)
-    setAnimStep(0)
+    if (frameByFrame) {
+      // In frame-by-frame, just go to first position
+      setAnimStep(0)
+      setIsAnimating(false)
+    } else {
+      setIsAnimating(true)
+      setAnimStep(0)
+    }
+  }
+
+  const stepForward = () => {
+    if (signalData && animStep < signalData.noisy.length - 1) {
+      setAnimStep(prev => Math.min(prev + 1, signalData.noisy.length - 1))
+    }
+  }
+
+  const stepBackward = () => {
+    if (animStep > 0) {
+      setAnimStep(prev => Math.max(prev - 1, 0))
+    }
+  }
+
+  const jumpForward = () => {
+    if (signalData && animStep < signalData.noisy.length - 1) {
+      setAnimStep(prev => Math.min(prev + 10, signalData.noisy.length - 1))
+    }
+  }
+
+  const jumpBackward = () => {
+    if (animStep > 0) {
+      setAnimStep(prev => Math.max(prev - 10, 0))
+    }
+  }
+
+  const resetAnimation = () => {
+    setAnimStep(-1)
+    setIsAnimating(false)
   }
 
   useEffect(() => {
-    if (isAnimating && animStep >= 0) {
+    if (isAnimating && animStep >= 0 && !frameByFrame) {
       const timer = setTimeout(() => {
         if (animStep < signalData.noisy.length - 1) {
           setAnimStep(animStep + 2)
         } else {
           setIsAnimating(false)
         }
-      }, 30)
+      }, animSpeed)
       return () => clearTimeout(timer)
     }
-  }, [isAnimating, animStep])
+  }, [isAnimating, animStep, frameByFrame, animSpeed])
+
+  // Draw dot product visualization
+  const drawDotProduct = () => {
+    const canvas = canvasDotProductRef.current
+    if (!canvas || !signalData || animStep < 0) return
+    
+    const dpr = window.devicePixelRatio || 1
+    // Smaller size for overlay
+    const width = 340
+    const height = 150
+    
+    canvas.width = width * dpr
+    canvas.height = height * dpr
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+    
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+    
+    // Transparent background for overlay
+    ctx.clearRect(0, 0, width, height)
+    
+    const halfK = Math.floor(kernel.length / 2)
+    const margin = 12
+    const rowHeight = 24
+    
+    // Get the signal values at the current position
+    const signalWindow = []
+    for (let j = 0; j < kernel.length; j++) {
+      const idx = animStep + j - halfK
+      const clampedIdx = Math.max(0, Math.min(signalData.noisy.length - 1, idx))
+      signalWindow.push(signalData.noisy[clampedIdx])
+    }
+    
+    // Calculate the dot product step by step
+    const products = kernel.map((k, i) => k * signalWindow[i])
+    const sum = products.reduce((a, b) => a + b, 0)
+    
+    // Title
+    ctx.fillStyle = '#ffd700'
+    ctx.font = 'bold 11px system-ui'
+    ctx.textAlign = 'center'
+    ctx.fillText(`Pas ${animStep}: Dot Product`, width / 2, margin + 3)
+    
+    // Column headers
+    const colWidth = (width - 2 * margin) / (kernel.length + 2)
+    const startX = margin + colWidth
+    const startY = margin + 22
+    
+    ctx.font = '10px monospace'
+    ctx.fillStyle = '#666'
+    ctx.textAlign = 'center'
+    
+    // Draw column indices
+    for (let i = 0; i < kernel.length; i++) {
+      ctx.fillText(`[${i}]`, startX + i * colWidth + colWidth / 2, startY)
+    }
+    
+    // Row 1: Signal values (x)
+    ctx.fillStyle = '#00d4ff'
+    ctx.font = 'bold 10px system-ui'
+    ctx.textAlign = 'right'
+    ctx.fillText('x:', margin + colWidth - 3, startY + rowHeight)
+    
+    ctx.font = '10px monospace'
+    ctx.textAlign = 'center'
+    for (let i = 0; i < signalWindow.length; i++) {
+      ctx.fillStyle = '#00d4ff'
+      ctx.fillText(signalWindow[i].toFixed(2), startX + i * colWidth + colWidth / 2, startY + rowHeight)
+    }
+    
+    // Row 2: Kernel values (h)
+    ctx.fillStyle = '#ff9f43'
+    ctx.font = 'bold 10px system-ui'
+    ctx.textAlign = 'right'
+    ctx.fillText('h:', margin + colWidth - 3, startY + rowHeight * 2)
+    
+    ctx.font = '10px monospace'
+    ctx.textAlign = 'center'
+    for (let i = 0; i < kernel.length; i++) {
+      ctx.fillStyle = kernel[i] >= 0 ? '#00ff88' : '#ff6b9d'
+      ctx.fillText(kernel[i].toFixed(3), startX + i * colWidth + colWidth / 2, startY + rowHeight * 2)
+    }
+    
+    // Row 3: Multiplication line
+    ctx.strokeStyle = '#444'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(startX, startY + rowHeight * 2 + 6)
+    ctx.lineTo(startX + kernel.length * colWidth, startY + rowHeight * 2 + 6)
+    ctx.stroke()
+    
+    // Row 4: Products (x × h)
+    ctx.fillStyle = '#c9b1ff'
+    ctx.font = 'bold 10px system-ui'
+    ctx.textAlign = 'right'
+    ctx.fillText('x·h:', margin + colWidth - 3, startY + rowHeight * 3)
+    
+    ctx.font = '10px monospace'
+    ctx.textAlign = 'center'
+    for (let i = 0; i < products.length; i++) {
+      ctx.fillStyle = products[i] >= 0 ? '#c9b1ff' : '#ff6b9d'
+      ctx.fillText(products[i].toFixed(3), startX + i * colWidth + colWidth / 2, startY + rowHeight * 3)
+    }
+    
+    // Sum line
+    ctx.strokeStyle = '#ffd700'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    ctx.moveTo(startX, startY + rowHeight * 3 + 8)
+    ctx.lineTo(startX + kernel.length * colWidth, startY + rowHeight * 3 + 8)
+    ctx.stroke()
+    
+    // Final result
+    ctx.fillStyle = '#ffd700'
+    ctx.font = 'bold 12px system-ui'
+    ctx.textAlign = 'center'
+    ctx.fillText(`Σ = ${sum.toFixed(4)}`, width / 2, startY + rowHeight * 4 + 2)
+  }
 
   const drawSignals = () => {
     const canvas = canvasSignalRef.current
@@ -257,14 +417,18 @@ export default function ConvolutionView({ compact = false }) {
       ctx.stroke()
     }
     
+    // Helper to get x position for a sample index
+    const getX = (idx) => margin + (t[idx] / t[t.length - 1]) * (width - 2 * margin)
+    const getY = (val) => height - margin - ((val - min) / range) * (height - 2 * margin)
+    
     // Helper to draw a signal
     const drawLine = (data, color, lineWidth, endIdx = data.length) => {
       ctx.strokeStyle = color
       ctx.lineWidth = lineWidth
       ctx.beginPath()
       for (let i = 0; i < Math.min(endIdx, data.length); i++) {
-        const x = margin + (t[i] / t[t.length - 1]) * (width - 2 * margin)
-        const y = height - margin - ((data[i] - min) / range) * (height - 2 * margin)
+        const x = getX(i)
+        const y = getY(data[i])
         if (i === 0) ctx.moveTo(x, y)
         else ctx.lineTo(x, y)
       }
@@ -283,14 +447,57 @@ export default function ConvolutionView({ compact = false }) {
     const endIdx = animStep >= 0 ? animStep : filteredSignal.length
     drawLine(filteredSignal, '#00ff88', 2.5, endIdx)
     
-    // Animation marker
+    // Enhanced sliding window visualization during animation
     if (animStep >= 0 && animStep < filteredSignal.length) {
-      const x = margin + (t[animStep] / t[t.length - 1]) * (width - 2 * margin)
-      ctx.strokeStyle = '#ffaa00'
-      ctx.lineWidth = 2
+      const halfK = Math.floor(kernel.length / 2)
+      const windowStart = Math.max(0, animStep - halfK)
+      const windowEnd = Math.min(noisy.length - 1, animStep + halfK)
+      
+      // Draw kernel window highlight box
+      const x1 = getX(windowStart)
+      const x2 = getX(windowEnd)
+      ctx.fillStyle = 'rgba(255, 170, 0, 0.15)'
+      ctx.fillRect(x1, margin, x2 - x1, height - 2 * margin)
+      
+      // Draw vertical lines at window boundaries
+      ctx.strokeStyle = 'rgba(255, 170, 0, 0.6)'
+      ctx.lineWidth = 1
+      ctx.setLineDash([3, 3])
       ctx.beginPath()
-      ctx.moveTo(x, margin)
-      ctx.lineTo(x, height - margin)
+      ctx.moveTo(x1, margin)
+      ctx.lineTo(x1, height - margin)
+      ctx.moveTo(x2, margin)
+      ctx.lineTo(x2, height - margin)
+      ctx.stroke()
+      ctx.setLineDash([])
+      
+      // Highlight the samples being convolved
+      for (let i = windowStart; i <= windowEnd; i++) {
+        const x = getX(i)
+        const y = getY(noisy[i])
+        const kIdx = i - animStep + halfK
+        const kVal = kernel[kIdx] || 0
+        
+        // Draw point with size based on kernel weight
+        const radius = 3 + Math.abs(kVal) * 8
+        ctx.beginPath()
+        ctx.arc(x, y, radius, 0, Math.PI * 2)
+        ctx.fillStyle = kVal >= 0 ? 'rgba(0, 255, 136, 0.7)' : 'rgba(255, 107, 157, 0.7)'
+        ctx.fill()
+        ctx.strokeStyle = '#fff'
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+      
+      // Draw the current output point
+      const outputX = getX(animStep)
+      const outputY = getY(filteredSignal[animStep])
+      ctx.beginPath()
+      ctx.arc(outputX, outputY, 6, 0, Math.PI * 2)
+      ctx.fillStyle = '#00ff88'
+      ctx.fill()
+      ctx.strokeStyle = '#fff'
+      ctx.lineWidth = 2
       ctx.stroke()
     }
     
@@ -361,7 +568,7 @@ export default function ConvolutionView({ compact = false }) {
     return (
       <div className="convolution-view compact-mode">
         <div className="compact-conv-layout">
-          {/* Left: Controls + Kernel */}
+          {/* Left: Controls + Kernel + Dot Product */}
           <div className="compact-conv-sidebar">
             <div className="compact-section">
               <h4>⚙️ Parametri</h4>
@@ -397,12 +604,9 @@ export default function ConvolutionView({ compact = false }) {
                   onChange={e => setNoiseLevel(parseFloat(e.target.value))}
                 />
               </div>
-              <div className="compact-buttons">
-                <button onClick={regenerateSignal} className="compact-btn">🎲 Nou</button>
-                <button onClick={startAnimation} disabled={isAnimating} className="compact-btn primary">
-                  {isAnimating ? '⏳' : '▶️'}
-                </button>
-              </div>
+              <button onClick={regenerateSignal} className="compact-btn" style={{width: '100%', marginTop: '0.3rem'}}>
+                🎲 Semnal Nou
+              </button>
             </div>
             
             <div className="compact-section">
@@ -418,14 +622,24 @@ export default function ConvolutionView({ compact = false }) {
                 {kernelType === 'sharpen' && <LaTeX math={String.raw`h = [-\alpha, ..., 1+2\alpha, ..., -\alpha]`} />}
               </div>
             </div>
+            
           </div>
           
-          {/* Right: Result plot */}
+          {/* Right: Result plot + Frame controls */}
           <div className="compact-conv-result" ref={containerRef}>
             <div className="plot-container-with-overlay">
               <canvas ref={canvasSignalRef} className="compact-result-canvas" />
+              
+              {/* Dot Product Visualization - Overlaid on graph */}
+              {animStep >= 0 && (
+                <div className="dot-product-overlay">
+                  <canvas ref={canvasDotProductRef} />
+                </div>
+              )}
               {/* HTML overlay for title */}
-              <div className="plot-title-overlay">{kernelName} - Denoising</div>
+              <div className="plot-title-overlay">
+                {kernelName} {animStep >= 0 ? `- Pas ${animStep}/${signalData?.noisy.length || 0}` : '- Denoising'}
+              </div>
               {/* HTML overlay for legend */}
               <div className="plot-legend-overlay">
                 <div className="legend-entry">
@@ -434,11 +648,121 @@ export default function ConvolutionView({ compact = false }) {
                 </div>
                 <div className="legend-entry">
                   <span className="legend-line cyan"></span>
-                  <span>Original (referință)</span>
+                  <span>Original</span>
                 </div>
                 <div className="legend-entry">
                   <span className="legend-line green"></span>
-                  <span>Filtrat (convoluție)</span>
+                  <span>Filtrat</span>
+                </div>
+                {animStep >= 0 && (
+                  <div className="legend-entry">
+                    <span className="legend-line orange"></span>
+                    <span>Kernel</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Frame-by-frame controls */}
+            <div className="frame-controls">
+              <div className="frame-controls-row">
+                <button 
+                  onClick={resetAnimation} 
+                  className="frame-btn reset"
+                  title="Reset"
+                >
+                  ⏹
+                </button>
+                <button 
+                  onClick={jumpBackward} 
+                  className="frame-btn"
+                  disabled={animStep <= 0}
+                  title="Înapoi 10"
+                >
+                  ⏪
+                </button>
+                <button 
+                  onClick={stepBackward} 
+                  className="frame-btn"
+                  disabled={animStep <= 0}
+                  title="Înapoi 1"
+                >
+                  ◀
+                </button>
+                <button 
+                  onClick={() => {
+                    if (animStep < 0) {
+                      setAnimStep(0)
+                    } else if (frameByFrame) {
+                      setFrameByFrame(false)
+                      setIsAnimating(true)
+                    } else {
+                      setIsAnimating(!isAnimating)
+                    }
+                  }} 
+                  className={`frame-btn play ${isAnimating ? 'active' : ''}`}
+                  title={isAnimating ? 'Pauză' : 'Play'}
+                >
+                  {isAnimating ? '⏸' : '▶'}
+                </button>
+                <button 
+                  onClick={stepForward} 
+                  className="frame-btn"
+                  disabled={!signalData || animStep >= signalData.noisy.length - 1}
+                  title="Înainte 1"
+                >
+                  ▶
+                </button>
+                <button 
+                  onClick={jumpForward} 
+                  className="frame-btn"
+                  disabled={!signalData || animStep >= signalData.noisy.length - 1}
+                  title="Înainte 10"
+                >
+                  ⏩
+                </button>
+              </div>
+              
+              {/* Position slider */}
+              {signalData && (
+                <div className="position-slider">
+                  <input
+                    type="range"
+                    min="0"
+                    max={signalData.noisy.length - 1}
+                    value={Math.max(0, animStep)}
+                    onChange={(e) => {
+                      setIsAnimating(false)
+                      setAnimStep(parseInt(e.target.value))
+                    }}
+                    style={{width: '100%'}}
+                  />
+                </div>
+              )}
+              
+              <div className="frame-options">
+                <label className="frame-option">
+                  <input 
+                    type="checkbox" 
+                    checked={frameByFrame}
+                    onChange={(e) => {
+                      setFrameByFrame(e.target.checked)
+                      if (e.target.checked) setIsAnimating(false)
+                    }}
+                  />
+                  <span>Pas cu pas</span>
+                </label>
+                <div className="speed-control">
+                  <span>Viteză:</span>
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={200 - animSpeed}
+                    onChange={(e) => setAnimSpeed(200 - parseInt(e.target.value))}
+                    style={{width: '60px'}}
+                    disabled={frameByFrame}
+                  />
                 </div>
               </div>
             </div>

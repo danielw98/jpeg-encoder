@@ -1,0 +1,343 @@
+/* ========================================
+   JPEG Pipeline & DCT/Wavelet Comparison Styles
+======================================== */
+
+.jpeg-pipeline-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+}
+
+.jpeg-pipeline-view .panel {
+  margin-bottom: 1rem;
+}
+
+.jpeg-pipeline-view .panel h2 {
+  color: #ffd700;
+  margin-bottom: 0.5rem;
+}
+
+.jpeg-pipeline-view .description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+/* Stage Selector */
+.stage-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.stage-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 90px;
+}
+
+.stage-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.stage-btn.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.stage-btn .stage-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.stage-btn .stage-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.stage-btn .stage-num {
+  font-size: 0.65rem;
+  opacity: 0.5;
+  margin-top: 0.2rem;
+}
+
+/* Compact Mode - HORIZONTAL LAYOUT with tabs on right */
+.jpeg-pipeline-view.compact-mode {
+  padding: 0.5rem;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+}
+
+.stage-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  order: 2;
+  flex-shrink: 0;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stage-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.85rem;
+}
+
+.stage-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stage-tab.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.stage-tab .tab-icon {
+  font-size: 1rem;
+}
+
+.stage-tab .tab-name {
+  font-weight: 500;
+}
+
+.stage-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+  overflow: auto;
+  min-height: 0;
+  order: 1;
+}
+
+/* Stage Header */
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.stage-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #ffd700;
+}
+
+/* View Toggle Buttons */
+.view-toggle {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.view-toggle button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.view-toggle button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.view-toggle button.active {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.5);
+  color: #00d4ff;
+}
+
+/* Quality Slider */
+.quality-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.quality-slider input[type="range"] {
+  width: 120px;
+  accent-color: #ffd700;
+}
+
+/* Animation Controls */
+.anim-controls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.anim-controls button {
+  width: 36px;
+  height: 32px;
+  padding: 0;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.anim-controls button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Formula Box */
+.formula-box {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.formula-box.compact {
+  font-size: 1rem;
+}
+
+.formula-box .note {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Info Row */
+.info-row {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+.info-row .highlight {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+/* Canvas Styling - LARGER */
+.stage-content canvas {
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+/* Individual view containers - FULL SIZE */
+.color-space-view,
+.chroma-subsampling-view,
+.dct-basis-view,
+.block-dct-view,
+.quantization-view,
+.zigzag-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+/* Image Selector in Stage Header */
+.image-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.image-selector label {
+  font-weight: 500;
+}
+
+.image-selector select {
+  padding: 0.35rem 0.6rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.image-selector select:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 215, 0, 0.4);
+}
+
+.image-selector select:focus {
+  outline: none;
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+.image-selector select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+/* ========================================
+   Responsive Adjustments
+======================================== */
+
+@media (max-width: 800px) {
+  .stage-tabs {
+    justify-content: center;
+  }
+  
+  .stage-tab .tab-name {
+    display: none;
+  }
+  
+  .summary-box {
+    flex-direction: column;
+  }
+  
+  .controls-row {
+    justify-content: center;
+  }
+}

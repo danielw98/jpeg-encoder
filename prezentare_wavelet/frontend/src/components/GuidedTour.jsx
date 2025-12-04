@@ -16,6 +16,11 @@ import DenoiseTheoryView from './DenoiseTheoryView'
 import CompareView from './CompareView'
 import Mallat1DEduView from './Mallat1DEduView'
 import MallatUnifiedView from './MallatUnifiedView'
+import FilterBankView from './FilterBankView'
+import PyramidDecompView from './PyramidDecompView'
+import ReconstructionView from './ReconstructionView'
+import JPEGPipelineView from './JPEGPipelineView'
+import DCTvsWaveletView from './DCTvsWaveletView'
 
 import '../styles/tour.css'
 
@@ -345,6 +350,33 @@ const SLIDES = [
     title: 'Demo: Descompunere Mallat 2D',
     color: '#ffd700'
   },
+  {
+    id: 'filter-bank',
+    section: 'decompose',
+    type: 'embed',
+    embedType: 'filter-bank',
+    icon: '🔀',
+    title: 'Banca de Filtre Wavelet',
+    color: '#ffd700'
+  },
+  {
+    id: 'pyramid-decomp',
+    section: 'decompose',
+    type: 'embed',
+    embedType: 'pyramid-decomp',
+    icon: '🔺',
+    title: 'Descompunere Piramidală',
+    color: '#ffd700'
+  },
+  {
+    id: 'reconstruction',
+    section: 'decompose',
+    type: 'embed',
+    embedType: 'reconstruction',
+    icon: '🔄',
+    title: 'Reconstrucție Perfectă',
+    color: '#ffd700'
+  },
 
   // ===== WAVELET APPLICATIONS =====
   {
@@ -444,6 +476,24 @@ const SLIDES = [
     color: '#ffd93d'
   },
   {
+    id: 'jpeg-pipeline',
+    section: 'compare',
+    type: 'embed',
+    embedType: 'jpeg-pipeline',
+    icon: '📷',
+    title: 'Pipeline-ul JPEG (DCT)',
+    color: '#ff9f43'
+  },
+  {
+    id: 'dct-vs-wavelet',
+    section: 'compare',
+    type: 'embed',
+    embedType: 'dct-vs-wavelet',
+    icon: '⚡',
+    title: 'DCT vs Wavelet: Comparație',
+    color: '#00d4ff'
+  },
+  {
     id: 'compare-theory',
     section: 'compare',
     type: 'comparison',
@@ -538,12 +588,22 @@ function EmbeddedView({ embedType, api, imageId, sampleImages, onImageChange }) 
       return <Mallat1DEduView compact={true} />
     case 'mallat-unified':
       return <MallatUnifiedView compact={true} />
+    case 'filter-bank':
+      return <FilterBankView compact={true} />
+    case 'pyramid-decomp':
+      return <PyramidDecompView compact={true} />
+    case 'reconstruction':
+      return <ReconstructionView compact={true} />
     case 'denoise-theory':
       return <DenoiseTheoryView compact={true} />
     case 'denoise':
       return <DenoiseView {...viewProps} compact={true} />
     case 'compare':
       return <CompareView {...viewProps} compact={true} />
+    case 'jpeg-pipeline':
+      return <JPEGPipelineView compact={true} />
+    case 'dct-vs-wavelet':
+      return <DCTvsWaveletView compact={true} />
     default:
       return <div className="demo-placeholder">View: {embedType}</div>
   }

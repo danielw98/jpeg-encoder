@@ -8,7 +8,7 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
   const [error, setError] = useState(null)
   
   const [wavelet, setWavelet] = useState('db4')
-  const [levels, setLevels] = useState(4)
+  const [levels, setLevels] = useState(3)
   const [mode, setMode] = useState('soft')
   const [noiseSigma, setNoiseSigma] = useState(25)
 
@@ -71,7 +71,7 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
           <input
             type="range"
             min="1"
-            max="6"
+            max="4"
             value={levels}
             onChange={e => setLevels(parseInt(e.target.value))}
           />
@@ -108,49 +108,48 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
           </select>
         </div>
 
-        <button className="denoise-btn" onClick={handleDenoise} disabled={loading}>
-          {loading ? '⏳...' : '🔇 Aplică'}
+        <button className={`denoise-btn ${loading ? 'loading' : ''}`} onClick={handleDenoise} disabled={loading}>
+          🔇 Aplică
         </button>
       </div>
 
       {error && <div className="error">❌ {error}</div>}
 
-      {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          Procesare...
-        </div>
-      )}
-
       {result && (
-        <div className="denoise-results">
+        <div className={`denoise-results ${loading ? 'loading' : ''}`}>
           {/* Images row */}
           <div className="denoise-images">
             <div className="denoise-image-card">
               <h4>Original</h4>
-              <img 
-                src={`data:image/png;base64,${result.original}`} 
-                alt="Original"
-              />
+              <div className="img-wrapper">
+                <img 
+                  src={`data:image/png;base64,${result.original}`} 
+                  alt="Original"
+                />
+              </div>
             </div>
             
             {result.noisy && (
               <div className="denoise-image-card">
                 <h4>Cu zgomot (σ={noiseSigma})</h4>
-                <img 
-                  src={`data:image/png;base64,${result.noisy}`} 
-                  alt="Noisy"
-                />
+                <div className="img-wrapper">
+                  <img 
+                    src={`data:image/png;base64,${result.noisy}`} 
+                    alt="Noisy"
+                  />
+                </div>
                 <div className="img-metric">SNR: {result.snr_before?.toFixed(1)} dB</div>
               </div>
             )}
             
             <div className="denoise-image-card">
               <h4>Denoised ({mode})</h4>
-              <img 
-                src={`data:image/png;base64,${result.denoised}`} 
-                alt="Denoised"
-              />
+              <div className="img-wrapper">
+                <img 
+                  src={`data:image/png;base64,${result.denoised}`} 
+                  alt="Denoised"
+                />
+              </div>
               <div className="img-metric success">SNR: {result.snr_after?.toFixed(1)} dB (+{result.snr_improvement?.toFixed(1)})</div>
             </div>
           </div>
