@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import LaTeX, { LaTeXBlock } from './LaTeX'
+import AnimationControls from './shared/AnimationControls'
 import './Mallat1DEduView.css'
 
 /**
@@ -7,6 +8,29 @@ import './Mallat1DEduView.css'
  * Shows step-by-step filtering and decimation on a single line
  * Improved with heatmap visualization and clearer explanations
  */
+
+// Helper: Draw crisp text with shadow for better visibility
+function drawText(ctx, text, x, y, options = {}) {
+  const { 
+    color = '#fff', 
+    font = 'bold 12px system-ui, -apple-system, sans-serif',
+    align = 'center',
+    baseline = 'middle',
+    shadow = true
+  } = options
+  
+  ctx.font = font
+  ctx.textAlign = align
+  ctx.textBaseline = baseline
+  
+  if (shadow) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+    ctx.fillText(text, x + 1, y + 1)
+  }
+  
+  ctx.fillStyle = color
+  ctx.fillText(text, x, y)
+}
 
 // Wavelet filters with explanations
 const FILTERS = {
@@ -149,16 +173,28 @@ export default function Mallat1DEduView({ compact = false }) {
     const canvas = canvasRef.current
     if (!canvas) return
     
+    // HiDPI support
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    
+    // Only resize if needed
+    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+    }
+    
     const ctx = canvas.getContext('2d')
-    const width = canvas.width
-    const height = canvas.height
+    ctx.setTransform(1, 0, 0, 1, 0, 0)  // Reset transform
+    ctx.scale(dpr, dpr)
     
     // Clear
     ctx.fillStyle = '#0a0a1a'
     ctx.fillRect(0, 0, width, height)
     
     const margin = 20
-    const barHeight = 140
+    const barHeight = 140 * (height / 620) // Scale with canvas height
     const spacing = 25
     const barWidth = (width - 2 * margin) / signalSize
     
@@ -270,12 +306,12 @@ export default function Mallat1DEduView({ compact = false }) {
         
         // Value text (skip if using plot mode to reduce clutter)
         if (!usePlot || !isCoefficients) {
-          ctx.fillStyle = (isCoefficients && useHeatmap) ? '#fff' : '#ccc'
-          ctx.font = 'bold 11px monospace'
-          ctx.textAlign = 'center'
           const displayVal = isCoefficients ? val.toFixed(0) : Math.round(val)
-          ctx.fillText(displayVal, x + bw/2, yOffset + barHeight/2 + 4)
-          ctx.textAlign = 'left'
+          drawText(ctx, displayVal, x + bw/2, yOffset + barHeight/2 + 4, {
+            color: (isCoefficients && useHeatmap) ? '#fff' : '#ccc',
+            font: 'bold 11px monospace',
+            shadow: true
+          })
         }
       })
     }
@@ -445,24 +481,22 @@ export default function Mallat1DEduView({ compact = false }) {
                 H (Detalii) <span style={{color: '#888'}}>- frecvențe înalte, {signalSize/2} valori</span>
               </div>
               
-              {/* Formulas info below all graphs - stacked with even spacing */}
-              <div className="graph-info" style={{top: '83%'}}>
-                <span style={{color: '#00ff88', fontWeight: 'bold'}}>Low-Pass h₀:</span>
-                <span style={{color: '#aaa', marginLeft: '6px'}}>
-                  {filterType === 'haar' ? 'L[k] = (a + b) / √2  →  MEDIE' : 'Media ponderată pe 4 valori'}
-                </span>
-                <span style={{color: '#aaa', marginLeft: '6px', fontStyle: 'italic'}}>
-                  ({filter.lpExplain})
-                </span>
-              </div>
-              <div className="graph-info" style={{top: '88%'}}>
-                <span style={{color: '#ff6b9d', fontWeight: 'bold'}}>High-Pass h₁:</span>
-                <span style={{color: '#aaa', marginLeft: '6px'}}>
-                  {filterType === 'haar' ? 'H[k] = (a - b) / √2  →  DIFERENȚĂ' : 'Diferență ponderată pe 4 valori'}
-                </span>
-                <span style={{color: '#aaa', marginLeft: '6px', fontStyle: 'italic'}}>
-                  ({filter.hpExplain})
-                </span>
+              {/* Formulas info below all graphs - compact 2-column layout */}
+              <div className="formulas-container" style={{top: '82%'}}>
+                <div className="formula-line" style={{display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center'}}>
+                  <div>
+                    <span style={{color: '#00ff88', fontWeight: 'bold'}}>h₀:</span>
+                    <span style={{color: '#aaa', marginLeft: '4px'}}>
+                      {filterType === 'haar' ? '(a+b)/√2' : 'LP'}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{color: '#ff6b9d', fontWeight: 'bold'}}>h₁:</span>
+                    <span style={{color: '#aaa', marginLeft: '4px'}}>
+                      {filterType === 'haar' ? '(a-b)/√2' : 'HP'}
+                    </span>
+                  </div>
+                </div>
               </div>
               
               <div className="status-label" style={{bottom: '2%'}}>
@@ -475,37 +509,32 @@ export default function Mallat1DEduView({ compact = false }) {
             
             <canvas 
               ref={canvasRef} 
-              width={750} 
-              height={620}
+              style={{ width: '100%', height: '100%' }}
             />
           </div>
         </div>
         
-        {/* Animation Controls */}
+        {/* Animation Controls - using reusable component */}
         <div className="mallat-1d-controls">
-          <button 
-            className={`ctrl-btn ${isPlaying ? 'stop' : 'play'}`}
-            onClick={() => setIsPlaying(!isPlaying)}
-          >
-            {isPlaying ? '⏸ Pauză' : '▶ Play'}
-          </button>
-          <button 
-            className="ctrl-btn back"
-            onClick={handleStepBack}
-            disabled={isPlaying || step <= 0}
-          >
-            ⏮ Înapoi
-          </button>
-          <button 
-            className="ctrl-btn step"
-            onClick={handleStep}
-            disabled={isPlaying || step >= totalSteps}
-          >
-            ⏭ Înainte
-          </button>
-          <button className="ctrl-btn reset" onClick={handleReset}>
-            🔄 Reset
-          </button>
+          <AnimationControls
+            isPlaying={isPlaying}
+            onPlayPause={() => setIsPlaying(!isPlaying)}
+            onStepForward={handleStep}
+            onStepBackward={handleStepBack}
+            onReset={handleReset}
+            canStepForward={step < totalSteps}
+            canStepBackward={step > 0}
+            showJumpButtons={false}
+            size="large"
+            layout="horizontal"
+            labels={{
+              play: 'Play',
+              pause: 'Pauză',
+              stepForward: 'Înainte',
+              stepBackward: 'Înapoi',
+              reset: 'Reset'
+            }}
+          />
         </div>
         
         {/* Input Controls - Bottom */}

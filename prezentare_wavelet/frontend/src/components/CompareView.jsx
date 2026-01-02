@@ -113,16 +113,6 @@ export default function CompareView({ api, imageId, sampleImages = [], onImageCh
             </div>
           </div>
         )}
-
-        {result && (
-          <div className={`verdict-bar ${result.metrics.wavelet.psnr > result.metrics.dct.psnr ? 'wavelet-wins' : 'dct-wins'}`}>
-            {result.metrics.wavelet.psnr > result.metrics.dct.psnr ? (
-              <span>✅ Wavelet: +{(result.metrics.wavelet.psnr - result.metrics.dct.psnr).toFixed(2)} dB</span>
-            ) : (
-              <span>📦 DCT: +{(result.metrics.dct.psnr - result.metrics.wavelet.psnr).toFixed(2)} dB</span>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Bottom Controls Bar */}
@@ -140,7 +130,7 @@ export default function CompareView({ api, imageId, sampleImages = [], onImageCh
         </div>
 
         <div className="control-item">
-          <label>Calitate: {quality}%</label>
+          <label>Calitate: <span style={{ display: 'inline-block', width: '3.5ch' }}>{quality}%</span></label>
           <input
             type="range"
             min="5"
@@ -177,6 +167,16 @@ export default function CompareView({ api, imageId, sampleImages = [], onImageCh
         >
           ▶️ Run
         </button>
+
+        {result && (
+          <div className={`verdict-bar ${result.metrics.wavelet.psnr > result.metrics.dct.psnr ? 'wavelet-wins' : 'dct-wins'}`} style={{ marginLeft: 'auto', marginTop: 0 }}>
+            {result.metrics.wavelet.psnr > result.metrics.dct.psnr ? (
+              <span>✅ Wavelet: +{(result.metrics.wavelet.psnr - result.metrics.dct.psnr).toFixed(2)} dB</span>
+            ) : (
+              <span>📦 DCT: +{(result.metrics.dct.psnr - result.metrics.wavelet.psnr).toFixed(2)} dB</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -73,8 +73,10 @@ export default function WaveletPlayground({ compact = false }) {
   // Collapsible sections
   const [showWaveletInfo, setShowWaveletInfo] = useState(true)
   const [showTheory, setShowTheory] = useState(false)
+  const [viewDomain, setViewDomain] = useState('time') // 'time', 'freq', 'both'
   
   const canvasRef = useRef()
+  const freqCanvasRef = useRef()
   const containerRef = useRef()
   const animRef = useRef()
 
@@ -87,6 +89,93 @@ export default function WaveletPlayground({ compact = false }) {
     setAnimating(false)
   }
 
+  // Helper for frequency spectrum magnitude
+  const getSpectrum = (w, type, s, o) => {
+    // F{psi((t-b)/a)} = |a| * exp(-i*b*w) * Psi(a*w)
+    // We only care about magnitude: |a| * |Psi(a*w)|
+    const aw = w * s
+    
+    switch(type) {
+      case 'morlet':
+        // Gaussian centered at omega_0
+        return Math.abs(s) * Math.exp(-Math.pow(aw - o, 2) / 2)
+      case 'mexican':
+        // w^2 * exp(-w^2/2)
+        return Math.abs(s) * Math.pow(aw, 2) * Math.exp(-Math.pow(aw, 2) / 2)
+      case 'haar':
+        // Sinc-like shape
+        if (Math.abs(aw) < 0.01) return 0 // Haar is bandpass
+        return Math.abs(s) * Math.abs(Math.sin(aw/2) / (aw/2))
+      case 'sine':
+        // Narrow peak
+        return Math.abs(s) * Math.exp(-Math.pow(aw - 2*Math.PI, 2) * 10)
+      default:
+        return 0
+    }
+  }
+
+  // Draw frequency spectrum
+  const drawSpectrum = useCallback(() => {
+    const canvas = freqCanvasRef.current
+    if (!canvas || viewDomain === 'time') return
+
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+    
+    const W = rect.width
+    const H = rect.height
+    const margin = 30
+
+    // Clear
+    ctx.fillStyle = '#050510'
+    ctx.fillRect(0, 0, W, H)
+    
+    // Grid
+    ctx.strokeStyle = '#1a1a3a'
+    ctx.lineWidth = 1
+    
+    // Axes
+    ctx.beginPath()
+    ctx.moveTo(margin, H - margin)
+    ctx.lineTo(W - margin, H - margin) // Freq axis
+    ctx.moveTo(margin, margin)
+    ctx.lineTo(margin, H - margin) // Mag axis
+    ctx.stroke()
+    
+    // Plot spectrum
+    const wavelet = WAVELET_TYPES[waveletType]
+    ctx.strokeStyle = wavelet.color
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    
+    const maxFreq = 15 // Max frequency to display
+    
+    for (let px = margin; px < W - margin; px++) {
+      const w = ((px - margin) / (W - 2 * margin)) * maxFreq
+      const mag = getSpectrum(w, waveletType, scale, omega)
+      
+      // Normalize height roughly
+      const plotY = (H - margin) - mag * (H - 2 * margin) * 0.8
+      
+      if (px === margin) ctx.moveTo(px, plotY)
+      else ctx.lineTo(px, plotY)
+    }
+    ctx.stroke()
+    
+    // Labels
+    ctx.fillStyle = '#888'
+    ctx.font = '10px sans-serif'
+    ctx.fillText('Frecvență (ω)', W/2, H - 5)
+    ctx.fillText('|Ψ(ω)|', 5, H/2)
+    
+  }, [waveletType, scale, omega, viewDomain])
+
   // Draw wavelet
   const drawWavelet = useCallback(() => {
     const canvas = canvasRef.current
@@ -96,8 +185,9 @@ export default function WaveletPlayground({ compact = false }) {
     // HiDPI support - responsive sizing
     const dpr = window.devicePixelRatio || 1
     const rect = container.getBoundingClientRect()
+    // Adjust height if showing both
+    const height = viewDomain === 'both' ? rect.height / 2 : rect.height
     const width = rect.width
-    const height = rect.height
     
     if (width === 0 || height === 0) return
     
@@ -235,7 +325,13 @@ export default function WaveletPlayground({ compact = false }) {
       ctx.fillStyle = '#666'
       ctx.fillText(val.toString(), x - 5, height - margin + 15)
     }
-  }, [waveletType, scale, shift, omega, showOriginal, compact])
+    
+    // Draw spectrum if needed
+    if (viewDomain !== 'time') {
+      drawSpectrum()
+    }
+    
+  }, [waveletType, scale, shift, omega, showOriginal, compact, viewDomain, drawSpectrum])
 
   // Redraw on mount and data change
   useEffect(() => {
@@ -274,7 +370,7 @@ export default function WaveletPlayground({ compact = false }) {
 
   return (
     <div className="wavelet-playground-v2">
-      {/* Top row: Graph + Right panel */}
+      {/* Left area: Graph + Controls */}
       <div className="playground-top-row">
         {/* Main content area - graph */}
         <div className="playground-main">
@@ -296,16 +392,157 @@ export default function WaveletPlayground({ compact = false }) {
           </div>
           
           {/* Canvas container - fills available space */}
-          <div className="plot-container" ref={containerRef}>
-            <canvas ref={canvasRef} />
+          <div className="plot-container" ref={containerRef} style={{ display: 'flex', flexDirection: 'column' }}>
+            <canvas 
+              ref={canvasRef} 
+              style={{ 
+                flex: 1, 
+                width: '100%',
+                height: viewDomain === 'both' ? '0' : '100%', 
+                minHeight: 0,
+                display: viewDomain === 'freq' ? 'none' : 'block' 
+              }} 
+            />
+            <canvas 
+              ref={freqCanvasRef} 
+              style={{ 
+                flex: 1, 
+                width: '100%',
+                height: viewDomain === 'both' ? '0' : '100%',
+                minHeight: 0,
+                display: viewDomain === 'time' ? 'none' : 'block', 
+                borderTop: viewDomain === 'both' ? '1px solid #333' : 'none' 
+              }} 
+            />
+            
             <div className="plot-title-overlay" style={{ color: wavelet.color }}>
-              {wavelet.name} Wavelet
+              {wavelet.name} Wavelet {viewDomain === 'freq' ? '(Frecvență)' : viewDomain === 'both' ? '(Timp + Frecvență)' : '(Timp)'}
             </div>
           </div>
         </div>
         
-        {/* Right sidebar - wavelet info + theory only */}
-        <div className="playground-sidebar">
+        {/* Bottom controls bar */}
+        <div className="playground-controls-bar">
+          {/* Scale Slider */}
+          <div className="control-group">
+            <label>
+              <strong style={{ color: '#00d9ff' }}>a</strong>: {scale.toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0.2"
+              max="3"
+              step="0.05"
+              value={scale}
+              onChange={e => setScale(parseFloat(e.target.value))}
+              disabled={animating && animParam === 'scale'}
+            />
+            <span className="slider-hint">
+              {scale < 1 ? 'comprimat' : scale > 1 ? 'dilatat' : 'original'}
+            </span>
+          </div>
+          
+          {/* Shift Slider */}
+          <div className="control-group">
+            <label>
+              <strong style={{ color: '#ffaa00' }}>b</strong>: {shift.toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="-3"
+              max="3"
+              step="0.1"
+              value={shift}
+              onChange={e => setShift(parseFloat(e.target.value))}
+              disabled={animating && animParam === 'shift'}
+            />
+          </div>
+          
+          {/* Morlet omega parameter */}
+          {waveletType === 'morlet' && (
+            <div className="control-group">
+              <label>
+                <strong style={{ color: '#ff6b9d' }}><LaTeX math="\omega_0" /></strong>: {omega}
+              </label>
+              <input
+                type="range"
+                min="2"
+                max="10"
+                step="1"
+                value={omega}
+                onChange={e => setOmega(parseInt(e.target.value))}
+              />
+            </div>
+          )}
+          
+          {/* Show original checkbox */}
+          <label className="checkbox-control">
+            <input
+              type="checkbox"
+              checked={showOriginal}
+              onChange={e => setShowOriginal(e.target.checked)}
+            />
+            Original
+          </label>
+          
+          {/* Animation controls */}
+          <div className="animation-controls">
+            <select 
+              value={animParam} 
+              onChange={e => setAnimParam(e.target.value)}
+              disabled={animating}
+            >
+              <option value="shift">b</option>
+              <option value="scale">a</option>
+            </select>
+            <button 
+              className={`anim-btn ${animating ? 'stop' : 'play'}`}
+              onClick={() => setAnimating(!animating)}
+            >
+              {animating ? '⏹' : '▶'}
+            </button>
+            <button 
+              className="anim-btn reset"
+              onClick={handleReset}
+              title="Reset"
+            >
+              🔄
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right sidebar - extends full height */}
+      <div className="playground-sidebar">
+        {/* View Mode Toggle */}
+        <div className="sidebar-section">
+           <div className="section-header">
+             <span>👁️ Vizualizare</span>
+           </div>
+             <div className="section-content">
+               <div className="wavelet-buttons">
+                 <button 
+                   className={`wavelet-btn ${viewDomain === 'time' ? 'active' : ''}`}
+                   onClick={() => setViewDomain('time')}
+                 >
+                   Timp
+                 </button>
+                 <button 
+                   className={`wavelet-btn ${viewDomain === 'freq' ? 'active' : ''}`}
+                   onClick={() => setViewDomain('freq')}
+                 >
+                   Frecvență
+                 </button>
+                 <button 
+                   className={`wavelet-btn ${viewDomain === 'both' ? 'active' : ''}`}
+                   onClick={() => setViewDomain('both')}
+                 >
+                   Ambele
+                 </button>
+               </div>
+             </div>
+          </div>
+
           {/* Wavelet Type Section */}
           <div className="sidebar-section">
             <div 
@@ -358,97 +595,6 @@ export default function WaveletPlayground({ compact = false }) {
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Bottom controls bar */}
-      <div className="playground-controls-bar">
-        {/* Scale Slider */}
-        <div className="control-group">
-          <label>
-            <strong style={{ color: '#00d9ff' }}>a</strong> (Scalare): {scale.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0.2"
-            max="3"
-            step="0.05"
-            value={scale}
-            onChange={e => setScale(parseFloat(e.target.value))}
-            disabled={animating && animParam === 'scale'}
-          />
-          <span className="slider-hint">
-            {scale < 1 ? 'comprimat' : scale > 1 ? 'dilatat' : 'original'}
-          </span>
-        </div>
-        
-        {/* Shift Slider */}
-        <div className="control-group">
-          <label>
-            <strong style={{ color: '#ffaa00' }}>b</strong> (Translație): {shift.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="-3"
-            max="3"
-            step="0.1"
-            value={shift}
-            onChange={e => setShift(parseFloat(e.target.value))}
-            disabled={animating && animParam === 'shift'}
-          />
-        </div>
-        
-        {/* Morlet omega parameter */}
-        {waveletType === 'morlet' && (
-          <div className="control-group">
-            <label>
-              <strong style={{ color: '#ff6b9d' }}><LaTeX math="\omega_0" /></strong>: {omega}
-            </label>
-            <input
-              type="range"
-              min="2"
-              max="10"
-              step="1"
-              value={omega}
-              onChange={e => setOmega(parseInt(e.target.value))}
-            />
-          </div>
-        )}
-        
-        {/* Show original checkbox */}
-        <label className="checkbox-control">
-          <input
-            type="checkbox"
-            checked={showOriginal}
-            onChange={e => setShowOriginal(e.target.checked)}
-          />
-          Arată original
-        </label>
-        
-        {/* Animation controls */}
-        <div className="animation-controls">
-          <select 
-            value={animParam} 
-            onChange={e => setAnimParam(e.target.value)}
-            disabled={animating}
-          >
-            <option value="shift">Translație (b)</option>
-            <option value="scale">Scalare (a)</option>
-          </select>
-          <button 
-            className={`anim-btn ${animating ? 'stop' : 'play'}`}
-            onClick={() => setAnimating(!animating)}
-          >
-            {animating ? '⏹' : '▶'}
-          </button>
-          <button 
-            className="anim-btn reset"
-            onClick={handleReset}
-            title="Reset"
-          >
-            🔄
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

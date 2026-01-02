@@ -1,65 +1,53 @@
+# Build outputs
+build/
+Build/
+*.exe
+*.dll
+*.obj
+*.o
 
-
-# Ignore all CMake-related files
+# CMake
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 CTestTestfile.cmake
-CMakeScripts/
 
-# Ignore any CMake and CTest files at any depth
-**/CMakeCache.txt
-**/CMakeFiles/
-**/cmake_install.cmake
-**/CTestTestfile.cmake
-**/CMakeScripts/
-**/CMakeConfigureLog.yaml
-
-# Allow root README.md (project documentation)
-# Ignore all README files except root and tests
-**/README
-**/README.*
-!README.md
-!tests/README.md
-!data/standard_test_images/README.md
-
-# Ignore build output folder
-build/
-Build/
-
-# Ignore output files (JPEG test outputs, generated images)
+# Generated images
 *.jpg
 *.jpeg
-*.ppm
-*.pgm
 
-# Folders
+# Development files (not for GitHub)
 internals/
-.github
-.vscode
-docs/
-ui/web/
+.vscode/
+.github/
 
-# Files
-build_and_run_tests*
-TODO.md
-TO_IMPLEMENT.md
-PRESENTATION_STRUCTURE.md
+# Old/backup files
+README_OLD.md
+CHANGELOG.md
+referat_idei.md
+build_and_run_tests.bat
+TEME*.md
+
+# Referat build outputs (keep sources)
+referat/*.docx
+referat/*.pdf
+referat/figures/*.png
+referat/figures/*.jpg
+
+# Node modules
+node_modules/
+dist/
 
 # Python
 __pycache__/
 *.pyc
-*.pyo
-venv/
 .venv/
-*.egg-info/
+venv/
 
-# Node.js
-node_modules/
-dist/
-.cache/
+# OS files
+.DS_Store
+Thumbs.db
 
 # IDE
-.idea/
 *.swp
 *.swo

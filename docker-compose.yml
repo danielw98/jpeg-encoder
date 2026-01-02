@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  jpeg-encoder:
+    build: .
+    container_name: jpeg-encoder
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - research-network
+
+  # Link to existing wavelet presentation if on same host
+  # wavelet:
+  #   image: wavelet-presentation
+  #   container_name: wavelet-presentation
+  #   ports:
+  #     - "3001:3000"
+  #   networks:
+  #     - research-network
+
+networks:
+  research-network:
+    driver: bridge

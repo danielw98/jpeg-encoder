@@ -6,6 +6,8 @@ import './FilterBankView.css'
  * FilterBankView - Analysis and Synthesis Filter Bank Diagram
  * Shows the complete Mallat decomposition/reconstruction structure
  * with animated signal flow
+ * 
+ * Uses HTML overlays for all text to ensure crisp rendering at any scale
  */
 
 // Haar filter coefficients
@@ -35,7 +37,6 @@ export default function FilterBankView({ compact = false }) {
   const [animating, setAnimating] = useState(false)
   const [animStep, setAnimStep] = useState(0)
   const [showMath, setShowMath] = useState(true)
-  const canvasRef = useRef()
   const animRef = useRef()
 
   const currentWavelet = WAVELETS[wavelet]
@@ -78,27 +79,6 @@ export default function FilterBankView({ compact = false }) {
     return () => clearTimeout(animRef.current)
   }, [animating, animStep, currentSteps.length])
 
-  // Draw the filter bank diagram
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    const W = canvas.width
-    const H = canvas.height
-
-    // Clear
-    ctx.fillStyle = '#0a0a1a'
-    ctx.fillRect(0, 0, W, H)
-
-    if (activeView === 'analysis') {
-      drawAnalysisBank(ctx, W, H, animStep, currentWavelet)
-    } else if (activeView === 'synthesis') {
-      drawSynthesisBank(ctx, W, H, animStep, currentWavelet)
-    } else {
-      drawCompleteBank(ctx, W, H, animStep, currentWavelet)
-    }
-  }, [activeView, animStep, wavelet, currentWavelet])
-
   const handlePlay = () => {
     setAnimStep(0)
     setAnimating(true)
@@ -107,6 +87,301 @@ export default function FilterBankView({ compact = false }) {
   const handleReset = () => {
     setAnimating(false)
     setAnimStep(0)
+  }
+
+  // SVG-based Filter Bank Diagram Component
+  const FilterBankDiagram = ({ view, step }) => {
+    const isAnalysis = view === 'analysis'
+    const isSynthesis = view === 'synthesis'
+    const isComplete = view === 'complete'
+    
+    // Common styles
+    const boxStyle = (active, color) => ({
+      fill: active ? color : '#222',
+      stroke: active ? color : '#444',
+      strokeWidth: 2
+    })
+    
+    const textStyle = (active) => ({
+      fill: active ? '#000' : '#666',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      fontFamily: 'monospace',
+      textAnchor: 'middle',
+      dominantBaseline: 'middle'
+    })
+    
+    const labelStyle = {
+      fill: '#888',
+      fontSize: '12px',
+      fontFamily: 'sans-serif',
+      textAnchor: 'start'
+    }
+    
+    if (isAnalysis) {
+      return (
+        <svg viewBox="0 0 700 350" style={{ width: '100%', height: 'auto' }}>
+          {/* Background */}
+          <rect width="700" height="350" fill="#0a0a1a" />
+          
+          {/* Title */}
+          <text x="350" y="25" fill="#ffd700" fontSize="16" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+            BANCA DE ANALIZĂ (Descompunere)
+          </text>
+          
+          {/* Input signal box */}
+          <rect x="50" y="155" width="100" height="40" rx="4"
+            fill={step >= 0 ? '#00d4ff' : '#333'}
+            stroke={step >= 0 ? '#00d4ff' : '#555'}
+            strokeWidth="2"
+          />
+          <text x="100" y="175" {...textStyle(step >= 0)}>x[n]</text>
+          <text x="100" y="210" fill="#888" fontSize="11" fontFamily="sans-serif" textAnchor="middle">
+            {step >= 5 ? 'N valori' : ''}
+          </text>
+          
+          {/* Split lines */}
+          {step >= 1 && (
+            <g stroke="#ffd700" strokeWidth="3">
+              <line x1="150" y1="175" x2="190" y2="175" />
+              <line x1="190" y1="175" x2="240" y2="95" />
+              <line x1="190" y1="175" x2="240" y2="255" />
+            </g>
+          )}
+          
+          {/* Low-pass filter (top) */}
+          <rect x="250" y="75" width="100" height="40" rx="4"
+            fill={step >= 2 ? '#00ff88' : '#222'}
+            stroke={step >= 2 ? '#00ff88' : '#444'}
+            strokeWidth="2"
+          />
+          <text x="300" y="95" {...textStyle(step >= 2)}>h₀ (LP)</text>
+          
+          {/* High-pass filter (bottom) */}
+          <rect x="250" y="235" width="100" height="40" rx="4"
+            fill={step >= 3 ? '#ff6b9d' : '#222'}
+            stroke={step >= 3 ? '#ff6b9d' : '#444'}
+            strokeWidth="2"
+          />
+          <text x="300" y="255" {...textStyle(step >= 3)}>h₁ (HP)</text>
+          
+          {/* Connections to decimators */}
+          {step >= 4 && (
+            <g strokeWidth="3">
+              <line x1="350" y1="95" x2="390" y2="95" stroke="#00ff88" />
+              <line x1="350" y1="255" x2="390" y2="255" stroke="#ff6b9d" />
+            </g>
+          )}
+          
+          {/* Decimation circles */}
+          {step >= 4 && (
+            <>
+              <circle cx="415" cy="95" r="25" fill="#ffd700" />
+              <text x="415" y="95" fill="#000" fontSize="16" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↓2</text>
+              <circle cx="415" cy="255" r="25" fill="#ffd700" />
+              <text x="415" y="255" fill="#000" fontSize="16" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↓2</text>
+            </>
+          )}
+          
+          {/* Connections to outputs */}
+          {step >= 5 && (
+            <g strokeWidth="3">
+              <line x1="440" y1="95" x2="485" y2="95" stroke="#00ff88" />
+              <line x1="440" y1="255" x2="485" y2="255" stroke="#ff6b9d" />
+            </g>
+          )}
+          
+          {/* Output boxes */}
+          {step >= 5 && (
+            <>
+              <rect x="485" y="75" width="100" height="40" rx="4" fill="#00ff88" stroke="#00ff88" strokeWidth="2" />
+              <text x="535" y="95" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">cA</text>
+              <text x="535" y="130" fill="#888" fontSize="11" fontFamily="sans-serif" textAnchor="middle">N/2</text>
+              
+              <rect x="485" y="235" width="100" height="40" rx="4" fill="#ff6b9d" stroke="#ff6b9d" strokeWidth="2" />
+              <text x="535" y="255" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">cD</text>
+              <text x="535" y="290" fill="#888" fontSize="11" fontFamily="sans-serif" textAnchor="middle">N/2</text>
+              
+              {/* Labels - split into 2 lines to prevent overflow */}
+              <text x="595" y="88" fill="#888" fontSize="12" fontFamily="sans-serif">Low-pass →</text>
+              <text x="595" y="104" fill="#888" fontSize="12" fontFamily="sans-serif">Aproximare</text>
+              
+              <text x="595" y="248" fill="#888" fontSize="12" fontFamily="sans-serif">High-pass →</text>
+              <text x="595" y="264" fill="#888" fontSize="12" fontFamily="sans-serif">Detalii</text>
+            </>
+          )}
+        </svg>
+      )
+    }
+    
+    if (isSynthesis) {
+      return (
+        <svg viewBox="0 0 700 350" style={{ width: '100%', height: 'auto' }}>
+          <rect width="700" height="350" fill="#0a0a1a" />
+          
+          <text x="350" y="25" fill="#ffd700" fontSize="16" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+            BANCA DE SINTEZĂ (Reconstrucție)
+          </text>
+          
+          {/* Input boxes */}
+          <rect x="50" y="75" width="100" height="40" rx="4"
+            fill={step >= 0 ? '#00ff88' : '#333'}
+            stroke={step >= 0 ? '#00ff88' : '#555'}
+            strokeWidth="2"
+          />
+          <text x="100" y="95" {...textStyle(step >= 0)}>cA</text>
+          
+          <rect x="50" y="235" width="100" height="40" rx="4"
+            fill={step >= 0 ? '#ff6b9d' : '#333'}
+            stroke={step >= 0 ? '#ff6b9d' : '#555'}
+            strokeWidth="2"
+          />
+          <text x="100" y="255" {...textStyle(step >= 0)}>cD</text>
+          
+          {/* Upsampling */}
+          {step >= 1 && (
+            <>
+              <line x1="150" y1="95" x2="175" y2="95" stroke="#00ff88" strokeWidth="3" />
+              <line x1="150" y1="255" x2="175" y2="255" stroke="#ff6b9d" strokeWidth="3" />
+              <circle cx="200" cy="95" r="20" fill="#ffd700" />
+              <text x="200" y="95" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↑2</text>
+              <circle cx="200" cy="255" r="20" fill="#ffd700" />
+              <text x="200" y="255" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↑2</text>
+            </>
+          )}
+          
+          {/* g0, g1 filters */}
+          {step >= 2 && (
+            <>
+              <line x1="220" y1="95" x2="260" y2="95" stroke="#666" strokeWidth="3" />
+              <rect x="260" y="75" width="100" height="40" rx="4" fill="#00ff88" stroke="#00ff88" strokeWidth="2" />
+              <text x="310" y="95" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">g₀</text>
+            </>
+          )}
+          {step >= 3 && (
+            <>
+              <line x1="220" y1="255" x2="260" y2="255" stroke="#666" strokeWidth="3" />
+              <rect x="260" y="235" width="100" height="40" rx="4" fill="#ff6b9d" stroke="#ff6b9d" strokeWidth="2" />
+              <text x="310" y="255" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">g₁</text>
+            </>
+          )}
+          
+          {/* Addition */}
+          {step >= 4 && (
+            <>
+              <line x1="360" y1="95" x2="440" y2="175" stroke="#666" strokeWidth="3" />
+              <line x1="360" y1="255" x2="440" y2="175" stroke="#666" strokeWidth="3" />
+              <circle cx="455" cy="175" r="20" fill="#ffd700" />
+              <text x="455" y="175" fill="#000" fontSize="20" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle" dominantBaseline="middle">+</text>
+            </>
+          )}
+          
+          {/* Output */}
+          {step >= 5 && (
+            <>
+              <line x1="475" y1="175" x2="520" y2="175" stroke="#666" strokeWidth="3" />
+              <rect x="520" y="155" width="100" height="40" rx="4" fill="#00d4ff" stroke="#00d4ff" strokeWidth="2" />
+              <text x="570" y="175" fill="#000" fontSize="14" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">x̂[n]</text>
+              <text x="350" y="330" fill="#00ff88" fontSize="13" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+                ✓ Reconstrucție Perfectă: x̂[n] = x[n]
+              </text>
+            </>
+          )}
+        </svg>
+      )
+    }
+    
+    // Complete bank view
+    return (
+      <svg viewBox="0 0 900 350" style={{ width: '100%', height: 'auto' }}>
+        <rect width="900" height="350" fill="#0a0a1a" />
+        
+        {/* Divider */}
+        <line x1="450" y1="40" x2="450" y2="310" stroke="#444" strokeWidth="1" strokeDasharray="4,4" />
+        
+        {/* Analysis title */}
+        <text x="225" y="25" fill="#ffd700" fontSize="14" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">ANALIZĂ</text>
+        {/* Synthesis title */}
+        <text x="675" y="25" fill="#ffd700" fontSize="14" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">SINTEZĂ</text>
+        
+        {/* === ANALYSIS SIDE (left) === */}
+        {/* Input */}
+        <rect x="20" y="155" width="70" height="35" rx="3" fill="#00d4ff" stroke="#00d4ff" strokeWidth="2" />
+        <text x="55" y="172" fill="#000" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">x[n]</text>
+        
+        {/* Split */}
+        <line x1="90" y1="172" x2="115" y2="172" stroke="#ffd700" strokeWidth="2" />
+        <line x1="115" y1="172" x2="140" y2="95" stroke="#ffd700" strokeWidth="2" />
+        <line x1="115" y1="172" x2="140" y2="250" stroke="#ffd700" strokeWidth="2" />
+        
+        {/* h0, h1 */}
+        <rect x="145" y="78" width="70" height="35" rx="3" fill="#00ff88" stroke="#00ff88" strokeWidth="2" />
+        <text x="180" y="95" fill="#000" fontSize="11" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">h₀ (LP)</text>
+        <rect x="145" y="232" width="70" height="35" rx="3" fill="#ff6b9d" stroke="#ff6b9d" strokeWidth="2" />
+        <text x="180" y="250" fill="#000" fontSize="11" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">h₁ (HP)</text>
+        
+        {/* Connections */}
+        <line x1="215" y1="95" x2="240" y2="95" stroke="#00ff88" strokeWidth="2" />
+        <line x1="215" y1="250" x2="240" y2="250" stroke="#ff6b9d" strokeWidth="2" />
+        
+        {/* Decimators */}
+        <circle cx="260" cy="95" r="18" fill="#ffd700" />
+        <text x="260" y="95" fill="#000" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↓2</text>
+        <circle cx="260" cy="250" r="18" fill="#ffd700" />
+        <text x="260" y="250" fill="#000" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↓2</text>
+        
+        {/* Connections */}
+        <line x1="278" y1="95" x2="310" y2="95" stroke="#00ff88" strokeWidth="2" />
+        <line x1="278" y1="250" x2="310" y2="250" stroke="#ff6b9d" strokeWidth="2" />
+        
+        {/* cA, cD */}
+        <rect x="310" y="78" width="70" height="35" rx="3" fill="#00ff88" stroke="#00ff88" strokeWidth="2" />
+        <text x="345" y="95" fill="#000" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">cA</text>
+        <rect x="310" y="232" width="70" height="35" rx="3" fill="#ff6b9d" stroke="#ff6b9d" strokeWidth="2" />
+        <text x="345" y="250" fill="#000" fontSize="12" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">cD</text>
+        
+        {/* === SYNTHESIS SIDE (right) === */}
+        {/* Connections from analysis */}
+        <line x1="380" y1="95" x2="465" y2="95" stroke="#444" strokeWidth="2" strokeDasharray="4,4" />
+        <line x1="380" y1="250" x2="465" y2="250" stroke="#444" strokeWidth="2" strokeDasharray="4,4" />
+        
+        {/* Upsamplers */}
+        <circle cx="485" cy="95" r="15" fill="#ffd700" />
+        <text x="485" y="95" fill="#000" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↑2</text>
+        <circle cx="485" cy="250" r="15" fill="#ffd700" />
+        <text x="485" y="250" fill="#000" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">↑2</text>
+        
+        {/* Connections */}
+        <line x1="500" y1="95" x2="525" y2="95" stroke="#666" strokeWidth="2" />
+        <line x1="500" y1="250" x2="525" y2="250" stroke="#666" strokeWidth="2" />
+        
+        {/* g0, g1 */}
+        <rect x="525" y="78" width="70" height="35" rx="3" fill="#00ff88" stroke="#00ff88" strokeWidth="2" />
+        <text x="560" y="95" fill="#000" fontSize="11" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">g₀</text>
+        <rect x="525" y="232" width="70" height="35" rx="3" fill="#ff6b9d" stroke="#ff6b9d" strokeWidth="2" />
+        <text x="560" y="250" fill="#000" fontSize="11" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">g₁</text>
+        
+        {/* Connections to adder */}
+        <line x1="595" y1="95" x2="650" y2="172" stroke="#666" strokeWidth="2" />
+        <line x1="595" y1="250" x2="650" y2="172" stroke="#666" strokeWidth="2" />
+        
+        {/* Adder */}
+        <circle cx="665" cy="172" r="15" fill="#ffd700" />
+        <text x="665" y="172" fill="#000" fontSize="14" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle" dominantBaseline="middle">+</text>
+        
+        {/* Output connection */}
+        <line x1="680" y1="172" x2="720" y2="172" stroke="#666" strokeWidth="2" />
+        
+        {/* Output */}
+        <rect x="720" y="155" width="70" height="35" rx="3" fill="#00d4ff" stroke="#00d4ff" strokeWidth="2" />
+        <text x="755" y="172" fill="#000" fontSize="11" fontWeight="bold" fontFamily="monospace" textAnchor="middle" dominantBaseline="middle">x̂[n]</text>
+        
+        {/* Perfect reconstruction note */}
+        <text x="450" y="330" fill="#00ff88" fontSize="12" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+          ✓ Reconstrucție Perfectă: x̂[n] = x[n]
+        </text>
+      </svg>
+    )
   }
 
   return (
@@ -174,17 +449,14 @@ export default function FilterBankView({ compact = false }) {
           flexDirection: 'column',
           gap: '0.5rem'
         }}>
-          <canvas
-            ref={canvasRef}
-            width={700}
-            height={350}
-            style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '10px',
-              border: '1px solid #333'
-            }}
-          />
+          <div style={{
+            borderRadius: '10px',
+            border: '1px solid #333',
+            overflow: 'hidden',
+            background: '#0a0a1a'
+          }}>
+            <FilterBankDiagram view={activeView} step={animStep} />
+          </div>
 
           {/* Step indicator */}
           <div style={{
@@ -406,518 +678,4 @@ export default function FilterBankView({ compact = false }) {
       </div>
     </div>
   )
-}
-
-// ============================================================================
-// Drawing functions
-// ============================================================================
-
-function drawAnalysisBank(ctx, W, H, step, wavelet) {
-  const color = wavelet.color
-  const midY = H / 2
-  const boxW = 100
-  const boxH = 40
-
-  // Draw signal flow based on step
-  ctx.lineWidth = 3
-  ctx.font = 'bold 14px monospace'
-
-  // Input signal box
-  const inputX = 50
-  ctx.fillStyle = step >= 0 ? '#00d4ff' : '#333'
-  ctx.strokeStyle = step >= 0 ? '#00d4ff' : '#555'
-  ctx.fillRect(inputX, midY - boxH/2, boxW, boxH)
-  ctx.strokeRect(inputX, midY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.textAlign = 'center'
-  ctx.fillText('x[n]', inputX + boxW/2, midY + 5)
-
-  // Split point
-  const splitX = inputX + boxW + 40
-  if (step >= 1) {
-    ctx.strokeStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.moveTo(inputX + boxW, midY)
-    ctx.lineTo(splitX, midY)
-    ctx.stroke()
-    
-    // Split arrows
-    ctx.beginPath()
-    ctx.moveTo(splitX, midY)
-    ctx.lineTo(splitX + 50, midY - 60)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(splitX, midY)
-    ctx.lineTo(splitX + 50, midY + 60)
-    ctx.stroke()
-  }
-
-  // Low-pass filter box (top branch)
-  const lpX = splitX + 60
-  const lpY = midY - 80
-  ctx.fillStyle = step >= 2 ? '#00ff88' : '#222'
-  ctx.strokeStyle = step >= 2 ? '#00ff88' : '#444'
-  ctx.fillRect(lpX, lpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(lpX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = step >= 2 ? '#000' : '#666'
-  ctx.fillText('h₀ (LP)', lpX + boxW/2, lpY + 5)
-
-  // High-pass filter box (bottom branch)
-  const hpY = midY + 80
-  ctx.fillStyle = step >= 3 ? '#ff6b9d' : '#222'
-  ctx.strokeStyle = step >= 3 ? '#ff6b9d' : '#444'
-  ctx.fillRect(lpX, hpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(lpX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = step >= 3 ? '#000' : '#666'
-  ctx.fillText('h₁ (HP)', lpX + boxW/2, hpY + 5)
-
-  // Decimation boxes
-  const decX = lpX + boxW + 40
-  if (step >= 4) {
-    // Connection lines to decimators
-    ctx.strokeStyle = '#00ff88'
-    ctx.beginPath()
-    ctx.moveTo(lpX + boxW, lpY)
-    ctx.lineTo(decX, lpY)
-    ctx.stroke()
-
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.beginPath()
-    ctx.moveTo(lpX + boxW, hpY)
-    ctx.lineTo(decX, hpY)
-    ctx.stroke()
-
-    // Decimation circles
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(decX + 25, lpY, 25, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#000'
-    ctx.fillText('↓2', decX + 25, lpY + 5)
-
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(decX + 25, hpY, 25, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#000'
-    ctx.fillText('↓2', decX + 25, hpY + 5)
-  }
-
-  // Output boxes
-  const outX = decX + 70
-  if (step >= 5) {
-    ctx.strokeStyle = '#00ff88'
-    ctx.beginPath()
-    ctx.moveTo(decX + 50, lpY)
-    ctx.lineTo(outX, lpY)
-    ctx.stroke()
-
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.beginPath()
-    ctx.moveTo(decX + 50, hpY)
-    ctx.lineTo(outX, hpY)
-    ctx.stroke()
-
-    // cA output
-    ctx.fillStyle = '#00ff88'
-    ctx.strokeStyle = '#00ff88'
-    ctx.fillRect(outX, lpY - boxH/2, boxW, boxH)
-    ctx.strokeRect(outX, lpY - boxH/2, boxW, boxH)
-    ctx.fillStyle = '#000'
-    ctx.fillText('cA', outX + boxW/2, lpY + 5)
-
-    // cD output
-    ctx.fillStyle = '#ff6b9d'
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.fillRect(outX, hpY - boxH/2, boxW, boxH)
-    ctx.strokeRect(outX, hpY - boxH/2, boxW, boxH)
-    ctx.fillStyle = '#000'
-    ctx.fillText('cD', outX + boxW/2, hpY + 5)
-  }
-
-  // Labels
-  ctx.fillStyle = '#888'
-  ctx.font = '12px sans-serif'
-  ctx.textAlign = 'left'
-  ctx.fillText('Low-pass → Aproximare', outX + boxW + 10, lpY + 5)
-  ctx.fillText('High-pass → Detalii', outX + boxW + 10, hpY + 5)
-
-  // Title
-  ctx.fillStyle = '#ffd700'
-  ctx.font = 'bold 16px sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('BANCA DE ANALIZĂ (Descompunere)', W/2, 25)
-
-  // Dimension annotation
-  if (step >= 5) {
-    ctx.fillStyle = '#888'
-    ctx.font = '11px sans-serif'
-    ctx.fillText('N valori', inputX + boxW/2, midY + boxH/2 + 15)
-    ctx.fillText('N/2', outX + boxW/2, lpY + boxH/2 + 15)
-    ctx.fillText('N/2', outX + boxW/2, hpY + boxH/2 + 15)
-  }
-}
-
-function drawSynthesisBank(ctx, W, H, step, wavelet) {
-  const midY = H / 2
-  const boxW = 100
-  const boxH = 40
-
-  ctx.lineWidth = 3
-  ctx.font = 'bold 14px monospace'
-
-  // Input boxes (cA, cD)
-  const inputX = 50
-  const lpY = midY - 80
-  const hpY = midY + 80
-
-  // cA input
-  ctx.fillStyle = step >= 0 ? '#00ff88' : '#333'
-  ctx.strokeStyle = step >= 0 ? '#00ff88' : '#555'
-  ctx.fillRect(inputX, lpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(inputX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.textAlign = 'center'
-  ctx.fillText('cA', inputX + boxW/2, lpY + 5)
-
-  // cD input
-  ctx.fillStyle = step >= 0 ? '#ff6b9d' : '#333'
-  ctx.strokeStyle = step >= 0 ? '#ff6b9d' : '#555'
-  ctx.fillRect(inputX, hpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(inputX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('cD', inputX + boxW/2, hpY + 5)
-
-  // Upsampling
-  const upX = inputX + boxW + 40
-  if (step >= 1) {
-    ctx.strokeStyle = '#00ff88'
-    ctx.beginPath()
-    ctx.moveTo(inputX + boxW, lpY)
-    ctx.lineTo(upX, lpY)
-    ctx.stroke()
-
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.beginPath()
-    ctx.moveTo(inputX + boxW, hpY)
-    ctx.lineTo(upX, hpY)
-    ctx.stroke()
-
-    // Upsampling circles
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(upX + 25, lpY, 25, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#000'
-    ctx.fillText('↑2', upX + 25, lpY + 5)
-
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(upX + 25, hpY, 25, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#000'
-    ctx.fillText('↑2', upX + 25, hpY + 5)
-  }
-
-  // Synthesis filters
-  const gX = upX + 70
-  if (step >= 2) {
-    ctx.strokeStyle = '#00ff88'
-    ctx.beginPath()
-    ctx.moveTo(upX + 50, lpY)
-    ctx.lineTo(gX, lpY)
-    ctx.stroke()
-  }
-
-  ctx.fillStyle = step >= 2 ? '#00ff88' : '#222'
-  ctx.strokeStyle = step >= 2 ? '#00ff88' : '#444'
-  ctx.fillRect(gX, lpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(gX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = step >= 2 ? '#000' : '#666'
-  ctx.textAlign = 'center'
-  ctx.fillText('g₀', gX + boxW/2, lpY + 5)
-
-  if (step >= 3) {
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.beginPath()
-    ctx.moveTo(upX + 50, hpY)
-    ctx.lineTo(gX, hpY)
-    ctx.stroke()
-  }
-
-  ctx.fillStyle = step >= 3 ? '#ff6b9d' : '#222'
-  ctx.strokeStyle = step >= 3 ? '#ff6b9d' : '#444'
-  ctx.fillRect(gX, hpY - boxH/2, boxW, boxH)
-  ctx.strokeRect(gX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = step >= 3 ? '#000' : '#666'
-  ctx.fillText('g₁', gX + boxW/2, hpY + 5)
-
-  // Addition point
-  const addX = gX + boxW + 60
-  if (step >= 4) {
-    ctx.strokeStyle = '#00ff88'
-    ctx.beginPath()
-    ctx.moveTo(gX + boxW, lpY)
-    ctx.lineTo(addX, midY)
-    ctx.stroke()
-
-    ctx.strokeStyle = '#ff6b9d'
-    ctx.beginPath()
-    ctx.moveTo(gX + boxW, hpY)
-    ctx.lineTo(addX, midY)
-    ctx.stroke()
-
-    // Plus circle
-    ctx.fillStyle = '#ffd700'
-    ctx.beginPath()
-    ctx.arc(addX, midY, 25, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#000'
-    ctx.font = 'bold 20px sans-serif'
-    ctx.fillText('+', addX, midY + 7)
-  }
-
-  // Output
-  const outX = addX + 50
-  if (step >= 5) {
-    ctx.strokeStyle = '#00d4ff'
-    ctx.lineWidth = 3
-    ctx.beginPath()
-    ctx.moveTo(addX + 25, midY)
-    ctx.lineTo(outX, midY)
-    ctx.stroke()
-
-    ctx.fillStyle = '#00d4ff'
-    ctx.strokeStyle = '#00d4ff'
-    ctx.fillRect(outX, midY - boxH/2, boxW, boxH)
-    ctx.strokeRect(outX, midY - boxH/2, boxW, boxH)
-    ctx.fillStyle = '#000'
-    ctx.font = 'bold 14px monospace'
-    ctx.fillText('x̂[n]', outX + boxW/2, midY + 5)
-  }
-
-  // Title
-  ctx.fillStyle = '#ffd700'
-  ctx.font = 'bold 16px sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('BANCA DE SINTEZĂ (Reconstrucție)', W/2, 25)
-
-  // Perfect reconstruction note
-  if (step >= 5) {
-    ctx.fillStyle = '#00ff88'
-    ctx.font = 'bold 14px sans-serif'
-    ctx.fillText('✓ x̂[n] = x[n] (Reconstrucție Perfectă!)', W/2, H - 20)
-  }
-}
-
-function drawCompleteBank(ctx, W, H, step, wavelet) {
-  // Draw both analysis and synthesis connected
-  const midY = H / 2
-  const boxW = 70
-  const boxH = 30
-
-  ctx.lineWidth = 2
-  ctx.font = 'bold 11px monospace'
-  ctx.textAlign = 'center'
-
-  // ANALYSIS SIDE (left half)
-  const aInputX = 30
-  const aSplitX = aInputX + boxW + 20
-  const aFilterX = aSplitX + 40
-  const aDecX = aFilterX + boxW + 20
-  const aOutX = aDecX + 40
-
-  const lpY = midY - 50
-  const hpY = midY + 50
-
-  // Input
-  ctx.fillStyle = '#00d4ff'
-  ctx.fillRect(aInputX, midY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('x[n]', aInputX + boxW/2, midY + 4)
-
-  // Lines to filters
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(aInputX + boxW, midY)
-  ctx.lineTo(aSplitX, midY)
-  ctx.lineTo(aFilterX, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(aSplitX, midY)
-  ctx.lineTo(aFilterX, hpY)
-  ctx.stroke()
-
-  // h0, h1 filters
-  ctx.fillStyle = '#00ff88'
-  ctx.fillRect(aFilterX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('h₀', aFilterX + boxW/2, lpY + 4)
-
-  ctx.fillStyle = '#ff6b9d'
-  ctx.fillRect(aFilterX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('h₁', aFilterX + boxW/2, hpY + 4)
-
-  // Decimation
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(aFilterX + boxW, lpY)
-  ctx.lineTo(aDecX + 15, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(aFilterX + boxW, hpY)
-  ctx.lineTo(aDecX + 15, hpY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#ffd700'
-  ctx.beginPath()
-  ctx.arc(aDecX + 15, lpY, 15, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.beginPath()
-  ctx.arc(aDecX + 15, hpY, 15, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 10px monospace'
-  ctx.fillText('↓2', aDecX + 15, lpY + 4)
-  ctx.fillText('↓2', aDecX + 15, hpY + 4)
-
-  // cA, cD outputs
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(aDecX + 30, lpY)
-  ctx.lineTo(aOutX, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(aDecX + 30, hpY)
-  ctx.lineTo(aOutX, hpY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#00ff88'
-  ctx.fillRect(aOutX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 11px monospace'
-  ctx.fillText('cA', aOutX + boxW/2, lpY + 4)
-
-  ctx.fillStyle = '#ff6b9d'
-  ctx.fillRect(aOutX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('cD', aOutX + boxW/2, hpY + 4)
-
-  // SYNTHESIS SIDE (right half)
-  const sInputX = aOutX + boxW + 30
-  const sUpX = sInputX + 30
-  const sFilterX = sUpX + 50
-  const sAddX = sFilterX + boxW + 30
-  const sOutX = sAddX + 40
-
-  // Connecting lines from analysis to synthesis
-  ctx.strokeStyle = '#444'
-  ctx.setLineDash([5, 5])
-  ctx.beginPath()
-  ctx.moveTo(aOutX + boxW, lpY)
-  ctx.lineTo(sInputX, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(aOutX + boxW, hpY)
-  ctx.lineTo(sInputX, hpY)
-  ctx.stroke()
-  ctx.setLineDash([])
-
-  // Upsampling
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(sInputX, lpY)
-  ctx.lineTo(sUpX + 15, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(sInputX, hpY)
-  ctx.lineTo(sUpX + 15, hpY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#ffd700'
-  ctx.beginPath()
-  ctx.arc(sUpX + 15, lpY, 15, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.beginPath()
-  ctx.arc(sUpX + 15, hpY, 15, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 10px monospace'
-  ctx.fillText('↑2', sUpX + 15, lpY + 4)
-  ctx.fillText('↑2', sUpX + 15, hpY + 4)
-
-  // g0, g1 filters
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(sUpX + 30, lpY)
-  ctx.lineTo(sFilterX, lpY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(sUpX + 30, hpY)
-  ctx.lineTo(sFilterX, hpY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#00ff88'
-  ctx.fillRect(sFilterX, lpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 11px monospace'
-  ctx.fillText('g₀', sFilterX + boxW/2, lpY + 4)
-
-  ctx.fillStyle = '#ff6b9d'
-  ctx.fillRect(sFilterX, hpY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.fillText('g₁', sFilterX + boxW/2, hpY + 4)
-
-  // Addition
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(sFilterX + boxW, lpY)
-  ctx.lineTo(sAddX, midY)
-  ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(sFilterX + boxW, hpY)
-  ctx.lineTo(sAddX, midY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#ffd700'
-  ctx.beginPath()
-  ctx.arc(sAddX, midY, 15, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 14px monospace'
-  ctx.fillText('+', sAddX, midY + 5)
-
-  // Output
-  ctx.strokeStyle = '#666'
-  ctx.beginPath()
-  ctx.moveTo(sAddX + 15, midY)
-  ctx.lineTo(sOutX, midY)
-  ctx.stroke()
-
-  ctx.fillStyle = '#00d4ff'
-  ctx.fillRect(sOutX, midY - boxH/2, boxW, boxH)
-  ctx.fillStyle = '#000'
-  ctx.font = 'bold 11px monospace'
-  ctx.fillText('x̂[n]', sOutX + boxW/2, midY + 4)
-
-  // Labels
-  ctx.fillStyle = '#ffd700'
-  ctx.font = 'bold 14px sans-serif'
-  ctx.fillText('ANALIZĂ', (aInputX + aOutX + boxW) / 2, 25)
-  ctx.fillText('SINTEZĂ', (sInputX + sOutX + boxW) / 2, 25)
-
-  // Perfect reconstruction
-  ctx.fillStyle = '#00ff88'
-  ctx.font = 'bold 13px sans-serif'
-  ctx.fillText('✓ Reconstrucție Perfectă: x̂[n] = x[n]', W/2, H - 15)
-
-  // Divider
-  ctx.strokeStyle = '#444'
-  ctx.setLineDash([3, 3])
-  ctx.beginPath()
-  ctx.moveTo(W/2, 40)
-  ctx.lineTo(W/2, H - 35)
-  ctx.stroke()
-  ctx.setLineDash([])
 }

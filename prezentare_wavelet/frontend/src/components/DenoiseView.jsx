@@ -138,7 +138,6 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
                     alt="Noisy"
                   />
                 </div>
-                <div className="img-metric">SNR: {result.snr_before?.toFixed(1)} dB</div>
               </div>
             )}
             
@@ -150,15 +149,18 @@ export default function DenoiseView({ api, imageId, sampleImages = [], onImageCh
                   alt="Denoised"
                 />
               </div>
-              <div className="img-metric success">SNR: {result.snr_after?.toFixed(1)} dB (+{result.snr_improvement?.toFixed(1)})</div>
             </div>
           </div>
 
           {/* Stats row */}
           <div className="denoise-stats">
             <div className="stat-item">
-              <span className="stat-label">σ estimat</span>
-              <span className="stat-value">{result.estimated_sigma.toFixed(2)}</span>
+              <span className="stat-label">SNR Inițial</span>
+              <span className="stat-value">{result.snr_before?.toFixed(1)} dB</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">SNR Final</span>
+              <span className="stat-value">{result.snr_after?.toFixed(1)} dB</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Prag</span>

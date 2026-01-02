@@ -22,8 +22,9 @@ import io
 import base64
 import os
 
-# Path to test images
-TEST_IMAGES_DIR = Path(__file__).parent.parent.parent / "data" / "standard_test_images"
+# Path to data folder - use DATA_DIR env var (Docker) or fallback to relative path (local dev)
+DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent.parent / "data"))
+TEST_IMAGES_DIR = DATA_DIR / "standard_test_images"
 
 app = FastAPI(
     title="Wavelet DSP API",
@@ -556,7 +557,7 @@ async def get_sample_image_grayscale(image_id: str, size: int = 64):
 # Sprite Images API (Educational - small pixel art for kernel demos)
 # ============================================================================
 
-SPRITE_IMAGES_DIR = Path(__file__).parent.parent.parent / "data" / "sprite_images"
+SPRITE_IMAGES_DIR = DATA_DIR / "sprite_images"
 
 @app.get("/api/sprite-images")
 async def list_sprite_images():

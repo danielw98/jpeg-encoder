@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import LaTeX, { LaTeXBlock } from './LaTeX'
+import AnimationControls from './shared/AnimationControls'
 import './MallatUnifiedView.css'
 
 /**
@@ -107,6 +108,8 @@ const BAND_COLORS = {
   HH: '#ff6b9d'
 }
 
+
+
 // ============================================================================
 // Component
 // ============================================================================
@@ -114,6 +117,7 @@ const BAND_COLORS = {
 export default function MallatUnifiedView({ compact = false }) {
   // Mode: 'edu' (8×8 step-by-step) or 'full' (multi-level pyramid)
   const [mode, setMode] = useState('edu')
+  const [overlayLabels, setOverlayLabels] = useState([])
   
   // Image source
   const [imageSource, setImageSource] = useState('synthetic')
@@ -218,18 +222,32 @@ export default function MallatUnifiedView({ compact = false }) {
     const canvas = canvasRef.current
     if (!canvas || !imageData) return
     
+    // HiDPI support
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    const W = rect.width
+    const H = rect.height
+    
+    // Only resize if needed
+    if (canvas.width !== W * dpr || canvas.height !== H * dpr) {
+      canvas.width = W * dpr
+      canvas.height = H * dpr
+    }
+    
     const ctx = canvas.getContext('2d')
-    const W = canvas.width
-    const H = canvas.height
+    ctx.setTransform(1, 0, 0, 1, 0, 0)  // Reset transform
+    ctx.scale(dpr, dpr)
     
     ctx.fillStyle = '#0a0a1a'
     ctx.fillRect(0, 0, W, H)
     
+    let newLabels = []
     if (mode === 'edu') {
-      drawEducationalMode(ctx, W, H, eduData, currentStep, useHeatmap)
+      newLabels = drawEducationalMode(ctx, W, H, eduData, currentStep, useHeatmap)
     } else {
-      drawPyramidMode(ctx, W, H, imageData, decomposition, highlightBand, useHeatmap)
+      newLabels = drawPyramidMode(ctx, W, H, imageData, decomposition, highlightBand, useHeatmap)
     }
+    setOverlayLabels(newLabels)
   }, [imageData, mode, currentStep, decomposition, highlightBand, eduData, useHeatmap])
   
   // Reset handler
@@ -267,13 +285,25 @@ export default function MallatUnifiedView({ compact = false }) {
         </div>
         
         {/* Canvas with HTML overlay for labels */}
-        <div className="canvas-container">
-          <div className="mallat-canvas-wrapper">
+        <div className={`canvas-container ${mode === 'edu' ? 'edu-mode' : 'full-mode'}`}>
+          <div className="mallat-canvas-wrapper" style={{position: 'relative'}}>
             <canvas 
               ref={canvasRef} 
-              width={mode === 'edu' ? 900 : 550} 
-              height={mode === 'edu' ? 580 : 400} 
+              style={{ width: '100%', height: '100%' }}
             />
+            {overlayLabels.map((l, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                left: l.x,
+                top: l.y,
+                transform: 'translate(-50%, -50%)',
+                pointerEvents: 'none',
+                whiteSpace: 'nowrap',
+                ...l.style
+              }}>
+                {l.text}
+              </div>
+            ))}
           </div>
           
           {/* Step info overlay - positioned above the animation */}
@@ -294,27 +324,22 @@ export default function MallatUnifiedView({ compact = false }) {
           )}
         </div>
         
-        {/* Edu mode controls */}
+        {/* Edu mode controls - using AnimationControls component */}
         {mode === 'edu' && (
           <div className="edu-controls">
-            <button 
-              className={`ctrl-btn ${isPlaying ? 'stop' : 'play'}`}
-              onClick={() => setIsPlaying(!isPlaying)}
-              disabled={currentStep >= STEPS.length - 1 && !isPlaying}
-            >
-              {isPlaying ? '⏸' : '▶'}
-            </button>
-            <button 
-              className="ctrl-btn"
-              onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-              disabled={isPlaying || currentStep === 0}
-            >⏮</button>
-            <button 
-              className="ctrl-btn"
-              onClick={() => setCurrentStep(prev => Math.min(STEPS.length - 1, prev + 1))}
-              disabled={isPlaying || currentStep >= STEPS.length - 1}
-            >⏭</button>
-            <button className="ctrl-btn" onClick={handleReset}>🔄</button>
+            <AnimationControls
+              isPlaying={isPlaying}
+              onPlayPause={() => setIsPlaying(!isPlaying)}
+              onStepForward={() => setCurrentStep(prev => Math.min(STEPS.length - 1, prev + 1))}
+              onStepBackward={() => setCurrentStep(prev => Math.max(0, prev - 1))}
+              onReset={handleReset}
+              canStepForward={currentStep < STEPS.length - 1}
+              canStepBackward={currentStep > 0}
+              canPlay={currentStep < STEPS.length - 1 || isPlaying}
+              showJumpButtons={false}
+              size="normal"
+              layout="compact"
+            />
             
             <div className="step-dots">
               {STEPS.map((s, i) => (
@@ -597,19 +622,19 @@ function drawArrow(ctx, x1, y1, x2, y2, label = '') {
   if (label) {
     const midX = (x1 + x2) / 2
     const midY = (y1 + y2) / 2
-    ctx.font = 'bold 10px system-ui'
-    ctx.fillStyle = '#ffcc00'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
     // Offset perpendicular to the line
     const perpX = -Math.sin(angle) * 12
     const perpY = Math.cos(angle) * 12
-    ctx.fillText(label, midX + perpX, midY + perpY)
+    drawText(ctx, label, midX + perpX, midY + perpY, { 
+      color: '#ffcc00', 
+      font: 'bold 11px system-ui, -apple-system, sans-serif' 
+    })
   }
 }
 
 function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
-  if (!data) return
+  if (!data) return []
+  const labels = []
   const { patch, L, H, LL, LH, HL, HH } = data
   const cell = 18  // Smaller cells to fit everything
   const phase = STEPS[step].phase
@@ -648,10 +673,12 @@ function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
     const ox = W/2 - patchSize*cell/2
     const oy = centerY - patchSize*cell/2
     drawMatrix(ctx, patch, ox, oy, cell, { highlight: true, normalize: false })
-    ctx.fillStyle = '#00d4ff'
-    ctx.font = 'bold 12px system-ui'
-    ctx.textAlign = 'center'
-    ctx.fillText('8×8', ox + patchSize*cell/2, oy + patchSize*cell + 16)
+    labels.push({
+      text: '8×8',
+      x: ox + patchSize*cell/2,
+      y: oy + patchSize*cell + 16,
+      style: { color: '#00d4ff', fontWeight: 'bold', fontSize: '13px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }
+    })
   }
   else if (phase >= 1) {
     // Original always at col1
@@ -659,10 +686,17 @@ function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
     const origRect = drawWithDim(patch, col1, origY, cell, { normalize: false, dim: phase > 1 })
     
     // Label for original
-    ctx.font = 'bold 11px system-ui'
-    ctx.fillStyle = phase > 1 ? '#666' : '#fff'
-    ctx.textAlign = 'center'
-    ctx.fillText(`Original (${patchSize}×${patchSize})`, col1 + patchSize*cell/2, origY - 8)
+    labels.push({
+      text: `Original (${patchSize}×${patchSize})`,
+      x: col1 + patchSize*cell/2,
+      y: origY - 12,
+      style: { 
+        color: phase > 1 ? '#666' : '#fff', 
+        fontWeight: 'bold', 
+        fontSize: '12px',
+        textShadow: phase <= 1 ? '1px 1px 2px rgba(0,0,0,0.8)' : 'none'
+      }
+    })
     
     // L and H at col2 - proper vertical spacing
     const gapLH = 25  // More gap between L and H
@@ -673,17 +707,36 @@ function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
     
     // Draw arrows from original to L and H
     if (phase >= 1) {
-      drawArrow(ctx, col1 + patchSize*cell + 8, origY + patchSize*cell/2 - 15, col2 - 8, lY + patchSize*cell/2, 'h₀')
-      drawArrow(ctx, col1 + patchSize*cell + 8, origY + patchSize*cell/2 + 15, col2 - 8, hY + patchSize*cell/2, 'h₁')
+      drawArrow(ctx, col1 + patchSize*cell + 8, origY + patchSize*cell/2 - 15, col2 - 8, lY + patchSize*cell/2, '')
+      drawArrow(ctx, col1 + patchSize*cell + 8, origY + patchSize*cell/2 + 15, col2 - 8, hY + patchSize*cell/2, '')
+      // Arrow labels
+      labels.push({ text: 'h₀', x: (col1 + patchSize*cell + col2)/2, y: (origY + patchSize*cell/2 - 15 + lY + patchSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
+      labels.push({ text: 'h₁', x: (col1 + patchSize*cell + col2)/2, y: (origY + patchSize*cell/2 + 15 + hY + patchSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
     }
     
     // Labels for L and H
-    ctx.font = 'bold 11px system-ui'
-    ctx.fillStyle = phase > 2 ? '#666' : '#00d4ff'
-    ctx.textAlign = 'center'
-    ctx.fillText(`L (${L.length}×${L[0].length})`, col2 + L[0].length*cell/2, lY - 8)
-    ctx.fillStyle = phase > 3 ? '#666' : '#ffd700'
-    ctx.fillText(`H (${H.length}×${H[0].length})`, col2 + H[0].length*cell/2, hY - 8)
+    labels.push({
+      text: `L (${L.length}×${L[0].length})`,
+      x: col2 + L[0].length*cell/2,
+      y: lY - 12,
+      style: { 
+        color: phase > 2 ? '#666' : '#00d4ff', 
+        fontWeight: 'bold', 
+        fontSize: '12px',
+        textShadow: phase <= 2 ? '1px 1px 2px rgba(0,0,0,0.8)' : 'none'
+      }
+    })
+    labels.push({
+      text: `H (${H.length}×${H[0].length})`,
+      x: col2 + H[0].length*cell/2,
+      y: hY - 12,
+      style: { 
+        color: phase > 3 ? '#666' : '#ffd700', 
+        fontWeight: 'bold', 
+        fontSize: '12px',
+        textShadow: phase <= 3 ? '1px 1px 2px rgba(0,0,0,0.8)' : 'none'
+      }
+    })
     
     // Phase 2+: show LL and LH from L
     // LL at top of L, LH right below LL with small gap
@@ -698,14 +751,26 @@ function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
       const arrowStartX = col2 + L[0].length*cell + 8
       const arrowEndX = col3 - 8
       const lMidY = lY + patchSize*cell/2
-      drawArrow(ctx, arrowStartX, lMidY - 20, arrowEndX, llY + halfSize*cell/2, 'h₀')
-      drawArrow(ctx, arrowStartX, lMidY + 20, arrowEndX, lhY + halfSize*cell/2, 'h₁')
+      drawArrow(ctx, arrowStartX, lMidY - 20, arrowEndX, llY + halfSize*cell/2, '')
+      drawArrow(ctx, arrowStartX, lMidY + 20, arrowEndX, lhY + halfSize*cell/2, '')
+      
+      // Arrow labels
+      labels.push({ text: 'h₀', x: (arrowStartX + arrowEndX)/2, y: (lMidY - 20 + llY + halfSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
+      labels.push({ text: 'h₁', x: (arrowStartX + arrowEndX)/2, y: (lMidY + 20 + lhY + halfSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
       
       // Labels with dimensions
-      ctx.fillStyle = BAND_COLORS.LL
-      ctx.fillText(`LL (${halfSize}×${halfSize})`, col3 + halfSize*cell/2, llY - 6)
-      ctx.fillStyle = BAND_COLORS.LH
-      ctx.fillText(`LH (${halfSize}×${halfSize})`, col3 + halfSize*cell/2, lhY + halfSize*cell + 12)
+      labels.push({
+        text: `LL (${halfSize}×${halfSize})`,
+        x: col3 + halfSize*cell/2,
+        y: llY - 10,
+        style: { color: BAND_COLORS.LL, fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }
+      })
+      labels.push({
+        text: `LH (${halfSize}×${halfSize})`,
+        x: col3 + halfSize*cell/2,
+        y: lhY + halfSize*cell + 16,
+        style: { color: BAND_COLORS.LH, fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }
+      })
     }
     
     // Phase 3+: show HL and HH from H
@@ -721,20 +786,34 @@ function drawEducationalMode(ctx, W, height, data, step, heatmap = false) {
       const arrowStartX = col2 + H[0].length*cell + 8
       const arrowEndX = col3 - 8
       const hMidY = hY + patchSize*cell/2
-      drawArrow(ctx, arrowStartX, hMidY - 20, arrowEndX, hlY + halfSize*cell/2, 'h₀')
-      drawArrow(ctx, arrowStartX, hMidY + 20, arrowEndX, hhY + halfSize*cell/2, 'h₁')
+      drawArrow(ctx, arrowStartX, hMidY - 20, arrowEndX, hlY + halfSize*cell/2, '')
+      drawArrow(ctx, arrowStartX, hMidY + 20, arrowEndX, hhY + halfSize*cell/2, '')
+      
+      // Arrow labels
+      labels.push({ text: 'h₀', x: (arrowStartX + arrowEndX)/2, y: (hMidY - 20 + hlY + halfSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
+      labels.push({ text: 'h₁', x: (arrowStartX + arrowEndX)/2, y: (hMidY + 20 + hhY + halfSize*cell/2)/2, style: { color: '#ffcc00', fontSize: '11px', fontWeight: 'bold' } })
       
       // Labels with dimensions
-      ctx.fillStyle = BAND_COLORS.HL
-      ctx.fillText(`HL (${halfSize}×${halfSize})`, col3 + halfSize*cell/2, hlY - 6)
-      ctx.fillStyle = BAND_COLORS.HH
-      ctx.fillText(`HH (${halfSize}×${halfSize})`, col3 + halfSize*cell/2, hhY + halfSize*cell + 12)
+      labels.push({
+        text: `HL (${halfSize}×${halfSize})`,
+        x: col3 + halfSize*cell/2,
+        y: hlY - 10,
+        style: { color: BAND_COLORS.HL, fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }
+      })
+      labels.push({
+        text: `HH (${halfSize}×${halfSize})`,
+        x: col3 + halfSize*cell/2,
+        y: hhY + halfSize*cell + 16,
+        style: { color: BAND_COLORS.HH, fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }
+      })
     }
   }
+  return labels
 }
 
 function drawPyramidMode(ctx, W, height, imageData, decomposition, highlightBand, heatmap = false) {
-  if (!decomposition.length) return
+  if (!decomposition.length) return []
+  const labels = []
   
   const pyramidSize = Math.min(W - 50, height - 80)
   const offsetX = (W - pyramidSize) / 2
@@ -744,9 +823,13 @@ function drawPyramidMode(ctx, W, height, imageData, decomposition, highlightBand
   const origSize = 80
   const origCell = origSize / imageData.length
   drawMatrix(ctx, imageData, 20, offsetY, origCell, { normalize: false, heatmap: false })
-  ctx.fillStyle = '#888'
-  ctx.font = '11px sans-serif'
-  ctx.fillText('Original', 20, offsetY + origSize + 15)
+  
+  labels.push({
+    text: 'Original',
+    x: 20 + origSize / 2,
+    y: offsetY + origSize + 15,
+    style: { color: '#888', fontSize: '12px' }
+  })
   
   // Arrow to pyramid
   drawArrow(ctx, 20 + origSize + 5, offsetY + origSize/2, offsetX - 10, offsetY + pyramidSize/2)
@@ -781,4 +864,5 @@ function drawPyramidMode(ctx, W, height, imageData, decomposition, highlightBand
     
     currentSize = half
   }
+  return labels
 }

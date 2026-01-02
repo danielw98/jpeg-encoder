@@ -12,8 +12,8 @@ from PIL import Image
 from pathlib import Path
 from scipy.fftpack import dct, idct
 
-# Path to test images
-IMAGES_DIR = Path(__file__).parent.parent.parent / "data" / "standard_test_images"
+# Path to test images (relative to scripts/ -> prezentare_wavelet -> data)
+IMAGES_DIR = Path(__file__).parent.parent / "data" / "standard_test_images"
 
 
 def generate_dct_basis(N: int = 8) -> np.ndarray:

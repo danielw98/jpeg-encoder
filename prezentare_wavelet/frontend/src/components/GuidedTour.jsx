@@ -10,6 +10,9 @@ import KernelsEducationalView from './KernelsEducationalView'
 import WaveletPlayground from './WaveletPlayground'
 import WaveletScanDemo from './WaveletScanDemo'
 import WaveletEducationView from './WaveletEducationView'
+import HeisenbergBoxesView from './HeisenbergBoxesView'
+import ScalogramView from './ScalogramView'
+import ComplexWaveletView from './ComplexWaveletView'
 import WaveletBasisView from './WaveletBasisView'
 import DenoiseView from './DenoiseView'
 import DenoiseTheoryView from './DenoiseTheoryView'
@@ -276,6 +279,36 @@ const SLIDES = [
     embedType: 'wavelet-scan',
     icon: '🔍',
     title: 'Demo: Scanarea Semnalului',
+    color: '#00d4ff'
+  },
+  {
+    id: 'heisenberg-boxes',
+    section: 'wavelets',
+    type: 'embed',
+    embedType: 'heisenberg',
+    icon: '📦',
+    title: 'Compromisul Timp-Frecvență',
+    subtitle: 'Vizualizare Heisenberg',
+    color: '#00d4ff'
+  },
+  {
+    id: 'scalogram',
+    section: 'wavelets',
+    type: 'embed',
+    embedType: 'scalogram',
+    icon: '🌈',
+    title: 'Scalograma (CWT)',
+    subtitle: 'Vizualizare Timp-Scală',
+    color: '#00d4ff'
+  },
+  {
+    id: 'complex-wavelet',
+    section: 'wavelets',
+    type: 'embed',
+    embedType: 'complex-wavelet',
+    icon: '🌀',
+    title: 'Wavelet Complex',
+    subtitle: 'Magnitudine și Fază',
     color: '#00d4ff'
   },
 
@@ -567,6 +600,12 @@ function EmbeddedView({ embedType, api, imageId, sampleImages, onImageChange }) 
       return <WaveletPlayground compact={true} />
     case 'wavelet-scan':
       return <WaveletScanDemo compact={true} />
+    case 'heisenberg':
+      return <HeisenbergBoxesView compact={true} />
+    case 'scalogram':
+      return <ScalogramView compact={true} />
+    case 'complex-wavelet':
+      return <ComplexWaveletView compact={true} />
     case 'wavelet-theory':
       return <WaveletEducationView api={api} compact={true} />
     case 'wavelet-basis':

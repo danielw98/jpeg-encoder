@@ -100,6 +100,8 @@ export default function PyramidDecompView({ compact = false }) {
   }, [animating, animLevel, numLevels])
 
   // Draw pyramid
+  const [overlayLabels, setOverlayLabels] = useState([])
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -110,7 +112,8 @@ export default function PyramidDecompView({ compact = false }) {
     ctx.fillStyle = '#0a0a1a'
     ctx.fillRect(0, 0, W, H)
 
-    drawPyramid(ctx, W, H, signal, decomposition, animating ? animLevel : numLevels, highlightLevel)
+    const { labels } = drawPyramid(ctx, W, H, signal, decomposition, animating ? animLevel : numLevels, highlightLevel)
+    setOverlayLabels(labels)
   }, [signal, decomposition, numLevels, highlightLevel, animLevel, animating])
 
   const handleAnimate = () => {
@@ -151,17 +154,50 @@ export default function PyramidDecompView({ compact = false }) {
           flexDirection: 'column',
           gap: '0.5rem'
         }}>
-          <canvas
-            ref={canvasRef}
-            width={650}
-            height={380}
-            style={{
+          <div style={{ position: 'relative', width: '100%' }}>
+            <canvas
+              ref={canvasRef}
+              width={650}
+              height={380}
+              style={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: '10px',
+                border: '1px solid #333',
+                display: 'block'
+              }}
+            />
+            
+            {/* HTML Overlays for Text */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
-              height: 'auto',
-              borderRadius: '10px',
-              border: '1px solid #333'
-            }}
-          />
+              height: '100%',
+              pointerEvents: 'none'
+            }}>
+              {overlayLabels.map((label, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: `${(label.x / 650) * 100}%`,
+                    top: `${(label.y / 380) * 100}%`,
+                    transform: label.transform || 'translate(-50%, -50%)',
+                    color: label.color,
+                    fontSize: label.fontSize || '12px',
+                    fontWeight: label.fontWeight || 'bold',
+                    whiteSpace: 'nowrap',
+                    textAlign: label.textAlign || 'center',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+                  }}
+                >
+                  {label.text}
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Controls */}
           <div style={{
@@ -239,8 +275,11 @@ export default function PyramidDecompView({ compact = false }) {
                   justifyContent: 'center',
                   color: '#000',
                   fontSize: '0.75rem',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  cursor: 'default'
                 }}
+                onMouseEnter={() => setHighlightLevel(numLevels)}
+                onMouseLeave={() => setHighlightLevel(null)}
               >
                 {(approxTotal / totalEnergy * 100) > 10 && `A${numLevels}: ${(approxTotal / totalEnergy * 100).toFixed(0)}%`}
               </div>
@@ -249,7 +288,7 @@ export default function PyramidDecompView({ compact = false }) {
                   key={e.level}
                   style={{
                     width: `${(e.detailEnergy / totalEnergy) * 100}%`,
-                    background: `hsl(${340 - i * 30}, 70%, 50%)`,
+                    background: `hsl(${320 - (e.level - 1) * 25}, 75%, 55%)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -368,7 +407,7 @@ export default function PyramidDecompView({ compact = false }) {
               🔄 Reconstrucție
             </h4>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#aaa' }}>
-              Cu <strong>toate</strong> coeficienții (A<sub>{numLevels}</sub> + D<sub>1</sub>...D<sub>{numLevels}</sub>),
+              Cu <strong>toți</strong> coeficienții (A<sub>{numLevels}</sub> + D<sub>1</sub>...D<sub>{numLevels}</sub>),
               semnalul original se recuperează <strong>perfect</strong>!
             </p>
           </div>
@@ -395,18 +434,20 @@ function drawPyramid(ctx, W, H, signal, decomposition, showLevels, highlightLeve
   const barHeight = Math.min(rowHeight * 0.6, 35)  // Max bar height, with spacing
   const maxWidth = W - leftMargin - rightMargin - labelWidth
 
-  ctx.font = 'bold 12px sans-serif'
-  ctx.textAlign = 'left'
+  const labels = []
 
   // Draw original signal at top
   const signalY = topMargin + rowHeight / 2
   drawSignalBar(ctx, leftMargin, signalY - barHeight / 2, maxWidth, barHeight, signal, '#00d4ff', false)
   
   // Label for original
-  ctx.fillStyle = '#00d4ff'
-  ctx.font = 'bold 13px sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('Original x[n]', leftMargin + maxWidth / 2, signalY - barHeight / 2 - 8)
+  labels.push({
+    text: 'Original x[n]',
+    x: leftMargin + maxWidth / 2,
+    y: signalY - barHeight / 2 - 15,
+    color: '#00d4ff',
+    fontSize: '13px'
+  })
 
   // Draw each decomposition level
   for (let i = 0; i < numLevelsToShow; i++) {
@@ -430,10 +471,13 @@ function drawPyramid(ctx, W, H, signal, decomposition, showLevels, highlightLeve
     
     // Label for approximation (only on last visible level)
     if (i === numLevelsToShow - 1) {
-      ctx.fillStyle = '#00ff88'
-      ctx.font = 'bold 12px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText(`A${d.level}`, approxX + approxWidth / 2, y + barHeight + 14)
+      labels.push({
+        text: `A${d.level}`,
+        x: approxX + approxWidth / 2,
+        y: y + barHeight + 14,
+        color: '#00ff88',
+        fontSize: '12px'
+      })
     }
 
     // Draw detail (pink/magenta, right side)
@@ -442,10 +486,15 @@ function drawPyramid(ctx, W, H, signal, decomposition, showLevels, highlightLeve
     drawSignalBar(ctx, detailX, y, detailWidth, barHeight, d.detail, detailColor, isHighlighted)
     
     // Label for detail (always show, right side of bar)
-    ctx.fillStyle = detailColor
-    ctx.font = 'bold 12px sans-serif'
-    ctx.textAlign = 'left'
-    ctx.fillText(`D${d.level}`, detailX + detailWidth + 8, y + barHeight / 2 + 4)
+    labels.push({
+      text: `D${d.level}`,
+      x: detailX + detailWidth + 8,
+      y: y + barHeight / 2,
+      color: detailColor,
+      fontSize: '12px',
+      textAlign: 'left',
+      transform: 'translate(0, -50%)'
+    })
 
     // Draw flow arrows from previous level
     ctx.strokeStyle = '#444'
@@ -471,18 +520,28 @@ function drawPyramid(ctx, W, H, signal, decomposition, showLevels, highlightLeve
     ctx.setLineDash([])
 
     // Level label on the left
-    ctx.fillStyle = '#888'
-    ctx.font = '11px sans-serif'
-    ctx.textAlign = 'right'
-    ctx.fillText(`Nivel ${d.level}`, leftMargin - 12, rowY + 4)
+    labels.push({
+      text: `Nivel ${d.level}`,
+      x: leftMargin - 12,
+      y: rowY,
+      color: '#888',
+      fontSize: '11px',
+      textAlign: 'right',
+      transform: 'translate(-100%, -50%)'
+    })
   }
 
   // Structure description at bottom
-  ctx.fillStyle = '#888'
-  ctx.font = '11px sans-serif'
-  ctx.textAlign = 'center'
   const sizesStr = [signal.length, ...decomposition.slice(0, numLevelsToShow).map(d => d.approxLength)].join(' → ')
-  ctx.fillText(`Structură piramidală: ${sizesStr} (coeficienți aproximare)`, W / 2, H - 10)
+  labels.push({
+    text: `Structură piramidală: ${sizesStr} (coeficienți aproximare)`,
+    x: W / 2,
+    y: H - 10,
+    color: '#888',
+    fontSize: '11px'
+  })
+
+  return { labels }
 }
 
 function drawSignalBar(ctx, x, y, width, height, data, color, highlight) {

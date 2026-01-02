@@ -85,6 +85,7 @@ export default function ReconstructionView({ compact = false }) {
   const [animStep, setAnimStep] = useState(0) // 0 = original, 1 = decomposed, 2 = reconstructed
   const [quantize, setQuantize] = useState(false)
   const [quantBits, setQuantBits] = useState(8)
+  const [overlayLabels, setOverlayLabels] = useState([])
   const canvasRef = useRef()
 
   // Generate signal
@@ -122,7 +123,8 @@ export default function ReconstructionView({ compact = false }) {
     ctx.fillStyle = '#0a0a1a'
     ctx.fillRect(0, 0, W, H)
 
-    drawReconstruction(ctx, W, H, originalSignal, decomposition, reconstructed, animStep, quantize, error)
+    const { labels } = drawReconstruction(ctx, W, H, originalSignal, decomposition, reconstructed, animStep, quantize, error)
+    setOverlayLabels(labels)
   }, [originalSignal, decomposition, reconstructed, animStep, quantize, error])
 
   return (
@@ -158,17 +160,42 @@ export default function ReconstructionView({ compact = false }) {
           flexDirection: 'column',
           gap: '0.5rem'
         }}>
-          <canvas
-            ref={canvasRef}
-            width={650}
-            height={350}
-            style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '10px',
-              border: '1px solid #333'
-            }}
-          />
+          {/* Canvas with HTML label overlays */}
+          <div style={{ position: 'relative', width: '100%' }}>
+            <canvas
+              ref={canvasRef}
+              width={650}
+              height={350}
+              style={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: '10px',
+                border: '1px solid #333',
+                display: 'block'
+              }}
+            />
+            
+            {/* HTML Labels - positioned as overlays */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+              {overlayLabels.map((label, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: `${(label.x / 650) * 100}%`,
+                    top: `${(label.y / 350) * 100}%`,
+                    color: label.color,
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {label.text}
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Step controls */}
           <div style={{
@@ -409,13 +436,16 @@ export default function ReconstructionView({ compact = false }) {
 
 function drawReconstruction(ctx, W, H, original, decomp, reconstructed, step, quantize, error) {
   const margin = 50
-  const plotHeight = 80
-  const gap = 20
+  const plotHeight = 70 // Reduced height to fit gaps
+  const gap = 45 // Increased gap for labels
+
+  const labels = []
 
   // Draw signals based on step
   if (step >= 0) {
     // Original signal
     drawSignalPlot(ctx, margin, 30, W - 2 * margin, plotHeight, original, '#00d4ff', 'Original x[n]')
+    labels.push({ text: 'Original x[n]', x: margin, y: 30 - 20, color: '#00d4ff' })
   }
 
   if (step >= 1) {
@@ -427,78 +457,33 @@ function drawReconstruction(ctx, W, H, original, decomp, reconstructed, step, qu
     if (decomp.length > 0) {
       const finalApprox = decomp[decomp.length - 1].approx
       drawSignalPlot(ctx, margin, coeffY, coeffWidth, plotHeight, finalApprox, '#00ff88', `Aproximare A${decomp.length}`)
+      labels.push({ text: `Aproximare A${decomp.length}`, x: margin, y: coeffY - 20, color: '#00ff88' })
     }
     
     // Show all details combined
     const allDetails = decomp.flatMap(d => d.detail)
     drawSignalPlot(ctx, margin + coeffWidth + 20, coeffY, coeffWidth, plotHeight, allDetails, '#ff6b9d', 'Detalii D₁...Dₙ')
+    labels.push({ text: `Detalii D₁...D${decomp.length}`, x: margin + coeffWidth + 20, y: coeffY - 20, color: '#ff6b9d' })
   }
 
   if (step >= 2) {
     // Reconstructed signal
     const reconY = 30 + 2 * (plotHeight + gap)
     drawSignalPlot(ctx, margin, reconY, W - 2 * margin, plotHeight, reconstructed, '#00ff88', 'Reconstruit x̂[n]')
+    labels.push({ text: 'Reconstruit x̂[n]', x: margin, y: reconY - 20, color: '#00ff88' })
     
     // Error visualization if there is any
     const maxErr = Math.max(...error)
     if (maxErr > 0.001) {
       const errY = reconY + plotHeight + 10
-      drawErrorPlot(ctx, margin, errY, W - 2 * margin, 40, error, maxErr)
+      drawErrorPlot(ctx, margin, errY, W - 2 * margin, 30, error, maxErr)
     }
   }
 
-  // Draw flow arrows
-  if (step >= 1) {
-    ctx.strokeStyle = '#ffd700'
-    ctx.lineWidth = 2
-    ctx.setLineDash([5, 5])
-    
-    // Arrow from original to coefficients
-    const arrowY = 30 + plotHeight + gap / 2
-    ctx.beginPath()
-    ctx.moveTo(W / 2, 30 + plotHeight)
-    ctx.lineTo(W / 2, arrowY - 5)
-    ctx.stroke()
-    
-    // Arrow head
-    ctx.beginPath()
-    ctx.moveTo(W / 2 - 8, arrowY - 12)
-    ctx.lineTo(W / 2, arrowY - 5)
-    ctx.lineTo(W / 2 + 8, arrowY - 12)
-    ctx.stroke()
-    
-    ctx.fillStyle = '#ffd700'
-    ctx.font = 'bold 11px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('DWT', W / 2 + 25, arrowY - 5)
-    
-    ctx.setLineDash([])
-  }
+  // Draw flow arrows (arrows only, text is HTML overlay)
+  // Arrows removed as per request (artifacts of old implementation)
 
-  if (step >= 2) {
-    ctx.strokeStyle = '#00ff88'
-    ctx.lineWidth = 2
-    ctx.setLineDash([5, 5])
-    
-    const arrowY = 30 + plotHeight + gap + plotHeight + gap / 2
-    ctx.beginPath()
-    ctx.moveTo(W / 2, 30 + plotHeight + gap + plotHeight)
-    ctx.lineTo(W / 2, arrowY - 5)
-    ctx.stroke()
-    
-    ctx.beginPath()
-    ctx.moveTo(W / 2 - 8, arrowY - 12)
-    ctx.lineTo(W / 2, arrowY - 5)
-    ctx.lineTo(W / 2 + 8, arrowY - 12)
-    ctx.stroke()
-    
-    ctx.fillStyle = '#00ff88'
-    ctx.font = 'bold 11px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('IDWT', W / 2 + 28, arrowY - 5)
-    
-    ctx.setLineDash([])
-  }
+  return { labels }
 }
 
 function drawSignalPlot(ctx, x, y, width, height, data, color, label) {
@@ -510,21 +495,25 @@ function drawSignalPlot(ctx, x, y, width, height, data, color, label) {
 
   const maxVal = Math.max(...data.map(Math.abs), 1)
   const barWidth = width / data.length
+  const zeroY = y + height / 2
 
   // Draw bars
   ctx.fillStyle = color
   data.forEach((val, i) => {
     const barX = x + i * barWidth
-    const barH = (val / maxVal) * height * 0.8
-    const barY = y + height / 2 - barH / 2
-    ctx.fillRect(barX, barY, Math.max(barWidth - 1, 1), Math.abs(barH))
+    // Scale relative to half-height (since zero is in middle)
+    const scaledHeight = (val / maxVal) * (height / 2) * 0.9
+    
+    if (val >= 0) {
+      // Draw upwards from zero
+      ctx.fillRect(barX, zeroY - scaledHeight, Math.max(barWidth - 1, 1), scaledHeight)
+    } else {
+      // Draw downwards from zero
+      ctx.fillRect(barX, zeroY, Math.max(barWidth - 1, 1), Math.abs(scaledHeight))
+    }
   })
-
-  // Label
-  ctx.fillStyle = color
-  ctx.font = 'bold 11px sans-serif'
-  ctx.textAlign = 'left'
-  ctx.fillText(label, x + 5, y + 14)
+  
+  // Label is now rendered as HTML overlay, not on canvas
 }
 
 function drawErrorPlot(ctx, x, y, width, height, error, maxErr) {
@@ -539,9 +528,6 @@ function drawErrorPlot(ctx, x, y, width, height, error, maxErr) {
     ctx.fillStyle = e > maxErr * 0.5 ? '#ff6b9d' : '#ff9f43'
     ctx.fillRect(barX, y + height - barH, Math.max(barWidth - 1, 1), barH)
   })
-
-  ctx.fillStyle = '#ff6b9d'
-  ctx.font = '10px sans-serif'
-  ctx.textAlign = 'left'
-  ctx.fillText('Eroare (|x - x̂|)', x + 5, y + 12)
+  
+  // Label is now rendered as HTML overlay
 }

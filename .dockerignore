@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+*.log
+.git
+.gitignore
+internals
+docs
+*.md
+!README.md
+referat/*.docx
+referat/*.pdf
+prezentare_wavelet

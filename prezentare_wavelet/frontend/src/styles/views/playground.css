@@ -1,59 +1,65 @@
 /* ========================================
    Wavelet Playground V2 - Presentation Style
-   Layout: Top row (graph + info) + Bottom controls bar
+   Layout: Left (graph + controls) | Right sidebar
+   Fits viewport like a PPT slide - NO SCROLLING
 ======================================== */
 
-/* Main container - fills slide area */
+/* Main container - fills slide area, horizontal layout */
 .wavelet-playground-v2 {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* Top row: graph + sidebar */
+/* Left column: graph area + bottom controls */
 .wavelet-playground-v2 .playground-top-row {
   flex: 1;
   display: flex;
-  gap: 0.75rem;
-  padding: 0.5rem;
+  flex-direction: column;
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* Left main area - graph and formula */
+/* Main area - graph and formula */
 .wavelet-playground-v2 .playground-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 0.4rem;
+  min-height: 0;
+  gap: 0.25rem;
+  padding: 0.4rem;
 }
 
-/* Formula bar at top */
+/* Formula bar at top - compact */
 .wavelet-playground-v2 .formula-bar {
   text-align: center;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.75rem;
   background: rgba(255,255,255,0.05);
   border-radius: 6px;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
-/* Parameter badges */
+/* Parameter badges - compact */
 .wavelet-playground-v2 .param-badges {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .wavelet-playground-v2 .param-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  gap: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -70,7 +76,7 @@
 }
 
 .wavelet-playground-v2 .param-badge small {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #888;
   font-weight: 400;
 }
@@ -79,7 +85,7 @@
 .wavelet-playground-v2 .plot-container {
   flex: 1;
   position: relative;
-  min-height: 200px;
+  min-height: 100px;
   background: #050510;
   border-radius: 8px;
   overflow: hidden;
@@ -95,27 +101,30 @@
   position: absolute;
   top: 0.5rem;
   right: 0.75rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Right sidebar - wavelet info only */
+/* Right sidebar - fits container height, internal scroll if needed */
 .wavelet-playground-v2 .playground-sidebar {
-  width: 280px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.4rem;
   overflow-y: auto;
+  padding: 0.4rem;
+  background: rgba(255,255,255,0.02);
+  border-left: 1px solid #333;
 }
 
-/* Sidebar sections */
+/* Sidebar sections - compact */
 .wavelet-playground-v2 .sidebar-section {
   background: rgba(255,255,255,0.05);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  flex: 1;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -124,10 +133,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.8rem;
+  padding: 0.4rem 0.6rem;
   background: rgba(255,255,255,0.05);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: #fff;
 }
 
@@ -140,33 +149,33 @@
 }
 
 .wavelet-playground-v2 .toggle-icon {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #888;
 }
 
 .wavelet-playground-v2 .section-content {
-  padding: 0.75rem 0.8rem;
+  padding: 0.5rem 0.6rem;
   background: transparent;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Wavelet type buttons */
+/* Wavelet type buttons - compact grid */
 .wavelet-playground-v2 .wavelet-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
 .wavelet-playground-v2 .wavelet-btn {
-  padding: 0.5rem 0.6rem;
+  padding: 0.35rem 0.4rem;
   border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: 5px;
   background: rgba(255,255,255,0.08);
   color: #aaa;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -199,25 +208,25 @@
 }
 
 .wavelet-playground-v2 .wavelet-desc {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   color: #aaa;
-  margin: 0.5rem 0;
-  line-height: 1.5;
+  margin: 0.3rem 0;
+  line-height: 1.4;
 }
 
 .wavelet-playground-v2 .wavelet-equation {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   background: rgba(0,0,0,0.3);
-  padding: 0.5rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 5px;
   text-align: center;
   margin-top: auto;
   overflow-x: auto;
 }
 
-/* Control rows */
+/* Control rows - compact */
 .wavelet-playground-v2 .control-row {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.4rem;
 }
 
 .wavelet-playground-v2 .control-row:last-child {
@@ -226,14 +235,14 @@
 
 .wavelet-playground-v2 .control-row label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #ccc;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 .wavelet-playground-v2 .control-row input[type="range"] {
   width: 100%;
-  height: 6px;
+  height: 5px;
   -webkit-appearance: none;
   appearance: none;
   background: rgba(255,255,255,0.1);
@@ -244,16 +253,16 @@
 .wavelet-playground-v2 .control-row input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background: #00d9ff;
   border-radius: 50%;
   cursor: pointer;
 }
 
 .wavelet-playground-v2 .control-row input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   background: #00d9ff;
   border-radius: 50%;
   cursor: pointer;
@@ -261,33 +270,33 @@
 }
 
 .wavelet-playground-v2 .slider-hint {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: #666;
   font-style: italic;
-  margin-top: 0.2rem;
+  margin-top: 0.15rem;
 }
 
 /* Checkbox row */
 .wavelet-playground-v2 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
+  gap: 0.3rem;
+  font-size: 0.7rem;
   color: #aaa;
   cursor: pointer;
-  padding: 0.3rem 0;
+  padding: 0.2rem 0;
 }
 
 .wavelet-playground-v2 .checkbox-row input[type="checkbox"] {
   accent-color: #00d9ff;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 /* Animation row */
 .wavelet-playground-v2 .animation-row {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .wavelet-playground-v2 .animation-row select {
@@ -389,7 +398,7 @@
 }
 
 /* ========================================
-   Bottom Controls Bar
+   Bottom Controls Bar - compact single row
 ======================================== */
 .wavelet-playground-v2 .playground-controls-bar {
   display: flex;
@@ -397,10 +406,12 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
   background: rgba(255,255,255,0.05);
   border-top: 1px solid #333;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  font-size: 0.85rem;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .control-group {
@@ -411,7 +422,7 @@
 }
 
 .wavelet-playground-v2 .playground-controls-bar .control-group label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #ccc;
   white-space: nowrap;
 }
@@ -437,47 +448,48 @@
 }
 
 .wavelet-playground-v2 .playground-controls-bar .slider-hint {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #888;
-  min-width: 60px;
+  min-width: 50px;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .checkbox-control {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
+  gap: 0.3rem;
+  font-size: 0.75rem;
   color: #aaa;
   cursor: pointer;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .checkbox-control input[type="checkbox"] {
   accent-color: #00d9ff;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .animation-controls {
   display: flex;
+  flex-direction: row;
   gap: 0.4rem;
   align-items: center;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .animation-controls select {
-  padding: 0.35rem 0.5rem;
+  padding: 0.2rem 0.4rem;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 4px;
   background: #1a1a2e;
   color: #fff;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   cursor: pointer;
 }
 
 .wavelet-playground-v2 .playground-controls-bar .anim-btn {
-  padding: 0.4rem 0.6rem;
+  padding: 0.25rem 0.5rem;
   border: none;
-  border-radius: 5px;
-  font-size: 0.9rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.15s;
 }

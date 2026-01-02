@@ -9,7 +9,7 @@
 
 ## Presentation Overview
 
-**35 slides** across **11 sections**, teaching wavelet transforms from Fourier fundamentals to JPEG2000 applications.
+**40 slides** across **11 sections**, teaching wavelet transforms from Fourier fundamentals to JPEG2000 applications.
 
 ---
 
@@ -70,11 +70,8 @@
 - **Title:** Filtre în Domeniul Frecvență
 - **Content:** Three filter types with formulas:
   - **Ideal:** $H_{LP}(f) = \begin{cases} 1 & |f| \leq f_c \\ 0 & |f| > f_c \end{cases}$
-    - Tăietură bruscă, teoretic perfect dar imposibil fizic
   - **Butterworth:** $|H(f)|^2 = \frac{1}{1 + (f/f_c)^{2n}}$
-    - Răspuns maxim plat, ordinul n controlează tranziția
   - **Gaussian:** $H(f) = e^{-f^2/2\sigma^2}$
-    - Tranziție netedă, fără oscilații
 
 ### Slide 8: Interactive Demo — Filters
 - **Features:**
@@ -88,11 +85,6 @@
 - **Title:** Conexiunea cu Wavelets
 - **Content:** Filter banks sunt fundamentul transformatei wavelet discrete
 - **Formula:** Low-pass (h) → Aproximare (LL), High-pass (g) → Detalii (LH, HL, HH)
-- **Key Points:**
-  - Filtru low-pass → Coeficienți de aproximație
-  - Filtru high-pass → Coeficienți de detaliu (muchii, texturi)
-  - Aplicare recursivă → Multi-resolution analysis
-  - Reconstrucție perfectă via QMF filter bank
 
 ---
 
@@ -102,28 +94,18 @@
 - **Title:** Convoluția
 - **Content:** "Kernel-ul alunecă peste semnal, calculând suma ponderată."
 - **Formula:** $(f * g)[n] = \sum_{k} f[k] \cdot g[n-k]$
-- **Key Points:**
-  - Baza filtrelor și transformărilor
-  - Folosită în rețele neuronale (CNN)
-  - Complexitate O(n²) → O(n log n) cu FFT
 
 ### Slide 11: Interactive Demo — 1D Convolution
 - **Features:**
   - Signal types: chirp, step, triangle
   - Kernel types: moving average, gaussian, derivative, laplacian
-  - Kernel size: 3-15
   - Step-by-step animation (kernel sliding)
-  - Output signal visualization
+  - Dot product visualization
 
 ### Slide 12: 2D Convolution Theory
 - **Title:** Convoluția în Imagini (2D)
 - **Formula:** $(I * K)[x,y] = \sum_{i,j} I[x+i, y+j] \cdot K[i,j]$
-- **DWT 2D Coefficients:**
-  - LL = (Lₓ * Lᵧ)[I] — Aproximare
-  - LH = (Lₓ * Hᵧ)[I] — Detalii orizontale
-  - HL = (Hₓ * Lᵧ)[I] — Detalii verticale
-  - HH = (Hₓ * Hᵧ)[I] — Detalii diagonale
-- **Decimation:** ↓2 păstrează pixelii cu indici pari → N/2 × N/2
+- **DWT 2D Coefficients:** LL, LH, HL, HH
 
 ---
 
@@ -135,32 +117,21 @@
 
 ### Slide 14: Theory
 - **Title:** Matrici de Convoluție
-- **Formula:** $(I * K)[i,j] = \sum_{m,n} I[i+m, j+n] \cdot K[m,n]$
-- **Key Points:**
-  - Blur: medierea vecinilor (netezire)
-  - Sharpen: amplifică diferențele
-  - Edge: detectează contururile
+- **Content:** Convoluția 2D aplică o matrice (kernel) peste fiecare pixel.
 
 ### Slide 15: Educational Demo — Pixel-by-Pixel
 - **Title:** Demo Educațional: Kernel pas cu pas
 - **Features:**
-  - **Sprite selection:** Small test images (Mario, Link, mushroom, etc.)
-  - **Kernel types:** Box Blur, Gaussian, Sobel X/Y, Sharpen, Laplacian, Identity
-  - **Kernel size:** 3×3, 4×4, 5×5
-  - **Animation speed:** 50-500ms per pixel
-  - **Controls:** Play / Pause / Reset
-  - **Visualization:**
-    - Input grid with highlight on current pixel region
-    - Output grid progressively filled
-    - Side panel: region matrix, kernel weights (green=positive, red=negative), result
-  - **Edge handling:** Edge replication (not zero padding)
+  - Sprite selection
+  - Kernel types: Box Blur, Gaussian, Sobel, Sharpen
+  - Animation speed control
+  - Input/Output grid visualization
 
 ### Slide 16: Demo — Kernels on Real Images
 - **Features:**
   - Full image processing
   - Multiple kernel presets
   - Before/after comparison
-  - Kernel matrix visualization
 
 ---
 
@@ -174,42 +145,25 @@
 - **Title:** De ce Wavelets?
 - **Content:** "Wavelets oferă ceea ce Fourier nu poate: localizare simultană."
 - **Formula:** $\psi_{a,b}(t) = \frac{1}{\sqrt{|a|}} \psi\left(\frac{t-b}{a}\right)$
-- **Key Points:**
-  - Știm CE frecvențe și CÂND apar
-  - Ideale pentru semnale nestaționare
-  - Analiza multi-rezoluție
 
-### Slide 19: Wavelet Families Complete (MERGED)
-- **Title:** Familii Wavelet Complete
+### Slide 19: Wavelet Families Complete
+- **Title:** Familii Wavelet
 - **Subtitle:** CWT + DWT + Teorie
-- **Three tabs:**
-  - **🔬 DWT (Discrete):** Haar, Daubechies, Symlets, Biorthogonal, Coiflets
-    - Filter coefficients displayed
-    - Vanishing moments, filter length
-    - Use cases (Mallat, JPEG2000)
-  - **🌊 CWT (Continuous):** Morlet, Mexican Hat, Gaussian, Shannon
-    - Mathematical formulas
-    - Key properties
-  - **📐 Teorie:** Admissibility condition, scaling equation, wavelet equation, QMF filters
-- **Each wavelet shows:**
-  - Mathematical definition
-  - Key points as tags
-  - "Best for" use case
+- **Tabs:** DWT (Discrete), CWT (Continuous), Teorie
 
 ### Slide 20: Demo — Wavelet Playground
 - **Features:**
   - Wavelet types: Sinusoidă, Haar, Mexican Hat, Morlet
-  - **Scale (a):** Controls frequency/width
-  - **Shift (b):** Controls position
-  - Mathematical equation display
+  - Scale (a) and Shift (b) controls
   - Real-time visualization
 
 ### Slide 21: Demo — Signal Scanning
-- **Visualization of wavelet scanning across signal**
+- **Title:** Demo: Scanarea Semnalului
+- **Visualization:** Wavelet scanning across signal
 
 ---
 
-## Section 7: MALLAT DECOMPOSITION (5 slides)
+## Section 7: MALLAT DECOMPOSITION (8 slides)
 
 ### Slide 22: Section Title
 - **Title:** Algoritmul Mallat
@@ -217,170 +171,103 @@
 
 ### Slide 23: Theory — Coefficients & Basis Functions
 - **Title:** Coeficienții și Funcțiile de Bază
-- **Content:** "Semnalul se proiectează pe funcțiile de scalare φ și wavelet ψ."
-- **Formulas:**
-  - $c_{j_0,k} = \int x(t) \, \phi_{j_0,k}(t) \, dt$ (coef. aproximare)
-  - $d_{j,k} = \int x(t) \, \psi_{j,k}(t) \, dt$ (coef. detaliu)
-  - $\phi_{j,k}(t) = 2^{j/2} \, \phi(2^j t - k)$ (funcția de scalare)
-  - $\psi_{j,k}(t) = 2^{j/2} \, \psi(2^j t - k)$ (wavelet)
-- **Key Points:**
-  - φ captează frecvențe joase (structura globală)
-  - ψ captează frecvențe înalte (detaliile)
-  - Factor 2^(j/2) asigură normalizarea energiei
+- **Content:** Proiecția pe funcții de scalare φ și wavelet ψ.
 
 ### Slide 24: Theory — The 4 Subbands
 - **Title:** Cele 4 Sub-benzi
-- **Visual:** $\begin{bmatrix} LL & HL \\ LH & HH \end{bmatrix}$
-- **Key Points:**
-  - LL: aproximare (structură globală)
-  - LH/HL: muchii orizontale/verticale
-  - HH: detalii diagonale, textură
+- **Visual:** Matrix of LL, HL, LH, HH
 
 ### Slide 25: Demo — Mallat 1D (line)
-- **Step-by-step 1D decomposition visualization**
+- **Title:** Demo: Mallat 1D (linie)
+- **Features:** Step-by-step 1D decomposition visualization
 
 ### Slide 26: Demo — Mallat 2D Decomposition
+- **Title:** Demo: Descompunere Mallat 2D
 - **Features:**
-  - Image selector
-  - Wavelet family: Haar, db4, db8, bior2.2, bior4.4, sym4, coif2
-  - Decomposition levels: 1-6
-  - Visual output: 4-quadrant decomposition
-  - Subband highlighting
+  - Educational mode (8x8 patch)
+  - Full image mode (Pyramid)
+  - Step-by-step animation
+
+### Slide 27: Filter Bank Diagram
+- **Title:** Banca de Filtre Wavelet
+- **Features:**
+  - Animated signal flow
+  - Analysis and Synthesis banks
+  - Filter coefficients (Haar/DB4)
+
+### Slide 28: Pyramid Decomposition
+- **Title:** Descompunere Piramidală
+- **Features:**
+  - Recursive decomposition of LL band
+  - Visualization of levels
+
+### Slide 29: Reconstruction Demo
+- **Title:** Reconstrucție Perfectă
+- **Features:**
+  - Decomposition -> Reconstruction pipeline
+  - Error metrics (MSE, PSNR)
+  - Lossless verification
 
 ---
 
 ## Section 8: APPLICATIONS (4 slides)
 
-### Slide 27: Section Title
+### Slide 30: Section Title
 - **Title:** Aplicații Wavelets
 - **Subtitle:** Semnale biomedicale și nu numai
 
-### Slide 28: ECG Applications
+### Slide 31: ECG Applications
 - **Title:** ECG - Electrocardiograme
-- **Content:** "Wavelets sunt ideale pentru analiza ritmului cardiac."
-- **Key Points:**
-  - Detectare: complexul QRS, aritmii, fibrilații
-  - Eliminare: zgomot muscular, interferență electrică
-  - Wavelet Morlet/Daubechies pentru QRS
+- **Content:** Detectare QRS, eliminare zgomot.
 
-### Slide 29: EEG Applications
+### Slide 32: EEG Applications
 - **Title:** EEG - Activitate Cerebrală
-- **Content:** "Separarea benzilor de frecvență ale creierului."
-- **Formula:** δ < θ < α < β < γ (Benzile EEG 0.5-100 Hz)
-- **Key Points:**
-  - Delta (0.5-4Hz): somn profund
-  - Alpha (8-13Hz): relaxare, ochii închiși
-  - Beta (13-30Hz): concentrare activă
-  - Aplicații: epilepsie, BCI, monitoring somn
+- **Content:** Separarea benzilor de frecvență (Delta, Theta, Alpha, Beta).
 
-### Slide 30: Other Applications
+### Slide 33: Other Applications
 - **Title:** Alte Aplicații
-- **Content:** "Wavelets sunt omniprezente în procesarea semnalelor."
-- **Applications:**
-  - 🎵 Audio: compresie, noise reduction, fingerprinting
-  - 📸 Imagini: JPEG2000, restaurare, super-rezoluție
-  - 📊 Finanțe: analiza volatilității, detectare trenduri
-  - 🌊 Seismologie: detectare cutremure, analiza undelor
-  - 🔬 Astronomie: analiza semnalelor cosmice
+- **Content:** Audio, Imagini, Finanțe, Seismologie.
 
 ---
 
 ## Section 9: DENOISING (3 slides)
 
-### Slide 31: Section Title
+### Slide 34: Section Title
 - **Title:** Denoising Wavelet
 - **Subtitle:** Eliminarea zgomotului inteligent
 
-### Slide 32: Theory — Thresholding
-- **Content:** Hard vs Soft thresholding
-- **Features explained:**
-  - Hard: set to zero if below threshold
-  - Soft: shrink towards zero
+### Slide 35: Theory — Thresholding
+- **Title:** Teorie: Thresholding
+- **Content:** Hard vs Soft thresholding visualization.
 
-### Slide 33: Demo — Denoising
-- **Features:**
-  - Add synthetic noise (Gaussian, sigma controllable)
-  - Wavelet selection
-  - Decomposition levels: 1-6
-  - Threshold mode: Hard / Soft
-  - Noise sigma slider
-  - Before/After comparison with PSNR metric
+### Slide 36: Demo — Denoising
+- **Title:** Demo: Denoising Practic
+- **Features:** Real-time denoising with adjustable threshold.
 
 ---
 
-## Section 10: COMPARISON (3 slides)
+## Section 10: COMPARISON (4 slides)
 
-### Slide 34: Section Title
+### Slide 37: Section Title
 - **Title:** DCT vs Wavelet
 - **Subtitle:** JPEG vs JPEG2000
 
-### Slide 35: Theory — Direct Comparison
-- **Title:** Comparație Directă
-- **DCT (JPEG):**
-  - Blocuri 8×8 fixe
-  - Artefacte de bloc vizibile
-  - Decodare tot sau nimic
-  - Mai rapid, mai simplu
-- **Wavelet (JPEG2000):**
-  - Transformare globală
-  - Degradare graduală, uniformă
-  - Scalabilitate: rezoluții multiple
-  - Calitate superioară la compresie mare
-
-### Slide 36: Demo — Comparison
+### Slide 38: JPEG Pipeline
+- **Title:** Pipeline-ul JPEG (DCT)
 - **Features:**
-  - Quality slider: 1-100
-  - Wavelet selection for JPEG2000 simulation
-  - Side-by-side: DCT (JPEG) vs Wavelet (JPEG2000)
-  - PSNR and compression ratio metrics
-  - Visual artifact comparison
+  - Color Space (RGB -> YCbCr)
+  - Subsampling
+  - 8x8 Block Division
+  - DCT Basis Functions
+  - Quantization
+  - Zigzag Scan
 
----
+### Slide 39: DCT vs Wavelet Comparison
+- **Title:** DCT vs Wavelet: Comparație
+- **Features:**
+  - Side-by-side artifact comparison
+  - Progressive loading demo (JPEG2000 feature)
 
-## Section 11: FINAL (1 slide)
-
-### Slide 37: Thank You
-- **Title:** Mulțumesc!
-- **Subtitle:** Întrebări?
-- **Button:** ← Înapoi la pagina principală
-
----
-
-## Navigation Features
-
-### Progress Sidebar (Left)
-- Vertical icons for each section
-- Active section highlighted with sub-slide dots
-- Clickable to jump to any section
-
-### Navigation Footer
-- ← Anterior / Următor →
-- Slide counter: "X / 37"
-
-### Keyboard Shortcuts
-| Key | Action |
-|-----|--------|
-| → or Space | Next slide |
-| ← | Previous slide |
-| Esc | Close tour |
-
-### URL Hash
-Each slide has unique ID in URL hash (e.g., `#fourier-demo`). Browser back/forward supported.
-
----
-
-## Section Colors
-
-| Section | Color |
-|---------|-------|
-| Intro | `#00d4ff` |
-| Fourier | `#ffd93d` |
-| Filters | `#ff6b6b` |
-| Convolution | `#c9b1ff` |
-| Kernels | `#ff9f43` |
-| Wavelets | `#00d4ff` |
-| Mallat | `#ffd700` |
-| Applications | `#ff6b9d` |
-| Denoise | `#00d4ff` |
-| Compare | `#ffd93d` |
-| Final | `#00d4ff` |
+### Slide 40: Comparison Theory
+- **Title:** Comparație Directă
+- **Content:** Pros/Cons list for DCT vs Wavelet.

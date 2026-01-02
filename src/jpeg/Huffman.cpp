@@ -18,14 +18,14 @@ namespace jpegdsp::jpeg {
 // Category 3: value = ±4..±7
 // etc.
 // --------------------------------------------------------------------
-#include <cmath>
 static int categoryDC(int value)
 {
     if (value == 0)
     {
         return 0;
     }
-    int magnitude = abs(value);
+
+    int magnitude = (value < 0) ? -value : value;
     int category = 0;
 
     while (magnitude > 0)

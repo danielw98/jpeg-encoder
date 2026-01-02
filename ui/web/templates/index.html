@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.app_name }}</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status.error {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        .status.error .status-dot {
+            background: var(--error);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .info-item {
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+        
+        .info-item label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-item span {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .coming-soon svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        code {
+            background: var(--bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ {{ config.app_name }}</h1>
+            <p class="subtitle">Baseline JPEG Encoder with DSP Analysis</p>
+        </header>
+        
+        <div class="card">
+            <h2>System Status</h2>
+            <div class="status" id="status">
+                <div class="status-dot"></div>
+                <span>Checking CLI encoder...</span>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Version</label>
+                    <span>{{ config.app_version }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Default Quality</label>
+                    <span>{{ config.default_quality }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Max Upload</label>
+                    <span>{{ config.max_upload_size_mb }} MB</span>
+                </div>
+                <div class="info-item">
+                    <label>Formats</label>
+                    <span>{{ formats | length }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>JPEG Encoder</h2>
+            <div class="coming-soon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3>Upload Coming Soon</h3>
+                <p>Image upload and encoding UI is under development.</p>
+                <p style="margin-top: 1rem;">
+                    Try the API: <code>GET /api/info</code> or <code>GET /health</code>
+                </p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>API Endpoints</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    <code>GET /</code> - This page
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    <code>GET /health</code> - Health check & CLI status
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    <code>GET /api/info</code> - API information
+                </li>
+                <li style="padding: 0.5rem 0; color: var(--text-muted);">
+                    <code>POST /api/encode</code> - Encode image (coming soon)
+                </li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>{{ config.app_name }} &middot; Built with <a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a> &middot; ITU-T.81 Baseline JPEG</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Check health status on load
+        fetch('/health')
+            .then(r => r.json())
+            .then(data => {
+                const statusEl = document.getElementById('status');
+                const isHealthy = data.cli_available === 'True';
+                
+                statusEl.className = isHealthy ? 'status' : 'status error';
+                statusEl.innerHTML = `
+                    <div class="status-dot"></div>
+                    <span>${isHealthy ? 'CLI encoder available' : 'CLI encoder not found - build the project first'}</span>
+                `;
+            })
+            .catch(() => {
+                const statusEl = document.getElementById('status');
+                statusEl.className = 'status error';
+                statusEl.innerHTML = `
+                    <div class="status-dot"></div>
+                    <span>Failed to check status</span>
+                `;
+            });
+    </script>
+</body>
+</html>
