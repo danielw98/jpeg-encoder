@@ -21,18 +21,31 @@ internals/
 .vscode/
 .github/
 
-# Old/backup files
 README_OLD.md
 CHANGELOG.md
 referat_idei.md
 build_and_run_tests.bat
 TEME*.md
+referat/
+deploy/
+docs/
+ui/web/
+scripts/README.md
+*.zip
 
-# Referat build outputs (keep sources)
-referat/*.docx
-referat/*.pdf
-referat/figures/*.png
-referat/figures/*.jpg
+prezentare_wavelet/SCRIPT.md
+prezentare_wavelet/PRESENTATION_STRUCTURE.md
+prezentare_wavelet/venv/
+prezentare_wavelet/.vscode/
+prezentare_wavelet/__pycache__/
+prezentare_wavelet/pyrightconfig.json
+prezentare_wavelet/data/
+prezentare_wavelet/frontend/TODO.md
+prezentare_wavelet/frontend/TO_IMPLEMENT.md
+
+src/core/README.md
+tests/README.md
+ui/README.md
 
 # Node modules
 node_modules/

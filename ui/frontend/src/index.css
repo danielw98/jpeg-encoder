@@ -90,9 +90,100 @@ button {
   gap: 24px;
 }
 
+/* New Collapsible Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: 24px;
+  transition: all 0.3s ease;
+}
+
+.main-layout.collapsed {
+  grid-template-columns: 80px 1fr;
+}
+
+.input-panel {
+  transition: all 0.3s ease;
+}
+
+.input-panel.collapsed {
+  max-width: 80px;
+}
+
+.input-panel.collapsed .card {
+  padding: 12px;
+}
+
+.results-panel {
+  transition: all 0.3s ease;
+}
+
+.results-panel.expanded {
+  max-width: 100%;
+}
+
+/* Collapse Button */
+.collapse-btn {
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.collapse-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Collapsed Summary */
+.collapsed-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  text-align: center;
+}
+
+.collapsed-summary p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
 @media (max-width: 1024px) {
   .main-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-layout.collapsed {
+    grid-template-columns: 1fr;
+  }
+  
+  .input-panel.collapsed {
+    max-width: 100%;
+  }
+  
+  .input-panel.collapsed .card {
+    padding: 16px;
+  }
+  
+  .collapsed-summary {
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
 

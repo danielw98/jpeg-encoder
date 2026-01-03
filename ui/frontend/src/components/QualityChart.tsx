@@ -3,6 +3,8 @@
  * 
  * Interactive chart showing relationship between quality setting,
  * compression ratio, and file size
+ * 
+ * Generates real data by encoding the current image at multiple quality levels
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -20,41 +22,90 @@ interface QualityDataPoint {
   sizeKB: number;
 }
 
-// Estimated compression curve based on typical JPEG behavior
-// This is a simulation - in a real implementation, we'd call the encoder for each quality
-function estimateCompressionCurve(originalSize: number): QualityDataPoint[] {
-  const points: QualityDataPoint[] = [];
-  
-  for (let q = 5; q <= 100; q += 5) {
-    // JPEG compression ratio approximation
-    // At Q=100, ratio ~2-3x; at Q=10, ratio ~20-40x
-    // Using exponential decay model
-    const baseRatio = 2.5;
-    const maxRatio = 35;
-    const decay = 0.045;
-    
-    const ratio = baseRatio + (maxRatio - baseRatio) * Math.exp(-decay * q);
-    const size = originalSize / ratio;
-    
-    points.push({
-      quality: q,
-      ratio: ratio,
-      size: size,
-      sizeKB: size / 1024,
-    });
-  }
-  
-  return points;
-}
-
 export function QualityChart({ result, onQualityChange }: QualityChartProps) {
   const [curveData, setCurveData] = useState<QualityDataPoint[]>([]);
+  const [loading, setLoading] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<QualityDataPoint | null>(null);
   
+  // Generate actual compression data by encoding at different quality levels
   useEffect(() => {
-    const data = estimateCompressionCurve(result.originalBytes);
-    setCurveData(data);
-  }, [result.originalBytes]);
+    let cancelled = false;
+    
+    async function generateRealCurve() {
+      setLoading(true);
+      const points: QualityDataPoint[] = [];
+      
+      // Use the current result's original image path
+      const inputPath = result.inputFile;
+      const format = result.format;
+      
+      // Sample quality levels: 10, 20, 30, ..., 100
+      const qualities = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+      
+      try {
+        // Encode at each quality level
+        for (const q of qualities) {
+          if (cancelled) break;
+          
+          const response = await fetch('/api/encode/sample', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              imageName: inputPath.split('\\').pop()?.split('/').pop() || '',
+              quality: q,
+              format: format,
+              analyze: false, // No need for detailed analysis
+            }),
+          });
+          
+          if (!response.ok) continue;
+          
+          const data: EncodeResult = await response.json();
+          
+          points.push({
+            quality: q,
+            ratio: data.compressionRatio,
+            size: data.compressedBytes,
+            sizeKB: data.compressedBytes / 1024,
+          });
+        }
+        
+        if (!cancelled && points.length > 0) {
+          setCurveData(points);
+        }
+      } catch (error) {
+        console.error('Failed to generate quality curve:', error);
+        // Fallback to estimated curve
+        const estimatedPoints: QualityDataPoint[] = [];
+        for (let q = 10; q <= 100; q += 10) {
+          const baseRatio = 2.5;
+          const maxRatio = 35;
+          const decay = 0.045;
+          const ratio = baseRatio + (maxRatio - baseRatio) * Math.exp(-decay * q);
+          const size = result.originalBytes / ratio;
+          estimatedPoints.push({
+            quality: q,
+            ratio: ratio,
+            size: size,
+            sizeKB: size / 1024,
+          });
+        }
+        if (!cancelled) {
+          setCurveData(estimatedPoints);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+    
+    generateRealCurve();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, [result.inputFile, result.format, result.originalBytes]);
 
   const chartWidth = 320;
   const chartHeight = 200;
@@ -65,7 +116,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
   
   // Scales
   const xScale = useCallback((q: number) => {
-    return padding.left + ((q - 5) / 95) * innerWidth;
+    return padding.left + ((q - 10) / 90) * innerWidth;
   }, [innerWidth]);
   
   const yScale = useCallback((ratio: number) => {
@@ -94,8 +145,15 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
 
   return (
     <div className="quality-chart">
-      <h3>📈 Quality vs Compression</h3>
+      <h3>📈 Quality vs Compression {loading && <span style={{ fontSize: '0.875rem', color: '#888' }}>(generating real data...)</span>}</h3>
       
+      {loading && curveData.length === 0 ? (
+        <div className="loading" style={{ padding: '60px', textAlign: 'center' }}>
+          <div className="spinner"></div>
+          <p style={{ marginTop: '12px', color: '#888' }}>Encoding at multiple quality levels...</p>
+        </div>
+      ) : (
+        <>
       {/* SVG Chart */}
       <div className="chart-container">
         <svg width={chartWidth} height={chartHeight} className="chart-svg">
@@ -271,6 +329,8 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
           ✨ Quality (Q85)
         </button>
       </div>
+      </>
+      )}
     </div>
   );
 }
