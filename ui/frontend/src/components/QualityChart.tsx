@@ -107,8 +107,8 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
     };
   }, [result.inputFile, result.format, result.originalBytes]);
 
-  const chartWidth = 320;
-  const chartHeight = 200;
+  const chartWidth = 500;
+  const chartHeight = 300;
   const padding = { top: 20, right: 20, bottom: 40, left: 50 };
   
   const innerWidth = chartWidth - padding.left - padding.right;
@@ -314,20 +314,6 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
           <span className="stat-label">File Size</span>
           <span className="stat-value">{formatSize(result.compressedBytes / 1024)}</span>
         </div>
-      </div>
-      
-      {/* Quality presets */}
-      <div className="quality-presets">
-        <span className="presets-label">Presets:</span>
-        <button className="preset-btn" onClick={() => onQualityChange?.(25)}>
-          📦 Small (Q25)
-        </button>
-        <button className="preset-btn" onClick={() => onQualityChange?.(50)}>
-          ⚖️ Balanced (Q50)
-        </button>
-        <button className="preset-btn" onClick={() => onQualityChange?.(85)}>
-          ✨ Quality (Q85)
-        </button>
       </div>
       </>
       )}

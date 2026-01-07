@@ -54,12 +54,8 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
         <h3>Image Details</h3>
         <div className="analysis-grid">
           <div className="analysis-item">
-            <div className="label">Original Size</div>
+            <div className="label">Dimensions</div>
             <div className="value">{result.originalWidth} × {result.originalHeight}</div>
-          </div>
-          <div className="analysis-item">
-            <div className="label">Padded Size</div>
-            <div className="value">{result.paddedWidth} × {result.paddedHeight}</div>
           </div>
           <div className="analysis-item">
             <div className="label">Quality</div>
@@ -80,16 +76,21 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
             <h3>📊 Entropy Analysis</h3>
             <div className="analysis-grid">
               <div className="analysis-item">
-                <div className="label">Original Entropy</div>
+                <div className="label">Source Entropy</div>
                 <div className="value">{result.analysis.entropy.originalEntropy.toFixed(3)} bits/symbol</div>
               </div>
               <div className="analysis-item">
-                <div className="label">Compressed Entropy</div>
+                <div className="label">Coded Entropy</div>
                 <div className="value">{result.analysis.entropy.compressedEntropy.toFixed(3)} bits/symbol</div>
               </div>
               <div className="analysis-item">
-                <div className="label">Entropy Reduction</div>
-                <div className="value">{result.analysis.entropy.entropyReductionPercent.toFixed(1)}%</div>
+                <div className="label">Huffman Efficiency</div>
+                <div className="value">
+                  {result.analysis.entropy.entropyReductionPercent >= 0 
+                    ? `${result.analysis.entropy.entropyReductionPercent.toFixed(1)}% saved`
+                    : `${Math.abs(result.analysis.entropy.entropyReductionPercent).toFixed(1)}% overhead`
+                  }
+                </div>
               </div>
             </div>
           </div>
