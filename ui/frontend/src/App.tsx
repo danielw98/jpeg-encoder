@@ -23,8 +23,7 @@ function App() {
   const [quality, setQuality] = useState(75);
   const [format, setFormat] = useState<'color_420' | 'grayscale'>('color_420');
   const [result, setResult] = useState<EncodeResult | null>(null);
-  const [activeTab, setActiveTab] = useState<'results' | 'comparison' | 'dct' | 'quality' | 'pipeline'>('comparison');
-  const [inputCollapsed, setInputCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'comparison' | 'pipeline' | 'dct' | 'quality' | 'stats'>('comparison');
 
   const { encode, encodeSample, loading, error } = useEncoder();
 
@@ -40,8 +39,6 @@ function App() {
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     setResult(null);
-    
-    // Create preview URL
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
   };
@@ -49,11 +46,9 @@ function App() {
   // Handle encode button click
   const handleEncode = async () => {
     if (!selectedFile) return;
-
     const encodeResult = await encode(selectedFile, quality, format, true);
     if (encodeResult) {
       setResult(encodeResult);
-      setInputCollapsed(true); // Collapse input panel after encoding
     }
   };
 
@@ -62,57 +57,51 @@ function App() {
     setSelectedFile(null);
     setPreviewUrl(null);
     setResult(null);
-
     const encodeResult = await encodeSample(imageName, quality, format, true);
     if (encodeResult) {
       setResult(encodeResult);
-      setInputCollapsed(true); // Collapse input panel after encoding
     }
   };
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>JPEGDSP Encoder</h1>
-        <p>Educational JPEG encoder with DSP visualization</p>
-        {health && (
-          <span className={`status-badge ${health.status}`}>
-            {health.status === 'healthy' ? '✓ CLI Ready' : 
-             health.status === 'degraded' ? '⚠ CLI Unavailable' : '✗ Backend Error'}
-          </span>
-        )}
-      </header>
+  // Go back to upload page
+  const handleReset = () => {
+    setResult(null);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setActiveTab('comparison');
+  };
 
-      <div className={`main-layout ${inputCollapsed && result ? 'collapsed' : ''}`}>
-        {/* Left Panel: Input - Collapsible when we have results */}
-        <div className={`input-panel ${inputCollapsed && result ? 'collapsed' : ''}`}>
-          <div className="card">
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h2>Input Image</h2>
-                {!inputCollapsed && <p>Upload a PNG/PPM/PGM image or select a sample</p>}
-              </div>
-              {result && (
-                <button 
-                  className="collapse-btn"
-                  onClick={() => setInputCollapsed(!inputCollapsed)}
-                  title={inputCollapsed ? 'Expand panel' : 'Collapse panel'}
-                >
-                  {inputCollapsed ? '▶' : '◀'}
-                </button>
-              )}
+  // Page 1: Upload/Input
+  if (!result && !loading) {
+    return (
+      <div className="app upload-page">
+        <header className="app-header">
+          <h1>JPEG Encoder</h1>
+          <p>Educational JPEG encoder with DSP visualization</p>
+          {health && (
+            <span className={`status-badge ${health.status}`}>
+              {health.status === 'healthy' ? '✓ Ready' : 
+               health.status === 'degraded' ? '⚠ Limited' : '✗ Error'}
+            </span>
+          )}
+        </header>
+
+        <div className="upload-container">
+          <div className="card upload-card">
+            <SampleImages onSelect={handleSampleEncode} loading={loading} />
+            
+            <div className="divider">
+              <span>or upload your own</span>
             </div>
 
-            {!inputCollapsed && (
+            <ImageUpload 
+              onFileSelect={handleFileSelect} 
+              previewUrl={previewUrl}
+              filename={selectedFile?.name}
+            />
+
+            {selectedFile && (
               <>
-                <SampleImages onSelect={handleSampleEncode} loading={loading} />
-
-                <ImageUpload 
-                  onFileSelect={handleFileSelect} 
-                  previewUrl={previewUrl}
-                  filename={selectedFile?.name}
-                />
-
                 <EncodingOptions
                   quality={quality}
                   onQualityChange={setQuality}
@@ -121,108 +110,103 @@ function App() {
                 />
 
                 <button 
-                  className="btn btn-primary" 
+                  className="btn btn-primary btn-encode" 
                   onClick={handleEncode}
-                  disabled={!selectedFile || loading}
-                  style={{ width: '100%', marginTop: '16px' }}
+                  disabled={loading}
                 >
-                  {loading ? 'Encoding...' : 'Encode to JPEG'}
+                  Encode to JPEG →
                 </button>
-
-                {error && (
-                  <div className="error-message" style={{ marginTop: '16px' }}>
-                    {error}
-                  </div>
-                )}
               </>
             )}
 
-            {inputCollapsed && result && (
-              <div className="collapsed-summary">
-                <p><strong>Q{quality}</strong> | {result.originalWidth}×{result.originalHeight}</p>
-                <button 
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => setInputCollapsed(false)}
-                >
-                  New Image
-                </button>
+            {error && (
+              <div className="error-message">
+                {error}
               </div>
             )}
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Right Panel: Results - Expands when input is collapsed */}
-        <div className={`results-panel ${inputCollapsed && result ? 'expanded' : ''}`}>
-          <div className="card">
-            <div className="card-header">
-              <h2>Results</h2>
-              {result && (
-                <div className="tab-selector">
-                  <button 
-                    className={`tab-btn ${activeTab === 'comparison' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('comparison')}
-                  >
-                    📷 Compare
-                  </button>
-                  <button 
-                    className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('pipeline')}
-                  >
-                    ⚙️ Pipeline
-                  </button>
-                  <button 
-                    className={`tab-btn ${activeTab === 'dct' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('dct')}
-                  >
-                    🔄 DCT
-                  </button>
-                  <button 
-                    className={`tab-btn ${activeTab === 'quality' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('quality')}
-                  >
-                    📈 Quality
-                  </button>
-                  <button 
-                    className={`tab-btn ${activeTab === 'results' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('results')}
-                  >
-                    📊 Stats
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {loading ? (
-              <div className="loading">
-                <div className="spinner"></div>
-                <p>Encoding image...</p>
-              </div>
-            ) : result ? (
-              <>
-                {activeTab === 'comparison' && (
-                  <ComparisonView result={result} originalUrl={previewUrl} />
-                )}
-                {activeTab === 'pipeline' && (
-                  <PipelineView result={result} />
-                )}
-                {activeTab === 'dct' && (
-                  <DCTVisualization result={result} />
-                )}
-                {activeTab === 'quality' && (
-                  <QualityChart result={result} onQualityChange={setQuality} />
-                )}
-                {activeTab === 'results' && (
-                  <ResultsPanel result={result} />
-                )}
-              </>
-            ) : (
-              <div className="loading">
-                <p style={{ fontSize: '3rem', marginBottom: '12px' }}>📊</p>
-                <p>Encode an image to see results</p>
-              </div>
-            )}
-          </div>
+  // Loading state
+  if (loading) {
+    return (
+      <div className="app loading-page">
+        <div className="loading-container">
+          <div className="spinner large"></div>
+          <p>Encoding image...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Page 2: Results
+  return (
+    <div className="app results-page">
+      <header className="results-header">
+        <button className="btn btn-back" onClick={handleReset}>
+          ← New Image
+        </button>
+        <div className="result-summary">
+          <span className="summary-item">{result!.originalWidth}×{result!.originalHeight}</span>
+          <span className="summary-divider">|</span>
+          <span className="summary-item">Q{result!.quality}</span>
+          <span className="summary-divider">|</span>
+          <span className="summary-item highlight">{result!.compressionRatio.toFixed(1)}× compression</span>
+        </div>
+      </header>
+
+      <div className="tab-bar">
+        <button 
+          className={`tab-btn ${activeTab === 'comparison' ? 'active' : ''}`}
+          onClick={() => setActiveTab('comparison')}
+        >
+          📷 Compare
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pipeline')}
+        >
+          ⚙️ Pipeline
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'dct' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dct')}
+        >
+          🔄 DCT
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'quality' ? 'active' : ''}`}
+          onClick={() => setActiveTab('quality')}
+        >
+          📈 Quality
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stats')}
+        >
+          📊 Stats
+        </button>
+      </div>
+
+      <div className="results-content">
+        {activeTab === 'comparison' && (
+          <ComparisonView result={result!} originalUrl={previewUrl} />
+        )}
+        {activeTab === 'pipeline' && (
+          <PipelineView result={result!} />
+        )}
+        {activeTab === 'dct' && (
+          <DCTVisualization result={result!} />
+        )}
+        {activeTab === 'quality' && (
+          <QualityChart result={result!} onQualityChange={setQuality} />
+        )}
+        {activeTab === 'stats' && (
+          <ResultsPanel result={result!} />
+        )}
       </div>
     </div>
   );

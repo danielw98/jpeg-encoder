@@ -83,91 +83,221 @@ button {
   color: #991b1b;
 }
 
-/* Main Content Grid */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* =====================================================
+   UPLOAD PAGE (Page 1)
+   ===================================================== */
+
+.upload-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.upload-page .app-header {
+  margin-bottom: 40px;
+}
+
+.upload-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.upload-card {
+  padding: 32px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider span {
+  padding: 0 16px;
+}
+
+.btn-encode {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+/* =====================================================
+   LOADING PAGE
+   ===================================================== */
+
+.loading-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-container {
+  text-align: center;
+}
+
+.spinner.large {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+}
+
+/* =====================================================
+   RESULTS PAGE (Page 2)
+   ===================================================== */
+
+.results-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
   gap: 24px;
+  padding: 16px 24px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
 }
 
-/* New Collapsible Layout */
-.main-layout {
-  display: grid;
-  grid-template-columns: minmax(320px, 400px) 1fr;
-  gap: 24px;
-  transition: all 0.3s ease;
-}
-
-.main-layout.collapsed {
-  grid-template-columns: 80px 1fr;
-}
-
-.input-panel {
-  transition: all 0.3s ease;
-}
-
-.input-panel.collapsed {
-  max-width: 80px;
-}
-
-.input-panel.collapsed .card {
-  padding: 12px;
-}
-
-.results-panel {
-  transition: all 0.3s ease;
-}
-
-.results-panel.expanded {
-  max-width: 100%;
-}
-
-/* Collapse Button */
-.collapse-btn {
-  padding: 8px 12px;
-  background: var(--bg);
+.btn-back {
+  padding: 8px 16px;
+  background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--text-muted);
+  color: var(--text);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.collapse-btn:hover {
-  background: var(--primary);
-  color: white;
+.btn-back:hover {
+  background: var(--bg);
   border-color: var(--primary);
+  color: var(--primary);
 }
 
-/* Collapsed Summary */
-.collapsed-summary {
+.result-summary {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding-top: 8px;
-  text-align: center;
+  gap: 12px;
+  font-size: 0.9rem;
 }
 
-.collapsed-summary p {
-  font-size: 0.75rem;
+.summary-item {
   color: var(--text-muted);
 }
 
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 0.75rem;
+.summary-item.highlight {
+  color: var(--success);
+  font-weight: 600;
 }
 
-@media (max-width: 1024px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .main-layout {
-    grid-template-columns: 1fr;
-  }
+.summary-divider {
+  color: var(--border);
+}
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 12px 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-bar .tab-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-bar .tab-btn:hover {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.tab-bar .tab-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.results-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* =====================================================
+   STACKED COMPARISON (Top/Bottom)
+   ===================================================== */
+
+.stacked-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stacked-image {
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stacked-image .image-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+
+.stacked-image .image-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stacked-image .image-size {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.stacked-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.btn-download {
+  display: block;
+  width: fit-content;
+  margin: 24px auto 0;
+  padding: 12px 24px;
+}
+
+/* Keep old layout styles for compatibility */
   
   .main-layout.collapsed {
     grid-template-columns: 1fr;
