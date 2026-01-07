@@ -41,8 +41,15 @@
 }
 
 .pipeline-step.active {
-  background: white;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pipeline-step.active .step-name,
+.pipeline-step.active .step-desc {
+  color: white;
 }
 
 .step-icon {
@@ -54,6 +61,12 @@
   border-radius: 6px;
   font-size: 1rem;
   flex-shrink: 0;
+  color: white;
+}
+
+.pipeline-step.active .step-icon {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white;
 }
 
 .step-info {
