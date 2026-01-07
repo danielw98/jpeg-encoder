@@ -4,11 +4,16 @@
  * Interactive chart showing relationship between quality setting,
  * compression ratio, and file size
  * 
- * Generates real data by encoding the current image at multiple quality levels
+ * Uses cached data for sample images, generates real data for uploaded images
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 import { EncodeResult } from '../hooks/useEncoder';
+
+// Precomputed quality levels (must match backend)
+const QUALITY_LEVELS = [10, 25, 50, 65, 75, 85, 90, 95, 100];
 
 interface QualityChartProps {
   result: EncodeResult;
@@ -20,6 +25,7 @@ interface QualityDataPoint {
   ratio: number;
   size: number;
   sizeKB: number;
+  outputUrl?: string;
 }
 
 export function QualityChart({ result, onQualityChange }: QualityChartProps) {
@@ -27,34 +33,57 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
   const [loading, setLoading] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<QualityDataPoint | null>(null);
   
-  // Generate actual compression data by encoding at different quality levels
+  // Generate actual compression data - try cache first, then encode
   useEffect(() => {
     let cancelled = false;
     
-    async function generateRealCurve() {
+    async function loadData() {
       setLoading(true);
-      const points: QualityDataPoint[] = [];
       
-      // Use the current result's original image path
-      const inputPath = result.inputFile;
+      // Extract image name from path
+      const imageName = result.inputFile.split('\\').pop()?.split('/').pop() || '';
+      
+      // Try to get cached data first (for sample images)
+      try {
+        const cacheResponse = await fetch(`/api/cache/quality-curve/${encodeURIComponent(imageName)}`);
+        if (cacheResponse.ok) {
+          const cacheData = await cacheResponse.json();
+          if (cacheData.cached && cacheData.data && cacheData.data.length > 0) {
+            console.log('[QualityChart] Using cached data for', imageName);
+            if (!cancelled) {
+              setCurveData(cacheData.data.map((p: { quality: number; ratio: number; compressedBytes: number; sizeKB: number; outputUrl?: string }) => ({
+                quality: p.quality,
+                ratio: p.ratio,
+                size: p.compressedBytes,
+                sizeKB: p.sizeKB,
+                outputUrl: p.outputUrl,
+              })));
+              setLoading(false);
+            }
+            return;
+          }
+        }
+      } catch {
+        // Cache miss, continue to generate data
+      }
+      
+      // No cache - generate by encoding at different quality levels
+      console.log('[QualityChart] Generating data for', imageName);
+      const points: QualityDataPoint[] = [];
       const format = result.format;
       
-      // Sample quality levels: 10, 20, 30, ..., 100
-      const qualities = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-      
       try {
-        // Encode at each quality level
-        for (const q of qualities) {
+        for (const q of QUALITY_LEVELS) {
           if (cancelled) break;
           
           const response = await fetch('/api/encode/sample', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              imageName: inputPath.split('\\').pop()?.split('/').pop() || '',
+              imageName,
               quality: q,
               format: format,
-              analyze: false, // No need for detailed analysis
+              analyze: false,
             }),
           });
           
@@ -67,6 +96,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
             ratio: data.compressionRatio,
             size: data.compressedBytes,
             sizeKB: data.compressedBytes / 1024,
+            outputUrl: data.outputUrl,
           });
         }
         
@@ -77,7 +107,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
         console.error('Failed to generate quality curve:', error);
         // Fallback to estimated curve
         const estimatedPoints: QualityDataPoint[] = [];
-        for (let q = 10; q <= 100; q += 10) {
+        for (const q of QUALITY_LEVELS) {
           const baseRatio = 2.5;
           const maxRatio = 35;
           const decay = 0.045;
@@ -100,16 +130,16 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
       }
     }
     
-    generateRealCurve();
+    loadData();
     
     return () => {
       cancelled = true;
     };
   }, [result.inputFile, result.format, result.originalBytes]);
 
-  const chartWidth = 500;
-  const chartHeight = 300;
-  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+  const chartWidth = 600;
+  const chartHeight = 400;
+  const padding = { top: 30, right: 40, bottom: 60, left: 90 };
   
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -145,7 +175,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
 
   return (
     <div className="quality-chart">
-      <h3>📈 Quality vs Compression {loading && <span style={{ fontSize: '0.875rem', color: '#888' }}>(generating real data...)</span>}</h3>
+      <h3><FontAwesomeIcon icon={faChartLine} /> Quality vs Compression {loading && <span style={{ fontSize: '0.875rem', color: '#888' }}>(generating real data...)</span>}</h3>
       
       {loading && curveData.length === 0 ? (
         <div className="loading" style={{ padding: '60px', textAlign: 'center' }}>
@@ -156,7 +186,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
         <>
       {/* SVG Chart */}
       <div className="chart-container">
-        <svg width={chartWidth} height={chartHeight} className="chart-svg">
+        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="chart-svg" preserveAspectRatio="xMidYMid meet">
           {/* Grid lines */}
           <g className="grid-lines">
             {[10, 20, 30].map(ratio => (
@@ -170,7 +200,7 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
                 strokeDasharray="4,4"
               />
             ))}
-            {[25, 50, 75].map(q => (
+            {QUALITY_LEVELS.filter(q => q > 10).map(q => (
               <line
                 key={q}
                 x1={xScale(q)}
@@ -208,27 +238,28 @@ export function QualityChart({ result, onQualityChange }: QualityChartProps) {
           {/* Axis labels */}
           <g className="axis-labels" fontSize="10" fill="#64748b">
             {/* X axis labels */}
-            {[25, 50, 75, 100].map(q => (
-              <text key={q} x={xScale(q)} y={chartHeight - 15} textAnchor="middle">
+            {QUALITY_LEVELS.map(q => (
+              <text key={q} x={xScale(q)} y={chartHeight - 25} textAnchor="middle">
                 {q}
               </text>
             ))}
-            <text x={chartWidth / 2} y={chartHeight - 2} textAnchor="middle" fontSize="11">
+            <text x={chartWidth / 2} y={chartHeight - 5} textAnchor="middle" fontSize="12" fontWeight="500">
               Quality
             </text>
             
             {/* Y axis labels */}
             {[10, 20, 30].map(ratio => (
-              <text key={ratio} x={padding.left - 8} y={yScale(ratio) + 3} textAnchor="end">
+              <text key={ratio} x={padding.left - 12} y={yScale(ratio) + 4} textAnchor="end">
                 {ratio}×
               </text>
             ))}
             <text 
-              x={15} 
+              x={25} 
               y={chartHeight / 2} 
               textAnchor="middle" 
-              transform={`rotate(-90, 15, ${chartHeight / 2})`}
-              fontSize="11"
+              transform={`rotate(-90, 25, ${chartHeight / 2})`}
+              fontSize="12"
+              fontWeight="500"
             >
               Compression Ratio
             </text>

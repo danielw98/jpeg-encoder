@@ -12,6 +12,8 @@ import { config } from './config.js';
 import { healthRouter } from './routes/health.js';
 import { encodeRouter } from './routes/encode.js';
 import { imagesRouter } from './routes/images.js';
+import { cacheRouter } from './routes/cache.js';
+import { startPrecompute } from './services/precompute.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,6 +37,7 @@ app.use('/outputs', express.static(config.outputDir));
 app.use('/api/health', healthRouter);
 app.use('/api/encode', encodeRouter);
 app.use('/api/images', imagesRouter);
+app.use('/api/cache', cacheRouter);
 
 // Root endpoint
 app.get('/api', (_req: Request, res: Response) => {
@@ -83,6 +86,11 @@ app.listen(config.port, () => {
   console.log(`  Outputs:     ${config.outputDir}`);
   console.log('='.repeat(60));
   console.log(`\n  API available at http://localhost:${config.port}/api\n`);
+  
+  // Start precomputing sample images in the background
+  startPrecompute().catch(err => {
+    console.error('[Precompute] Error:', err);
+  });
 });
 
 export default app;

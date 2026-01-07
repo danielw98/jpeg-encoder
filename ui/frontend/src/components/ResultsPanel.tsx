@@ -1,9 +1,11 @@
 /**
  * ResultsPanel Component
  * 
- * Display encoding results and analysis
+ * Compact display of encoding results with tables
  */
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCubes, faWaveSquare, faSliders, faBarcode, faChartBar, faTree } from '@fortawesome/free-solid-svg-icons';
 import { EncodeResult } from '../hooks/useEncoder';
 
 interface ResultsPanelProps {
@@ -18,200 +20,117 @@ function formatBytes(bytes: number): string {
 
 export function ResultsPanel({ result }: ResultsPanelProps) {
   const spaceSavings = ((1 - result.compressedBytes / result.originalBytes) * 100).toFixed(1);
+  const analysis = result.analysis;
 
   return (
-    <div className="results">
-      {/* Main Stats */}
-      <div className="stat-grid">
-        <div className="stat-item">
-          <div className="label">Compression Ratio</div>
-          <div className="value">
-            {result.compressionRatio.toFixed(1)}<span className="unit">×</span>
-          </div>
+    <div className="results-compact">
+      {/* Hero Stats - Most Important */}
+      <div className="hero-stats">
+        <div className="hero-stat primary">
+          <span className="hero-value">{result.compressionRatio.toFixed(1)}×</span>
+          <span className="hero-label">Compression</span>
         </div>
-        <div className="stat-item">
-          <div className="label">Space Saved</div>
-          <div className="value">
-            {spaceSavings}<span className="unit">%</span>
-          </div>
+        <div className="hero-stat success">
+          <span className="hero-value">{spaceSavings}%</span>
+          <span className="hero-label">Space Saved</span>
         </div>
-        <div className="stat-item">
-          <div className="label">Original Size</div>
-          <div className="value" style={{ fontSize: '1.25rem' }}>
-            {formatBytes(result.originalBytes)}
-          </div>
+        <div className="hero-stat">
+          <span className="hero-value">{formatBytes(result.originalBytes)}</span>
+          <span className="hero-label">Original</span>
         </div>
-        <div className="stat-item">
-          <div className="label">Compressed Size</div>
-          <div className="value" style={{ fontSize: '1.25rem' }}>
-            {formatBytes(result.compressedBytes)}
-          </div>
+        <div className="hero-stat">
+          <span className="hero-value">{formatBytes(result.compressedBytes)}</span>
+          <span className="hero-label">Compressed</span>
         </div>
       </div>
 
-      {/* Image Info */}
-      <div className="analysis-section" style={{ borderTop: 'none', paddingTop: 0 }}>
-        <h3>Image Details</h3>
-        <div className="analysis-grid">
-          <div className="analysis-item">
-            <div className="label">Dimensions</div>
-            <div className="value">{result.originalWidth} × {result.originalHeight}</div>
-          </div>
-          <div className="analysis-item">
-            <div className="label">Quality</div>
-            <div className="value">{result.quality}</div>
-          </div>
-          <div className="analysis-item">
-            <div className="label">Format</div>
-            <div className="value">{result.format === 'color_420' ? 'YCbCr 4:2:0' : 'Grayscale'}</div>
-          </div>
-        </div>
+      {/* Image Info Row */}
+      <div className="info-row">
+        <span><strong>Size:</strong> {result.originalWidth}×{result.originalHeight}</span>
+        <span><strong>Quality:</strong> {result.quality}</span>
+        <span><strong>Format:</strong> {result.format === 'color_420' ? 'YCbCr 4:2:0' : 'Grayscale'}</span>
       </div>
 
-      {/* Detailed Analysis */}
-      {result.analysis && (
-        <>
-          {/* Entropy Analysis */}
-          <div className="analysis-section">
-            <h3>📊 Entropy Analysis</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">Source Entropy</div>
-                <div className="value">{result.analysis.entropy.originalEntropy.toFixed(3)} bits/symbol</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Coded Entropy</div>
-                <div className="value">{result.analysis.entropy.compressedEntropy.toFixed(3)} bits/symbol</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Huffman Efficiency</div>
-                <div className="value">
-                  {result.analysis.entropy.entropyReductionPercent >= 0 
-                    ? `${result.analysis.entropy.entropyReductionPercent.toFixed(1)}% saved`
-                    : `${Math.abs(result.analysis.entropy.entropyReductionPercent).toFixed(1)}% overhead`
-                  }
-                </div>
-              </div>
+      {/* Detailed Analysis - 4 Column Grid */}
+      {analysis && (
+        <div className="stats-grid-4col">
+          {/* Blocks */}
+          <div className="stats-box">
+            <h4><FontAwesomeIcon icon={faCubes} /> Blocks</h4>
+            <div className="stats-rows">
+              <div className="stat-row"><span>Total</span><span>{analysis.blocks.total.toLocaleString()}</span></div>
+              <div className="stat-row"><span>Y (Luma)</span><span>{analysis.blocks.yLuma.toLocaleString()}</span></div>
+              <div className="stat-row"><span>Cb</span><span>{analysis.blocks.cbChroma.toLocaleString()}</span></div>
+              <div className="stat-row"><span>Cr</span><span>{analysis.blocks.crChroma.toLocaleString()}</span></div>
             </div>
           </div>
 
-          {/* Block Statistics */}
-          <div className="analysis-section">
-            <h3>🧱 Block Statistics</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">Total Blocks</div>
-                <div className="value">{result.analysis.blocks.total.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Y (Luma)</div>
-                <div className="value">{result.analysis.blocks.yLuma.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Cb (Chroma)</div>
-                <div className="value">{result.analysis.blocks.cbChroma.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Cr (Chroma)</div>
-                <div className="value">{result.analysis.blocks.crChroma.toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* DCT Analysis */}
-          <div className="analysis-section">
-            <h3>🔄 DCT Analysis</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">DC Energy</div>
-                <div className="value">{result.analysis.dctAnalysis.dcEnergyPercent.toFixed(1)}%</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">AC Energy</div>
-                <div className="value">{result.analysis.dctAnalysis.acEnergyPercent.toFixed(1)}%</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Avg DC Coefficient</div>
-                <div className="value">{result.analysis.dctAnalysis.avgDcCoefficient.toFixed(2)}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Avg AC Coefficient</div>
-                <div className="value">{result.analysis.dctAnalysis.avgAcCoefficient.toFixed(2)}</div>
-              </div>
+          {/* DCT Energy */}
+          <div className="stats-box">
+            <h4><FontAwesomeIcon icon={faWaveSquare} /> DCT Energy</h4>
+            <div className="stats-rows">
+              <div className="stat-row"><span>DC</span><span>{analysis.dctAnalysis.dcEnergyPercent.toFixed(1)}%</span></div>
+              <div className="stat-row"><span>AC</span><span>{analysis.dctAnalysis.acEnergyPercent.toFixed(1)}%</span></div>
+              <div className="stat-row"><span>Avg DC</span><span>{analysis.dctAnalysis.avgDcCoefficient.toFixed(1)}</span></div>
+              <div className="stat-row"><span>Avg AC</span><span>{analysis.dctAnalysis.avgAcCoefficient.toFixed(1)}</span></div>
             </div>
           </div>
 
           {/* Quantization */}
-          <div className="analysis-section">
-            <h3>📐 Quantization</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">Zero Coefficients</div>
-                <div className="value">{result.analysis.quantization.zeroCoefficients.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Sparsity</div>
-                <div className="value">{result.analysis.quantization.sparsityPercent.toFixed(1)}%</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Avg Error</div>
-                <div className="value">{result.analysis.quantization.avgError.toFixed(2)}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Peak Error</div>
-                <div className="value">{result.analysis.quantization.peakError.toFixed(2)}</div>
-              </div>
+          <div className="stats-box">
+            <h4><FontAwesomeIcon icon={faSliders} /> Quantization</h4>
+            <div className="stats-rows">
+              <div className="stat-row"><span>Zeros</span><span>{analysis.quantization.zeroCoefficients.toLocaleString()}</span></div>
+              <div className="stat-row"><span>Sparsity</span><span>{analysis.quantization.sparsityPercent.toFixed(1)}%</span></div>
+              <div className="stat-row"><span>Avg Err</span><span>{analysis.quantization.avgError.toFixed(2)}</span></div>
+              <div className="stat-row"><span>Peak Err</span><span>{analysis.quantization.peakError.toFixed(1)}</span></div>
             </div>
           </div>
 
-          {/* RLE Statistics */}
-          <div className="analysis-section">
-            <h3>🔢 RLE Statistics</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">Total Symbols</div>
-                <div className="value">{result.analysis.rleStatistics.totalSymbols.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">ZRL Count</div>
-                <div className="value">{result.analysis.rleStatistics.zrlCount.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">EOB Count</div>
-                <div className="value">{result.analysis.rleStatistics.eobCount.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Avg Run Length</div>
-                <div className="value">{result.analysis.rleStatistics.avgRunLength.toFixed(2)}</div>
-              </div>
+          {/* RLE */}
+          <div className="stats-box">
+            <h4><FontAwesomeIcon icon={faBarcode} /> RLE</h4>
+            <div className="stats-rows">
+              <div className="stat-row"><span>Symbols</span><span>{analysis.rleStatistics.totalSymbols.toLocaleString()}</span></div>
+              <div className="stat-row"><span>ZRL</span><span>{analysis.rleStatistics.zrlCount.toLocaleString()}</span></div>
+              <div className="stat-row"><span>EOB</span><span>{analysis.rleStatistics.eobCount.toLocaleString()}</span></div>
+              <div className="stat-row"><span>Avg Run</span><span>{analysis.rleStatistics.avgRunLength.toFixed(2)}</span></div>
             </div>
           </div>
 
-          {/* Huffman Coding */}
-          <div className="analysis-section">
-            <h3>🌳 Huffman Coding</h3>
-            <div className="analysis-grid">
-              <div className="analysis-item">
-                <div className="label">Total Bits</div>
-                <div className="value">{result.analysis.huffmanCoding.totalBits.toLocaleString()}</div>
-              </div>
-              <div className="analysis-item">
-                <div className="label">Avg Codeword Length</div>
-                <div className="value">{result.analysis.huffmanCoding.avgCodewordLength.toFixed(2)} bits</div>
+          {/* Entropy - spans 2 columns */}
+          <div className="stats-box wide">
+            <h4><FontAwesomeIcon icon={faChartBar} /> Entropy Analysis</h4>
+            <div className="stats-rows horizontal">
+              <div className="stat-row"><span>Source</span><span>{analysis.entropy.originalEntropy.toFixed(3)} b/sym</span></div>
+              <div className="stat-row"><span>Coded</span><span>{analysis.entropy.compressedEntropy.toFixed(3)} b/sym</span></div>
+              <div className="stat-row"><span>Total Bits</span><span>{analysis.huffmanCoding.totalBits.toLocaleString()}</span></div>
+            </div>
+          </div>
+
+          {/* Huffman - spans 2 columns */}
+          <div className="stats-box wide">
+            <h4><FontAwesomeIcon icon={faTree} /> Huffman Coding</h4>
+            <div className="stats-rows horizontal">
+              <div className="stat-row"><span>Avg Codeword</span><span>{analysis.huffmanCoding.avgCodewordLength.toFixed(2)} bits</span></div>
+              <div className="stat-row">
+                <span>Efficiency</span>
+                <span className={analysis.entropy.entropyReductionPercent >= 0 ? 'text-success' : 'text-warning'}>
+                  {analysis.entropy.entropyReductionPercent >= 0 
+                    ? `${analysis.entropy.entropyReductionPercent.toFixed(1)}% saved`
+                    : `${Math.abs(analysis.entropy.entropyReductionPercent).toFixed(1)}% overhead`
+                  }
+                </span>
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Download Link */}
       {result.outputUrl && (
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <a
-            href={result.outputUrl}
-            download
-            className="btn btn-primary"
-          >
+        <div className="download-row">
+          <a href={result.outputUrl} download className="btn btn-primary btn-sm">
             📥 Download JPEG
           </a>
         </div>

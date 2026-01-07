@@ -7,7 +7,10 @@ import { ComparisonView } from './components/ComparisonView';
 import { DCTVisualization } from './components/DCTVisualization';
 import { QualityChart } from './components/QualityChart';
 import { PipelineView } from './components/PipelineView';
+import { ThemeToggle } from './components/ThemeToggle';
 import { useEncoder, EncodeResult } from './hooks/useEncoder';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faCog, faSync, faChartLine, faChartBar } from '@fortawesome/free-solid-svg-icons';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'error';
@@ -55,8 +58,9 @@ function App() {
   // Handle sample image selection
   const handleSampleEncode = async (imageName: string) => {
     setSelectedFile(null);
-    setPreviewUrl(null);
     setResult(null);
+    // Set original URL to the raw image endpoint
+    setPreviewUrl(`/api/images/${imageName}/raw`);
     const encodeResult = await encodeSample(imageName, quality, format, true);
     if (encodeResult) {
       setResult(encodeResult);
@@ -76,8 +80,9 @@ function App() {
     return (
       <div className="app upload-page">
         <header className="app-header">
+          <ThemeToggle />
           <h1>JPEG Encoder</h1>
-          <p>Educational JPEG encoder with DSP visualization</p>
+          <p>Upload an image to compress and analyze</p>
           {health && (
             <span className={`status-badge ${health.status}`}>
               {health.status === 'healthy' ? '✓ Ready' : 
@@ -145,50 +150,45 @@ function App() {
   // Page 2: Results
   return (
     <div className="app results-page">
-      <header className="results-header">
-        <button className="btn btn-back" onClick={handleReset}>
-          ← New Image
-        </button>
-        <div className="result-summary">
-          <span className="summary-item">{result!.originalWidth}×{result!.originalHeight}</span>
-          <span className="summary-divider">|</span>
-          <span className="summary-item">Q{result!.quality}</span>
-          <span className="summary-divider">|</span>
-          <span className="summary-item highlight">{result!.compressionRatio.toFixed(1)}× compression</span>
-        </div>
+      <header className="app-header results-header">
+        <ThemeToggle />
       </header>
-
       <div className="tab-bar">
+        <button className="btn btn-back" onClick={handleReset}>
+          ← Back
+        </button>
+        <div className="tab-buttons">
         <button 
           className={`tab-btn ${activeTab === 'comparison' ? 'active' : ''}`}
           onClick={() => setActiveTab('comparison')}
         >
-          📷 Compare
+          <FontAwesomeIcon icon={faCamera} /> Compare
         </button>
         <button 
           className={`tab-btn ${activeTab === 'pipeline' ? 'active' : ''}`}
           onClick={() => setActiveTab('pipeline')}
         >
-          ⚙️ Pipeline
+          <FontAwesomeIcon icon={faCog} /> Pipeline
         </button>
         <button 
           className={`tab-btn ${activeTab === 'dct' ? 'active' : ''}`}
           onClick={() => setActiveTab('dct')}
         >
-          🔄 DCT
+          <FontAwesomeIcon icon={faSync} /> DCT
         </button>
         <button 
           className={`tab-btn ${activeTab === 'quality' ? 'active' : ''}`}
           onClick={() => setActiveTab('quality')}
         >
-          📈 Quality
+          <FontAwesomeIcon icon={faChartLine} /> Quality
         </button>
         <button 
           className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
           onClick={() => setActiveTab('stats')}
         >
-          📊 Stats
+          <FontAwesomeIcon icon={faChartBar} /> Stats
         </button>
+        </div>
       </div>
 
       <div className="results-content">

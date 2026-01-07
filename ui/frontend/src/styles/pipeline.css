@@ -1,0 +1,174 @@
+/* Pipeline View Styles */
+
+.pipeline-view {
+  padding: 16px 0;
+}
+
+.pipeline-view h3 {
+  margin-bottom: 16px;
+}
+
+.pipeline-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pipeline-step-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.pipeline-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pipeline-step.active {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.step-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.step-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-name {
+  font-weight: 600;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-desc {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-arrow {
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Step Details Panel */
+.step-details {
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  border-left: 4px solid var(--primary);
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 3px solid;
+}
+
+.details-icon {
+  font-size: 1.25rem;
+}
+
+.details-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.details-list {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.details-list li {
+  font-size: 0.875rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+/* Pipeline Summary */
+.pipeline-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-item.highlight {
+  padding: 8px 16px;
+  background: var(--primary);
+  border-radius: var(--radius);
+  color: white;
+}
+
+.summary-item.highlight .summary-label,
+.summary-item.highlight .summary-value {
+  color: white;
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-value {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.summary-arrow {
+  color: var(--text-muted);
+  font-size: 1.5rem;
+}
+
+.pipeline-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

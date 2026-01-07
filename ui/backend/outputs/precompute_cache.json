@@ -1,0 +1,1994 @@
+{
+  "version": 1,
+  "timestamp": "2026-01-07T14:10:10.710Z",
+  "images": [
+    {
+      "imageName": "baboon_512.png",
+      "originalBytes": 120000,
+      "originalWidth": 200,
+      "originalHeight": 200,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 2870,
+          "compressionRatio": 41.81184668989547,
+          "outputUrl": "/outputs/precompute_baboon_512_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 5159,
+          "compressionRatio": 23.260321767784454,
+          "outputUrl": "/outputs/precompute_baboon_512_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 7985,
+          "compressionRatio": 15.028177833437695,
+          "outputUrl": "/outputs/precompute_baboon_512_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 9946,
+          "compressionRatio": 12.065151819827067,
+          "outputUrl": "/outputs/precompute_baboon_512_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 12089,
+          "compressionRatio": 9.926379353130946,
+          "outputUrl": "/outputs/precompute_baboon_512_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 16271,
+          "compressionRatio": 7.375084506176633,
+          "outputUrl": "/outputs/precompute_baboon_512_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 20306,
+          "compressionRatio": 5.909583374372107,
+          "outputUrl": "/outputs/precompute_baboon_512_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 28636,
+          "compressionRatio": 4.190529403547981,
+          "outputUrl": "/outputs/precompute_baboon_512_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 51893,
+          "compressionRatio": 2.312450619544062,
+          "outputUrl": "/outputs/precompute_baboon_512_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_baboon_512_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "house_512.png",
+      "originalBytes": 120000,
+      "originalWidth": 200,
+      "originalHeight": 200,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 2310,
+          "compressionRatio": 51.94805194805195,
+          "outputUrl": "/outputs/precompute_house_512_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 3358,
+          "compressionRatio": 35.7355568790947,
+          "outputUrl": "/outputs/precompute_house_512_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 4697,
+          "compressionRatio": 25.548222269533746,
+          "outputUrl": "/outputs/precompute_house_512_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 5664,
+          "compressionRatio": 21.1864406779661,
+          "outputUrl": "/outputs/precompute_house_512_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 6744,
+          "compressionRatio": 17.793594306049823,
+          "outputUrl": "/outputs/precompute_house_512_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 8860,
+          "compressionRatio": 13.544018058690744,
+          "outputUrl": "/outputs/precompute_house_512_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 11201,
+          "compressionRatio": 10.713329167038657,
+          "outputUrl": "/outputs/precompute_house_512_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 16398,
+          "compressionRatio": 7.317965605561654,
+          "outputUrl": "/outputs/precompute_house_512_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 33738,
+          "compressionRatio": 3.5568202027387517,
+          "outputUrl": "/outputs/precompute_house_512_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_house_512_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim01.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 21619,
+          "compressionRatio": 54.5653360469957,
+          "outputUrl": "/outputs/precompute_kodim01_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 40502,
+          "compressionRatio": 29.12567280628117,
+          "outputUrl": "/outputs/precompute_kodim01_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 61681,
+          "compressionRatio": 19.124981760996093,
+          "outputUrl": "/outputs/precompute_kodim01_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 76358,
+          "compressionRatio": 15.44891170538778,
+          "outputUrl": "/outputs/precompute_kodim01_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 92262,
+          "compressionRatio": 12.78584899525265,
+          "outputUrl": "/outputs/precompute_kodim01_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 123942,
+          "compressionRatio": 9.51774216972455,
+          "outputUrl": "/outputs/precompute_kodim01_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 154536,
+          "compressionRatio": 7.633483460164622,
+          "outputUrl": "/outputs/precompute_kodim01_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 215234,
+          "compressionRatio": 5.480769766858396,
+          "outputUrl": "/outputs/precompute_kodim01_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 389857,
+          "compressionRatio": 3.0258479391161375,
+          "outputUrl": "/outputs/precompute_kodim01_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim01_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim02.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 11219,
+          "compressionRatio": 105.1473393350566,
+          "outputUrl": "/outputs/precompute_kodim02_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 20351,
+          "compressionRatio": 57.96511227949487,
+          "outputUrl": "/outputs/precompute_kodim02_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 33751,
+          "compressionRatio": 34.951497733400494,
+          "outputUrl": "/outputs/precompute_kodim02_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 43707,
+          "compressionRatio": 26.989910083053058,
+          "outputUrl": "/outputs/precompute_kodim02_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 54413,
+          "compressionRatio": 21.67952511348391,
+          "outputUrl": "/outputs/precompute_kodim02_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 76522,
+          "compressionRatio": 15.41580199158412,
+          "outputUrl": "/outputs/precompute_kodim02_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 98940,
+          "compressionRatio": 11.922862340812614,
+          "outputUrl": "/outputs/precompute_kodim02_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 148111,
+          "compressionRatio": 7.964621128748034,
+          "outputUrl": "/outputs/precompute_kodim02_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 309001,
+          "compressionRatio": 3.8176187132080477,
+          "outputUrl": "/outputs/precompute_kodim02_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim02_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim03.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 11779,
+          "compressionRatio": 100.14839969437134,
+          "outputUrl": "/outputs/precompute_kodim03_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 19691,
+          "compressionRatio": 59.90797826418161,
+          "outputUrl": "/outputs/precompute_kodim03_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 30062,
+          "compressionRatio": 39.2405029605482,
+          "outputUrl": "/outputs/precompute_kodim03_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 37486,
+          "compressionRatio": 31.469028437283253,
+          "outputUrl": "/outputs/precompute_kodim03_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 45415,
+          "compressionRatio": 25.974854123087084,
+          "outputUrl": "/outputs/precompute_kodim03_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 61572,
+          "compressionRatio": 19.158838433053987,
+          "outputUrl": "/outputs/precompute_kodim03_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 78636,
+          "compressionRatio": 15.001373416755685,
+          "outputUrl": "/outputs/precompute_kodim03_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 116166,
+          "compressionRatio": 10.154847373586074,
+          "outputUrl": "/outputs/precompute_kodim03_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 257604,
+          "compressionRatio": 4.579307774723995,
+          "outputUrl": "/outputs/precompute_kodim03_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim03_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim04.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 12930,
+          "compressionRatio": 91.23341067285382,
+          "outputUrl": "/outputs/precompute_kodim04_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 23369,
+          "compressionRatio": 50.47918182207198,
+          "outputUrl": "/outputs/precompute_kodim04_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 36901,
+          "compressionRatio": 31.967914148668058,
+          "outputUrl": "/outputs/precompute_kodim04_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 46564,
+          "compressionRatio": 25.33390602181943,
+          "outputUrl": "/outputs/precompute_kodim04_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 57081,
+          "compressionRatio": 20.666211173595418,
+          "outputUrl": "/outputs/precompute_kodim04_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 78867,
+          "compressionRatio": 14.957434668492525,
+          "outputUrl": "/outputs/precompute_kodim04_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 101165,
+          "compressionRatio": 11.660633618346266,
+          "outputUrl": "/outputs/precompute_kodim04_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 149487,
+          "compressionRatio": 7.891308274298099,
+          "outputUrl": "/outputs/precompute_kodim04_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 304876,
+          "compressionRatio": 3.869271441504087,
+          "outputUrl": "/outputs/precompute_kodim04_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim04_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim05.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 24783,
+          "compressionRatio": 47.59908001452609,
+          "outputUrl": "/outputs/precompute_kodim05_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 45335,
+          "compressionRatio": 26.02069041579354,
+          "outputUrl": "/outputs/precompute_kodim05_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 68997,
+          "compressionRatio": 17.0970911778773,
+          "outputUrl": "/outputs/precompute_kodim05_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 84576,
+          "compressionRatio": 13.947786606129398,
+          "outputUrl": "/outputs/precompute_kodim05_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 100850,
+          "compressionRatio": 11.697055032226078,
+          "outputUrl": "/outputs/precompute_kodim05_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 132563,
+          "compressionRatio": 8.89877265903759,
+          "outputUrl": "/outputs/precompute_kodim05_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 163039,
+          "compressionRatio": 7.235373131582014,
+          "outputUrl": "/outputs/precompute_kodim05_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 224750,
+          "compressionRatio": 5.24871190211346,
+          "outputUrl": "/outputs/precompute_kodim05_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 406104,
+          "compressionRatio": 2.904792860942025,
+          "outputUrl": "/outputs/precompute_kodim05_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim05_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim06.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 17470,
+          "compressionRatio": 67.5242129364625,
+          "outputUrl": "/outputs/precompute_kodim06_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 32336,
+          "compressionRatio": 36.480950024740224,
+          "outputUrl": "/outputs/precompute_kodim06_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 49800,
+          "compressionRatio": 23.687710843373495,
+          "outputUrl": "/outputs/precompute_kodim06_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 61628,
+          "compressionRatio": 19.141429220484195,
+          "outputUrl": "/outputs/precompute_kodim06_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 74163,
+          "compressionRatio": 15.906152663727196,
+          "outputUrl": "/outputs/precompute_kodim06_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 98926,
+          "compressionRatio": 11.924549663384752,
+          "outputUrl": "/outputs/precompute_kodim06_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 123613,
+          "compressionRatio": 9.543073948532921,
+          "outputUrl": "/outputs/precompute_kodim06_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 176143,
+          "compressionRatio": 6.697104057498737,
+          "outputUrl": "/outputs/precompute_kodim06_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 338392,
+          "compressionRatio": 3.486039859098324,
+          "outputUrl": "/outputs/precompute_kodim06_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim06_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim07.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 15257,
+          "compressionRatio": 77.31847676476372,
+          "outputUrl": "/outputs/precompute_kodim07_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 25222,
+          "compressionRatio": 46.770597097771784,
+          "outputUrl": "/outputs/precompute_kodim07_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 37255,
+          "compressionRatio": 31.664152462756675,
+          "outputUrl": "/outputs/precompute_kodim07_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 45452,
+          "compressionRatio": 25.953709407726834,
+          "outputUrl": "/outputs/precompute_kodim07_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 54370,
+          "compressionRatio": 21.696670958249033,
+          "outputUrl": "/outputs/precompute_kodim07_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 72672,
+          "compressionRatio": 16.23249669749009,
+          "outputUrl": "/outputs/precompute_kodim07_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 91320,
+          "compressionRatio": 12.917739816031537,
+          "outputUrl": "/outputs/precompute_kodim07_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 132505,
+          "compressionRatio": 8.902667823855703,
+          "outputUrl": "/outputs/precompute_kodim07_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 280205,
+          "compressionRatio": 4.209946289323888,
+          "outputUrl": "/outputs/precompute_kodim07_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim07_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim08.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 25637,
+          "compressionRatio": 46.013496118890664,
+          "outputUrl": "/outputs/precompute_kodim08_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 45784,
+          "compressionRatio": 25.765507600908613,
+          "outputUrl": "/outputs/precompute_kodim08_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 69018,
+          "compressionRatio": 17.091889072415892,
+          "outputUrl": "/outputs/precompute_kodim08_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 84812,
+          "compressionRatio": 13.908975145026647,
+          "outputUrl": "/outputs/precompute_kodim08_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 101523,
+          "compressionRatio": 11.619514789752076,
+          "outputUrl": "/outputs/precompute_kodim08_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 133915,
+          "compressionRatio": 8.80893103834522,
+          "outputUrl": "/outputs/precompute_kodim08_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 165087,
+          "compressionRatio": 7.145614130731069,
+          "outputUrl": "/outputs/precompute_kodim08_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 230347,
+          "compressionRatio": 5.1211780487699,
+          "outputUrl": "/outputs/precompute_kodim08_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 416180,
+          "compressionRatio": 2.834465856119948,
+          "outputUrl": "/outputs/precompute_kodim08_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim08_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim09.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 13126,
+          "compressionRatio": 89.87109553557823,
+          "outputUrl": "/outputs/precompute_kodim09_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 20994,
+          "compressionRatio": 56.189768505287226,
+          "outputUrl": "/outputs/precompute_kodim09_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 30673,
+          "compressionRatio": 38.45884002216933,
+          "outputUrl": "/outputs/precompute_kodim09_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 38001,
+          "compressionRatio": 31.042551511802323,
+          "outputUrl": "/outputs/precompute_kodim09_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 46697,
+          "compressionRatio": 25.261751290232777,
+          "outputUrl": "/outputs/precompute_kodim09_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 65789,
+          "compressionRatio": 17.930778701606652,
+          "outputUrl": "/outputs/precompute_kodim09_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 85506,
+          "compressionRatio": 13.796084485299277,
+          "outputUrl": "/outputs/precompute_kodim09_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 131323,
+          "compressionRatio": 8.982798138939867,
+          "outputUrl": "/outputs/precompute_kodim09_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 283500,
+          "compressionRatio": 4.161015873015873,
+          "outputUrl": "/outputs/precompute_kodim09_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim09_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim10.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 13413,
+          "compressionRatio": 87.94811004249608,
+          "outputUrl": "/outputs/precompute_kodim10_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 22532,
+          "compressionRatio": 52.354340493520326,
+          "outputUrl": "/outputs/precompute_kodim10_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 34155,
+          "compressionRatio": 34.53807641633728,
+          "outputUrl": "/outputs/precompute_kodim10_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 42502,
+          "compressionRatio": 27.755117406239705,
+          "outputUrl": "/outputs/precompute_kodim10_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 52075,
+          "compressionRatio": 22.652866058569373,
+          "outputUrl": "/outputs/precompute_kodim10_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 72209,
+          "compressionRatio": 16.336578542840922,
+          "outputUrl": "/outputs/precompute_kodim10_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 92618,
+          "compressionRatio": 12.736703448573712,
+          "outputUrl": "/outputs/precompute_kodim10_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 138666,
+          "compressionRatio": 8.50711782268184,
+          "outputUrl": "/outputs/precompute_kodim10_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 292818,
+          "compressionRatio": 4.028604798885315,
+          "outputUrl": "/outputs/precompute_kodim10_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim10_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim11.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 15524,
+          "compressionRatio": 75.9886627157949,
+          "outputUrl": "/outputs/precompute_kodim11_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 29051,
+          "compressionRatio": 40.606106502357925,
+          "outputUrl": "/outputs/precompute_kodim11_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 45643,
+          "compressionRatio": 25.845102206252875,
+          "outputUrl": "/outputs/precompute_kodim11_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 56921,
+          "compressionRatio": 20.724302102914567,
+          "outputUrl": "/outputs/precompute_kodim11_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 68817,
+          "compressionRatio": 17.141810889751078,
+          "outputUrl": "/outputs/precompute_kodim11_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 92918,
+          "compressionRatio": 12.695581049958028,
+          "outputUrl": "/outputs/precompute_kodim11_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 116800,
+          "compressionRatio": 10.09972602739726,
+          "outputUrl": "/outputs/precompute_kodim11_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 168369,
+          "compressionRatio": 7.006325392441601,
+          "outputUrl": "/outputs/precompute_kodim11_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 327969,
+          "compressionRatio": 3.596827748964079,
+          "outputUrl": "/outputs/precompute_kodim11_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim11_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim12.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 11667,
+          "compressionRatio": 101.10979686294678,
+          "outputUrl": "/outputs/precompute_kodim12_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 20570,
+          "compressionRatio": 57.34798249878464,
+          "outputUrl": "/outputs/precompute_kodim12_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 32261,
+          "compressionRatio": 36.565760515793066,
+          "outputUrl": "/outputs/precompute_kodim12_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 40634,
+          "compressionRatio": 29.031057734901808,
+          "outputUrl": "/outputs/precompute_kodim12_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 49480,
+          "compressionRatio": 23.84090541632983,
+          "outputUrl": "/outputs/precompute_kodim12_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 67947,
+          "compressionRatio": 17.361296304472603,
+          "outputUrl": "/outputs/precompute_kodim12_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 87036,
+          "compressionRatio": 13.553564042465187,
+          "outputUrl": "/outputs/precompute_kodim12_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 129769,
+          "compressionRatio": 9.090368269771671,
+          "outputUrl": "/outputs/precompute_kodim12_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 275754,
+          "compressionRatio": 4.277899867273004,
+          "outputUrl": "/outputs/precompute_kodim12_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim12_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim13.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 24728,
+          "compressionRatio": 47.70494985441605,
+          "outputUrl": "/outputs/precompute_kodim13_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 47934,
+          "compressionRatio": 24.609838527975967,
+          "outputUrl": "/outputs/precompute_kodim13_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 75260,
+          "compressionRatio": 15.674302418283284,
+          "outputUrl": "/outputs/precompute_kodim13_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 93730,
+          "compressionRatio": 12.5855969273445,
+          "outputUrl": "/outputs/precompute_kodim13_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 113866,
+          "compressionRatio": 10.359966978729384,
+          "outputUrl": "/outputs/precompute_kodim13_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 152332,
+          "compressionRatio": 7.743927736785443,
+          "outputUrl": "/outputs/precompute_kodim13_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 187553,
+          "compressionRatio": 6.289678117652077,
+          "outputUrl": "/outputs/precompute_kodim13_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 256078,
+          "compressionRatio": 4.60659642765095,
+          "outputUrl": "/outputs/precompute_kodim13_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 457396,
+          "compressionRatio": 2.5790518500380415,
+          "outputUrl": "/outputs/precompute_kodim13_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim13_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim14.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 18536,
+          "compressionRatio": 63.64091497626241,
+          "outputUrl": "/outputs/precompute_kodim14_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 35965,
+          "compressionRatio": 32.79988878075907,
+          "outputUrl": "/outputs/precompute_kodim14_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 56260,
+          "compressionRatio": 20.96779239246356,
+          "outputUrl": "/outputs/precompute_kodim14_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 69757,
+          "compressionRatio": 16.910818985908225,
+          "outputUrl": "/outputs/precompute_kodim14_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 84488,
+          "compressionRatio": 13.962314174794054,
+          "outputUrl": "/outputs/precompute_kodim14_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 113485,
+          "compressionRatio": 10.394748204608538,
+          "outputUrl": "/outputs/precompute_kodim14_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 142285,
+          "compressionRatio": 8.290740415363532,
+          "outputUrl": "/outputs/precompute_kodim14_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 201909,
+          "compressionRatio": 5.842473589587389,
+          "outputUrl": "/outputs/precompute_kodim14_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 372542,
+          "compressionRatio": 3.166483242157931,
+          "outputUrl": "/outputs/precompute_kodim14_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim14_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim15.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 12736,
+          "compressionRatio": 92.62311557788945,
+          "outputUrl": "/outputs/precompute_kodim15_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 21875,
+          "compressionRatio": 53.926765714285715,
+          "outputUrl": "/outputs/precompute_kodim15_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 33876,
+          "compressionRatio": 34.82252922422954,
+          "outputUrl": "/outputs/precompute_kodim15_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 42695,
+          "compressionRatio": 27.6296521840965,
+          "outputUrl": "/outputs/precompute_kodim15_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 52041,
+          "compressionRatio": 22.66766587882631,
+          "outputUrl": "/outputs/precompute_kodim15_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 71883,
+          "compressionRatio": 16.41066733441843,
+          "outputUrl": "/outputs/precompute_kodim15_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 92735,
+          "compressionRatio": 12.720634064808324,
+          "outputUrl": "/outputs/precompute_kodim15_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 137567,
+          "compressionRatio": 8.575079779307538,
+          "outputUrl": "/outputs/precompute_kodim15_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 287144,
+          "compressionRatio": 4.108210514585017,
+          "outputUrl": "/outputs/precompute_kodim15_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim15_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim16.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 13049,
+          "compressionRatio": 90.40141006973714,
+          "outputUrl": "/outputs/precompute_kodim16_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 24308,
+          "compressionRatio": 48.52920849103176,
+          "outputUrl": "/outputs/precompute_kodim16_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 37995,
+          "compressionRatio": 31.047453612317412,
+          "outputUrl": "/outputs/precompute_kodim16_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 47022,
+          "compressionRatio": 25.087150695419165,
+          "outputUrl": "/outputs/precompute_kodim16_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 57016,
+          "compressionRatio": 20.689771292268837,
+          "outputUrl": "/outputs/precompute_kodim16_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 77298,
+          "compressionRatio": 15.261041682837849,
+          "outputUrl": "/outputs/precompute_kodim16_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 98308,
+          "compressionRatio": 11.999511738617407,
+          "outputUrl": "/outputs/precompute_kodim16_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 144281,
+          "compressionRatio": 8.176045355937372,
+          "outputUrl": "/outputs/precompute_kodim16_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 295037,
+          "compressionRatio": 3.998305297301694,
+          "outputUrl": "/outputs/precompute_kodim16_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim16_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim17.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 14176,
+          "compressionRatio": 83.21444695259594,
+          "outputUrl": "/outputs/precompute_kodim17_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 24673,
+          "compressionRatio": 47.81129169537551,
+          "outputUrl": "/outputs/precompute_kodim17_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 37601,
+          "compressionRatio": 31.372782638759606,
+          "outputUrl": "/outputs/precompute_kodim17_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 46803,
+          "compressionRatio": 25.204538170630087,
+          "outputUrl": "/outputs/precompute_kodim17_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 56671,
+          "compressionRatio": 20.81572585625805,
+          "outputUrl": "/outputs/precompute_kodim17_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 77239,
+          "compressionRatio": 15.272699025103899,
+          "outputUrl": "/outputs/precompute_kodim17_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 98573,
+          "compressionRatio": 11.967252695971514,
+          "outputUrl": "/outputs/precompute_kodim17_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 145948,
+          "compressionRatio": 8.082659577383726,
+          "outputUrl": "/outputs/precompute_kodim17_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 299971,
+          "compressionRatio": 3.932540145547403,
+          "outputUrl": "/outputs/precompute_kodim17_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim17_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim18.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 18463,
+          "compressionRatio": 63.89254184043763,
+          "outputUrl": "/outputs/precompute_kodim18_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 34661,
+          "compressionRatio": 34.033870921208276,
+          "outputUrl": "/outputs/precompute_kodim18_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 54182,
+          "compressionRatio": 21.771953785389982,
+          "outputUrl": "/outputs/precompute_kodim18_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 67840,
+          "compressionRatio": 17.38867924528302,
+          "outputUrl": "/outputs/precompute_kodim18_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 82750,
+          "compressionRatio": 14.255564954682779,
+          "outputUrl": "/outputs/precompute_kodim18_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 111777,
+          "compressionRatio": 10.553584368877319,
+          "outputUrl": "/outputs/precompute_kodim18_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 140575,
+          "compressionRatio": 8.391591677040726,
+          "outputUrl": "/outputs/precompute_kodim18_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 202195,
+          "compressionRatio": 5.834209550186701,
+          "outputUrl": "/outputs/precompute_kodim18_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 384059,
+          "compressionRatio": 3.0715280725096927,
+          "outputUrl": "/outputs/precompute_kodim18_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim18_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim19.png",
+      "originalBytes": 1179648,
+      "originalWidth": 512,
+      "originalHeight": 768,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 15238,
+          "compressionRatio": 77.41488384302401,
+          "outputUrl": "/outputs/precompute_kodim19_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 27440,
+          "compressionRatio": 42.990087463556854,
+          "outputUrl": "/outputs/precompute_kodim19_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 42429,
+          "compressionRatio": 27.80287067807396,
+          "outputUrl": "/outputs/precompute_kodim19_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 52679,
+          "compressionRatio": 22.393135784658025,
+          "outputUrl": "/outputs/precompute_kodim19_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 64353,
+          "compressionRatio": 18.33089366463102,
+          "outputUrl": "/outputs/precompute_kodim19_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 88528,
+          "compressionRatio": 13.325140068678836,
+          "outputUrl": "/outputs/precompute_kodim19_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 112935,
+          "compressionRatio": 10.445371231239209,
+          "outputUrl": "/outputs/precompute_kodim19_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 164652,
+          "compressionRatio": 7.164492383937031,
+          "outputUrl": "/outputs/precompute_kodim19_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 328964,
+          "compressionRatio": 3.585948614438054,
+          "outputUrl": "/outputs/precompute_kodim19_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim19_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim20.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 12683,
+          "compressionRatio": 93.01017109516675,
+          "outputUrl": "/outputs/precompute_kodim20_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 20700,
+          "compressionRatio": 56.987826086956524,
+          "outputUrl": "/outputs/precompute_kodim20_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 30408,
+          "compressionRatio": 38.79400157853197,
+          "outputUrl": "/outputs/precompute_kodim20_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 37388,
+          "compressionRatio": 31.55151385471274,
+          "outputUrl": "/outputs/precompute_kodim20_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 45157,
+          "compressionRatio": 26.123258852448124,
+          "outputUrl": "/outputs/precompute_kodim20_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 61252,
+          "compressionRatio": 19.25893032064259,
+          "outputUrl": "/outputs/precompute_kodim20_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 78124,
+          "compressionRatio": 15.099687676002253,
+          "outputUrl": "/outputs/precompute_kodim20_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 115421,
+          "compressionRatio": 10.22039316935393,
+          "outputUrl": "/outputs/precompute_kodim20_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 249307,
+          "compressionRatio": 4.731708295394834,
+          "outputUrl": "/outputs/precompute_kodim20_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim20_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim21.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 16496,
+          "compressionRatio": 71.51115421920466,
+          "outputUrl": "/outputs/precompute_kodim21_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 28513,
+          "compressionRatio": 41.37228632553572,
+          "outputUrl": "/outputs/precompute_kodim21_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 42798,
+          "compressionRatio": 27.56315715687649,
+          "outputUrl": "/outputs/precompute_kodim21_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 53207,
+          "compressionRatio": 22.17091736049768,
+          "outputUrl": "/outputs/precompute_kodim21_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 65108,
+          "compressionRatio": 18.118326472937273,
+          "outputUrl": "/outputs/precompute_kodim21_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 90062,
+          "compressionRatio": 13.098176811529836,
+          "outputUrl": "/outputs/precompute_kodim21_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 114978,
+          "compressionRatio": 10.259771434535303,
+          "outputUrl": "/outputs/precompute_kodim21_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 167828,
+          "compressionRatio": 7.02891055127869,
+          "outputUrl": "/outputs/precompute_kodim21_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 336032,
+          "compressionRatio": 3.510522807351681,
+          "outputUrl": "/outputs/precompute_kodim21_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim21_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim22.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 14454,
+          "compressionRatio": 81.61394769613948,
+          "outputUrl": "/outputs/precompute_kodim22_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 27497,
+          "compressionRatio": 42.90097101501982,
+          "outputUrl": "/outputs/precompute_kodim22_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 43669,
+          "compressionRatio": 27.01339623073576,
+          "outputUrl": "/outputs/precompute_kodim22_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 54981,
+          "compressionRatio": 21.45555737436569,
+          "outputUrl": "/outputs/precompute_kodim22_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 67568,
+          "compressionRatio": 17.458678664456546,
+          "outputUrl": "/outputs/precompute_kodim22_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 92936,
+          "compressionRatio": 12.693122148575364,
+          "outputUrl": "/outputs/precompute_kodim22_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 118411,
+          "compressionRatio": 9.96231769007947,
+          "outputUrl": "/outputs/precompute_kodim22_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 172308,
+          "compressionRatio": 6.846159203287137,
+          "outputUrl": "/outputs/precompute_kodim22_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 343016,
+          "compressionRatio": 3.4390465750868766,
+          "outputUrl": "/outputs/precompute_kodim22_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim22_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim23.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 11651,
+          "compressionRatio": 101.24864818470517,
+          "outputUrl": "/outputs/precompute_kodim23_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 18591,
+          "compressionRatio": 63.45263837340649,
+          "outputUrl": "/outputs/precompute_kodim23_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 27690,
+          "compressionRatio": 42.601950162513546,
+          "outputUrl": "/outputs/precompute_kodim23_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 34313,
+          "compressionRatio": 34.37904001398887,
+          "outputUrl": "/outputs/precompute_kodim23_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 41713,
+          "compressionRatio": 28.28010452376957,
+          "outputUrl": "/outputs/precompute_kodim23_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 58262,
+          "compressionRatio": 20.247296694243246,
+          "outputUrl": "/outputs/precompute_kodim23_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 76554,
+          "compressionRatio": 15.40935810016459,
+          "outputUrl": "/outputs/precompute_kodim23_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 116594,
+          "compressionRatio": 10.117570372403383,
+          "outputUrl": "/outputs/precompute_kodim23_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 264799,
+          "compressionRatio": 4.4548808719066155,
+          "outputUrl": "/outputs/precompute_kodim23_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim23_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "kodim24.png",
+      "originalBytes": 1179648,
+      "originalWidth": 768,
+      "originalHeight": 512,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 18693,
+          "compressionRatio": 63.106403466538275,
+          "outputUrl": "/outputs/precompute_kodim24_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 34606,
+          "compressionRatio": 34.087961625151706,
+          "outputUrl": "/outputs/precompute_kodim24_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 53579,
+          "compressionRatio": 22.01698426622371,
+          "outputUrl": "/outputs/precompute_kodim24_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 66491,
+          "compressionRatio": 17.7414687702095,
+          "outputUrl": "/outputs/precompute_kodim24_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 80367,
+          "compressionRatio": 14.678263466348128,
+          "outputUrl": "/outputs/precompute_kodim24_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 107812,
+          "compressionRatio": 10.94171335287352,
+          "outputUrl": "/outputs/precompute_kodim24_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 134578,
+          "compressionRatio": 8.765533742513636,
+          "outputUrl": "/outputs/precompute_kodim24_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 189287,
+          "compressionRatio": 6.23206031053374,
+          "outputUrl": "/outputs/precompute_kodim24_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 358144,
+          "compressionRatio": 3.293781272337384,
+          "outputUrl": "/outputs/precompute_kodim24_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_kodim24_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "lake_512.png",
+      "originalBytes": 120000,
+      "originalWidth": 200,
+      "originalHeight": 200,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 1941,
+          "compressionRatio": 61.82380216383308,
+          "outputUrl": "/outputs/precompute_lake_512_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 2593,
+          "compressionRatio": 46.27844195912071,
+          "outputUrl": "/outputs/precompute_lake_512_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 3394,
+          "compressionRatio": 35.35651149086623,
+          "outputUrl": "/outputs/precompute_lake_512_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 3957,
+          "compressionRatio": 30.32600454890068,
+          "outputUrl": "/outputs/precompute_lake_512_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 4571,
+          "compressionRatio": 26.25246116823452,
+          "outputUrl": "/outputs/precompute_lake_512_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 5952,
+          "compressionRatio": 20.161290322580644,
+          "outputUrl": "/outputs/precompute_lake_512_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 7489,
+          "compressionRatio": 16.023501134997996,
+          "outputUrl": "/outputs/precompute_lake_512_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 11207,
+          "compressionRatio": 10.707593468367984,
+          "outputUrl": "/outputs/precompute_lake_512_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 24759,
+          "compressionRatio": 4.846722403974312,
+          "outputUrl": "/outputs/precompute_lake_512_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_lake_512_q100.jpg"
+        }
+      ]
+    },
+    {
+      "imageName": "peppers_512.png",
+      "originalBytes": 120000,
+      "originalWidth": 200,
+      "originalHeight": 200,
+      "levels": [
+        {
+          "quality": 10,
+          "compressedBytes": 2892,
+          "compressionRatio": 41.49377593360996,
+          "outputUrl": "/outputs/precompute_peppers_512_q10.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q10.jpg"
+        },
+        {
+          "quality": 25,
+          "compressedBytes": 4622,
+          "compressionRatio": 25.962786672436174,
+          "outputUrl": "/outputs/precompute_peppers_512_q25.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q25.jpg"
+        },
+        {
+          "quality": 50,
+          "compressedBytes": 6706,
+          "compressionRatio": 17.89442290486132,
+          "outputUrl": "/outputs/precompute_peppers_512_q50.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q50.jpg"
+        },
+        {
+          "quality": 65,
+          "compressedBytes": 8181,
+          "compressionRatio": 14.668133480014669,
+          "outputUrl": "/outputs/precompute_peppers_512_q65.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q65.jpg"
+        },
+        {
+          "quality": 75,
+          "compressedBytes": 9749,
+          "compressionRatio": 12.30895476459124,
+          "outputUrl": "/outputs/precompute_peppers_512_q75.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q75.jpg"
+        },
+        {
+          "quality": 85,
+          "compressedBytes": 12879,
+          "compressionRatio": 9.317493594223153,
+          "outputUrl": "/outputs/precompute_peppers_512_q85.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q85.jpg"
+        },
+        {
+          "quality": 90,
+          "compressedBytes": 16195,
+          "compressionRatio": 7.409694350108058,
+          "outputUrl": "/outputs/precompute_peppers_512_q90.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q90.jpg"
+        },
+        {
+          "quality": 95,
+          "compressedBytes": 23566,
+          "compressionRatio": 5.092081812781125,
+          "outputUrl": "/outputs/precompute_peppers_512_q95.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q95.jpg"
+        },
+        {
+          "quality": 100,
+          "compressedBytes": 44439,
+          "compressionRatio": 2.7003307905218388,
+          "outputUrl": "/outputs/precompute_peppers_512_q100.jpg",
+          "outputFile": "C:\\Daniel\\master\\an1\\sem1\\sem1_cercetare\\jpegdsp\\ui\\backend\\outputs\\precompute_peppers_512_q100.jpg"
+        }
+      ]
+    }
+  ]
+}

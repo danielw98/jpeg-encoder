@@ -11,10 +11,9 @@ if (Test-Path $ZIP_NAME) { Remove-Item $ZIP_NAME -Force }
 # Create structure
 New-Item -ItemType Directory -Path $DEPLOY_DIR | Out-Null
 
-# Copy Dockerfile and docker-compose
-Copy-Item "deploy\Dockerfile" -Destination "$DEPLOY_DIR\"
-Copy-Item "deploy\docker-compose.yml" -Destination "$DEPLOY_DIR\"
-if (Test-Path "deploy\README.md") { Copy-Item "deploy\README.md" -Destination "$DEPLOY_DIR\" }
+# Copy Dockerfile and docker-compose (from root)
+Copy-Item "Dockerfile" -Destination "$DEPLOY_DIR\"
+Copy-Item "docker-compose.yml" -Destination "$DEPLOY_DIR\"
 
 # Copy C++ source
 New-Item -ItemType Directory -Path "$DEPLOY_DIR\include" -Force | Out-Null

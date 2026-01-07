@@ -6,8 +6,9 @@
  */
 
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage, faChartBar, faScissors, faBox } from '@fortawesome/free-solid-svg-icons';
 import { EncodeResult } from '../hooks/useEncoder';
-import './DCTVisualization.css';
 
 interface DCTVisualizationProps {
   result: EncodeResult;
@@ -76,25 +77,25 @@ export function DCTVisualization({ result }: DCTVisualizationProps) {
 
           <div className="dct-flow">
             <div className="flow-step">
-              <div className="flow-icon">🖼️</div>
+              <div className="flow-icon"><FontAwesomeIcon icon={faImage} /></div>
               <div className="flow-label">8×8 Pixels</div>
               <div className="flow-desc">Image divided into blocks</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-icon">📊</div>
+              <div className="flow-icon"><FontAwesomeIcon icon={faChartBar} /></div>
               <div className="flow-label">DCT</div>
               <div className="flow-desc">Transform to frequencies</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-icon">✂️</div>
+              <div className="flow-icon"><FontAwesomeIcon icon={faScissors} /></div>
               <div className="flow-label">Quantize</div>
               <div className="flow-desc">Remove small values</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-icon">📦</div>
+              <div className="flow-icon"><FontAwesomeIcon icon={faBox} /></div>
               <div className="flow-label">Encode</div>
               <div className="flow-desc">Compress with Huffman</div>
             </div>
@@ -210,7 +211,7 @@ export function DCTVisualization({ result }: DCTVisualizationProps) {
                         className="quant-cell"
                         style={{ 
                           backgroundColor: `rgba(239, 68, 68, ${intensity})`,
-                          color: intensity > 0.5 ? 'white' : '#ccc'
+                          color: intensity > 0.4 ? '#fff' : '#1e293b'
                         }}
                         title={`Division factor at (${x},${y})`}
                       >
